@@ -52,15 +52,13 @@ void main() {
 
   test('session lifecycle: open, insert breaks, stats, end', () async {
     final s = await db.insertSession(Session(
-        startedAt: DateTime(2026, 7, 28, 19),
-        tableSize: TableSize.sevenFoot));
+        startedAt: DateTime(2026, 7, 28, 19), tableSize: TableSize.sevenFoot));
     expect(s.id, isNotNull);
     expect((await db.openSession())!.id, s.id);
 
     await db.insertBreak(sampleBreak(s.id!, mph: 18.2));
     await db.insertBreak(sampleBreak(s.id!, mph: 21.4));
-    await db.insertBreak(
-        sampleBreak(s.id!, grade: AccuracyGrade.unreliable));
+    await db.insertBreak(sampleBreak(s.id!, grade: AccuracyGrade.unreliable));
 
     final stats = await db.sessionStats(s.id!);
     expect(stats.breakCount, 3);
@@ -90,8 +88,7 @@ void main() {
         startedAt: DateTime(2026, 7, 28), tableSize: TableSize.sevenFoot));
     await db.insertBreak(sampleBreak(s.id!, mph: 17.0));
     await db.insertBreak(sampleBreak(s.id!, mph: 22.3));
-    await db.insertBreak(
-        sampleBreak(s.id!, grade: AccuracyGrade.unreliable));
+    await db.insertBreak(sampleBreak(s.id!, grade: AccuracyGrade.unreliable));
 
     final records = await db.personalRecords();
     expect(records.fastestBreak!.speedMph, 22.3);

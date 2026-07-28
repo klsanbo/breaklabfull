@@ -63,10 +63,9 @@ class BreakLabDatabase {
         schema_version INTEGER NOT NULL
       )
     ''');
-    await db.execute(
-        'CREATE INDEX idx_breaks_session ON breaks(session_id)');
-    await db.execute(
-        'CREATE INDEX idx_breaks_recorded_at ON breaks(recorded_at)');
+    await db.execute('CREATE INDEX idx_breaks_session ON breaks(session_id)');
+    await db
+        .execute('CREATE INDEX idx_breaks_recorded_at ON breaks(recorded_at)');
   }
 
   static Future<void> _onUpgrade(
@@ -177,9 +176,8 @@ class BreakLabDatabase {
     return PersonalRecords(
       fastestBreak:
           fastest.isEmpty ? null : BreakResult.fromDbMap(fastest.first),
-      bestSessionId: bestSession.isEmpty
-          ? null
-          : bestSession.first['session_id'] as int,
+      bestSessionId:
+          bestSession.isEmpty ? null : bestSession.first['session_id'] as int,
       bestSessionAverageMph: bestSession.isEmpty
           ? null
           : (bestSession.first['avg_mph'] as num).toDouble(),

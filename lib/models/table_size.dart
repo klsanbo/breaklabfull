@@ -14,8 +14,8 @@ enum TableSize {
   nineFoot('9ft', '9ft Regulation', 100.0, 47.75),
   custom('custom', 'Custom distance', 0.0, 0.0);
 
-  const TableSize(this.id, this.label, this.playingLengthInches,
-      this.travelDistanceInches);
+  const TableSize(
+      this.id, this.label, this.playingLengthInches, this.travelDistanceInches);
 
   /// Stable string id stored in the database ("7ft" | "8ft" | "pro8" |
   /// "9ft" | "custom"). Matches the tester's input.tableSizePreset values.

@@ -109,9 +109,7 @@ class _TableSizePicker extends StatelessWidget {
 
 class _SpeedDisplay extends StatelessWidget {
   const _SpeedDisplay(
-      {required this.lastBreak,
-      required this.phase,
-      this.heardBreak = false});
+      {required this.lastBreak, required this.phase, this.heardBreak = false});
 
   final BreakResult? lastBreak;
   final MeasurePhase phase;
@@ -131,8 +129,7 @@ class _SpeedDisplay extends StatelessWidget {
     }
     if (phase == MeasurePhase.processing) {
       return const Column(children: [
-        SizedBox(
-            width: 48, height: 48, child: CircularProgressIndicator()),
+        SizedBox(width: 48, height: 48, child: CircularProgressIndicator()),
         SizedBox(height: 8),
         Text('Measuring…'),
       ]);
@@ -171,10 +168,22 @@ class _GradeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg) = switch (grade) {
-      AccuracyGrade.excellent => (const Color(0xFFEAF3DE), const Color(0xFF3B6D11)),
-      AccuracyGrade.target => (const Color(0xFFE6F1FB), const Color(0xFF185FA5)),
-      AccuracyGrade.fallback => (const Color(0xFFFAEEDA), const Color(0xFF854F0B)),
-      AccuracyGrade.unreliable => (const Color(0xFFFCEBEB), const Color(0xFFA32D2D)),
+      AccuracyGrade.excellent => (
+          const Color(0xFFEAF3DE),
+          const Color(0xFF3B6D11)
+        ),
+      AccuracyGrade.target => (
+          const Color(0xFFE6F1FB),
+          const Color(0xFF185FA5)
+        ),
+      AccuracyGrade.fallback => (
+          const Color(0xFFFAEEDA),
+          const Color(0xFF854F0B)
+        ),
+      AccuracyGrade.unreliable => (
+          const Color(0xFFFCEBEB),
+          const Color(0xFFA32D2D)
+        ),
     };
     return Chip(
       label: Text(grade.label,
@@ -195,8 +204,7 @@ class _RecordControls extends StatelessWidget {
     final c = controller;
     return switch (c.phase) {
       MeasurePhase.idle => FilledButton.icon(
-          style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(64)),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(64)),
           onPressed: c.startBreak,
           icon: const Icon(Icons.fiber_manual_record),
           label: const Text('BREAK'),

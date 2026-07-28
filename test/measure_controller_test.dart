@@ -176,8 +176,8 @@ void main() {
   test('quiet levels never trigger; silence timeout cancels with message',
       () async {
     final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
-    final c = makeController(
-        recorder: recorder, engine: FixedEngine(goodResult));
+    final c =
+        makeController(recorder: recorder, engine: FixedEngine(goodResult));
 
     await c.startBreak();
     await pump(const Duration(milliseconds: 30));
@@ -192,8 +192,8 @@ void main() {
 
   test('manual measureNow fallback works without a trigger', () async {
     final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
-    final c = makeController(
-        recorder: recorder, engine: FixedEngine(goodResult));
+    final c =
+        makeController(recorder: recorder, engine: FixedEngine(goodResult));
     await c.startBreak();
     final saved = await c.measureNow();
     expect(saved, isNotNull);
@@ -216,8 +216,8 @@ void main() {
       () async {
     final recorder =
         FakeRecorder(buildWav(List.filled(4410, 100), sampleRateHz: 44100));
-    final c = makeController(
-        recorder: recorder, engine: FixedEngine(goodResult));
+    final c =
+        makeController(recorder: recorder, engine: FixedEngine(goodResult));
 
     await c.startBreak();
     final saved = await c.measureNow();
@@ -230,8 +230,8 @@ void main() {
 
   test('cancel discards the recording and stays idle-safe', () async {
     final recorder = FakeRecorder(buildWav(List.filled(480, 0)));
-    final c = makeController(
-        recorder: recorder, engine: FixedEngine(goodResult));
+    final c =
+        makeController(recorder: recorder, engine: FixedEngine(goodResult));
     await c.startBreak();
     await c.cancelBreak();
     expect(recorder.cancelled, isTrue);
@@ -240,8 +240,8 @@ void main() {
 
   test('second break reuses the open session', () async {
     final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
-    final c = makeController(
-        recorder: recorder, engine: FixedEngine(goodResult));
+    final c =
+        makeController(recorder: recorder, engine: FixedEngine(goodResult));
     await c.startBreak();
     await c.measureNow();
     await c.startBreak();

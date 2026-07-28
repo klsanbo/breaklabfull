@@ -21,8 +21,9 @@ enum AccuracyGrade {
   const AccuracyGrade(this.label);
   final String label;
 
-  static AccuracyGrade fromLabel(String label) => AccuracyGrade.values
-      .firstWhere((g) => g.label == label, orElse: () => AccuracyGrade.unreliable);
+  static AccuracyGrade fromLabel(String label) =>
+      AccuracyGrade.values.firstWhere((g) => g.label == label,
+          orElse: () => AccuracyGrade.unreliable);
 }
 
 enum SensitivityPreset {

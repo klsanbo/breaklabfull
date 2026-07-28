@@ -114,8 +114,7 @@ class BreakResult {
         sessionId: map['session_id'] as int,
         recordedAt: DateTime.parse(map['recorded_at'] as String),
         tableSize: TableSize.fromId(map['table_size'] as String),
-        travelDistanceInches:
-            (map['travel_distance_inches'] as num).toDouble(),
+        travelDistanceInches: (map['travel_distance_inches'] as num).toDouble(),
         preset: SensitivityPreset.fromLabel(map['preset'] as String),
         engineVersion: map['engine_version'] as String,
         grade: AccuracyGrade.fromLabel(map['grade'] as String),
