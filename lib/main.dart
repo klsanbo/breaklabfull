@@ -1,11 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
-void main() => runApp(const BreakLabApp());
+import 'engine/stub_engine.dart';
+import 'features/measure/measure_controller.dart';
+import 'features/measure/measure_screen.dart';
+import 'services/audio/pcm_wav_recorder.dart';
+import 'services/db/breaklab_database.dart';
 
-/// BreakLab v1 — guest-only, local-first. Screens arrive in build order:
-/// measure, sessions, history, records, stats, progress, settings.
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final docs = await getApplicationDocumentsDirectory();
+  final temp = await getTemporaryDirectory();
+  final db = await BreakLabDatabase.open(p.join(docs.path, 'breaklab.db'));
+
+  runApp(BreakLabApp(
+    controller: MeasureController(
+      db: db,
+      // Swapped for the ported, frozen tester engine once timing is dialed
+      // in. Until then no fake speeds: the stub grades everything Unreliable.
+      engine: StubEngine(),
+      recorder: RecorderAdapter(PcmWavRecorder()),
+      tempDirectoryPath: temp.path,
+    ),
+  ));
+}
+
+/// Adapts the ported tester recorder to the controller's small interface.
+class RecorderAdapter implements BreakRecorder {
+  RecorderAdapter(this._recorder);
+
+  final PcmWavRecorder _recorder;
+
+  @override
+  Future<void> start(String outputPath) => _recorder.start(outputPath);
+
+  @override
+  Future<String> stop() => _recorder.stop();
+
+  @override
+  Future<void> cancel() => _recorder.cancelAndDeleteActiveFile();
+
+  @override
+  Stream<double> get levels =>
+      _recorder.levels.map((level) => level.normalized);
+}
+
+/// BreakLab v1 — guest-only, local-first. Build order: measure (this),
+/// sessions, history, records, stats, progress, settings.
 class BreakLabApp extends StatelessWidget {
-  const BreakLabApp({super.key});
+  const BreakLabApp({super.key, required this.controller});
+
+  final MeasureController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +62,7 @@ class BreakLabApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A7F37)),
         useMaterial3: true,
       ),
-      home: const Scaffold(
-        body: Center(child: Text('BreakLab — foundation build')),
-      ),
+      home: MeasureScreen(controller: controller),
     );
   }
 }
