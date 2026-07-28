@@ -1,0 +1,9 @@
+/build/
+.dart_tool/
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+android/.gradle/
+ios/Flutter/ephemeral/
+*.iml
+.idea/
