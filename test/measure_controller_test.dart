@@ -117,7 +117,7 @@ void main() {
         silenceTimeout: timeout,
       );
 
-  final goodResult = const EngineResult(
+  const goodResult = EngineResult(
     engineVersion: '0.1.0',
     grade: AccuracyGrade.target,
     detectedPairValid: true,
