@@ -423,8 +423,8 @@ void main() {
 
       final cloth = tester.getRect(paintOf<TablePositionPicker>());
       // Well down the table toward the rack, and low.
-      await tester.tapAt(Offset(cloth.left + cloth.width * 0.8,
-          cloth.top + cloth.height * 0.9));
+      await tester.tapAt(Offset(
+          cloth.left + cloth.width * 0.8, cloth.top + cloth.height * 0.9));
       await tester.pump();
 
       // Pulled back to the line, but the rail-to-rail position is kept —
