@@ -4,7 +4,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../../engine/engine_contract.dart';
+import '../../models/break_outcome.dart';
+import '../../models/break_position.dart';
 import '../../models/break_result.dart';
+import '../../models/cue_english.dart';
 import '../../models/session.dart';
 import '../../models/table_size.dart';
 import '../../services/audio/wav_pcm_reader.dart';
@@ -71,6 +74,16 @@ class MeasureController extends ChangeNotifier {
   double customDistanceInches = 39.0;
   SensitivityPreset preset = SensitivityPreset.normal;
 
+  /// Where the cue ball sits for the break. Sticky between breaks — set it
+  /// once and it rides along until you move.
+  BreakPosition position = BreakPosition.headStringCentre;
+
+  /// The english on the break. Also sticky; an input, never scored.
+  CueEnglish english = CueEnglish.centre;
+
+  /// Applied to the session when one is opened.
+  GameType gameType = GameType.eightBall;
+
   /// Latest saved break; null before the first one.
   BreakResult? lastBreak;
   String? errorMessage;
@@ -82,9 +95,11 @@ class MeasureController extends ChangeNotifier {
   bool _armed = false;
   bool _triggered = false;
 
-  double get activeDistanceInches => tableSize == TableSize.custom
-      ? customDistanceInches
-      : tableSize.travelDistanceInches;
+  /// Distance the cue ball travels, computed from where the ball actually
+  /// sits. A custom table has no geometry, so it keeps the manual value.
+  double get activeDistanceInches => tableSize.hasGeometry
+      ? position.travelDistanceInches(tableSize)
+      : customDistanceInches;
 
   void setTableSize(TableSize size) {
     tableSize = size;
@@ -98,6 +113,32 @@ class MeasureController extends ChangeNotifier {
 
   void setPreset(SensitivityPreset value) {
     preset = value;
+    notifyListeners();
+  }
+
+  void setPosition(BreakPosition value) {
+    position = value.clampedToKitchen();
+    notifyListeners();
+  }
+
+  void setEnglish(CueEnglish value) {
+    english = value;
+    notifyListeners();
+  }
+
+  void setGameType(GameType value) {
+    gameType = value;
+    notifyListeners();
+  }
+
+  /// Attaches the outcome card to the break just measured. Always optional:
+  /// skipping simply leaves the break without a Break Score.
+  Future<void> attachOutcome(BreakOutcome outcome) async {
+    final b = lastBreak;
+    if (b?.id == null) return;
+    final updated = b!.copyWith(outcome: outcome);
+    await db.updateOutcome(updated);
+    lastBreak = updated;
     notifyListeners();
   }
 
@@ -174,6 +215,8 @@ class MeasureController extends ChangeNotifier {
         travelDistanceInches: activeDistanceInches,
         preset: preset,
         result: result,
+        position: tableSize.hasGeometry ? position : null,
+        english: english,
       ));
       lastBreak = saved;
       return saved;
@@ -207,7 +250,8 @@ class MeasureController extends ChangeNotifier {
   Future<Session> _ensureOpenSession() async {
     final open = await db.openSession();
     if (open != null) return open;
-    return db.insertSession(Session(startedAt: _clock(), tableSize: tableSize));
+    return db.insertSession(Session(
+        startedAt: _clock(), tableSize: tableSize, gameType: gameType));
   }
 
   Future<void> endSession() async {
