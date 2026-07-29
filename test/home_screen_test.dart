@@ -174,7 +174,25 @@ void main() {
     expect(find.text('READY'), findsOneWidget);
   });
 
-  testWidgets('tapping BREAK arms the listener and the pill follows',
+  testWidgets('the status pill shows its whole label, never clipped',
+      (tester) async {
+    // It read "LI..." on the phone: the pill was flexible and lost the
+    // contest for space against the rules beside it.
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
+
+    await pumpHome(tester);
+    final pill = tester.widget<Text>(find.text('READY'));
+    expect(pill.overflow, isNot(TextOverflow.ellipsis),
+        reason: 'a status label that can ellipsis will eventually ellipsis');
+
+    final painted = tester.renderObject<RenderBox>(find.text('READY'));
+    expect(painted.size.width, greaterThan(40),
+        reason: 'READY rendered narrower than its own text');
+  });
+
+  testWidgets('tapping BREAK arms the listener and the pill follows'
       (tester) async {
     await pumpHome(tester);
     expect(find.text('READY'), findsOneWidget);

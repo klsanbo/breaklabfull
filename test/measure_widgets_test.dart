@@ -27,21 +27,23 @@ Finder _paintOf<T extends Widget>() => find.descendant(
 
 void main() {
   group('break button', () {
-    testWidgets('reads BREAK when idle and LISTENING when armed',
-        (tester) async {
+    testWidgets('says BREAK and only BREAK, in every state', (tester) async {
+      // Status belongs to the pill below it; the button must never
+      // duplicate what the pill is already saying.
       await tester.pumpWidget(wrap(BreakButton(onPressed: () {})));
       expect(find.text('BREAK'), findsOneWidget);
-      expect(find.text('TAP ONCE · THEN JUST BREAK'), findsOneWidget);
 
       await tester
           .pumpWidget(wrap(BreakButton(onPressed: () {}, listening: true)));
       await tester.pump();
-      expect(find.text('LISTENING'), findsOneWidget);
+      expect(find.text('BREAK'), findsOneWidget);
+      expect(find.text('LISTENING'), findsNothing);
 
       await tester.pumpWidget(
           wrap(BreakButton(onPressed: () {}, listening: true, heard: true)));
       await tester.pump();
-      expect(find.text('GOT IT'), findsOneWidget);
+      expect(find.text('BREAK'), findsOneWidget);
+      expect(find.text('GOT IT'), findsNothing);
     });
 
     testWidgets('fires once when tapped', (tester) async {

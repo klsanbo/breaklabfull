@@ -50,17 +50,13 @@ class StatusPill extends StatelessWidget {
                   color: filled ? Colors.white : BreakLabColors.labGreen),
             ),
             const SizedBox(width: 9),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: filled ? FontWeight.w800 : FontWeight.w600,
-                  letterSpacing: 0.5,
-                  color: fg,
-                ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: filled ? FontWeight.w800 : FontWeight.w600,
+                letterSpacing: 0.5,
+                color: fg,
               ),
             ),
           ],
@@ -70,13 +66,16 @@ class StatusPill extends StatelessWidget {
 
     // The rules absorb whatever is left over, so the pill always gets the
     // width it needs and the row can never overflow.
+    // The pill is sized by its content and laid out first; the rules take
+    // whatever is left. Making the pill flexible too meant it competed with
+    // the rules for the same space and got clipped to "LI...".
     return Row(
       children: [
-        const Expanded(child: _Rule()),
+        const Expanded(child: _Rule(alignRight: true)),
         const SizedBox(width: 10),
         const _Slashes(),
         const SizedBox(width: 10),
-        Flexible(child: pill),
+        pill,
         const SizedBox(width: 10),
         const Expanded(child: _Rule()),
       ],
@@ -85,13 +84,19 @@ class StatusPill extends StatelessWidget {
 }
 
 class _Rule extends StatelessWidget {
-  const _Rule();
+  const _Rule({this.alignRight = false});
+
+  /// Which end of the leftover space the visible line hugs.
+  final bool alignRight;
 
   @override
-  Widget build(BuildContext context) => Container(
-        height: 1.5,
-        constraints: const BoxConstraints(maxWidth: 44),
-        color: BreakLabColors.ink,
+  Widget build(BuildContext context) => Align(
+        alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          width: 44,
+          height: 1.5,
+          color: BreakLabColors.ink,
+        ),
       );
 }
 
