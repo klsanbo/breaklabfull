@@ -165,7 +165,8 @@ class BreakLabDatabase {
       averageMph: mean(reliable.map((b) => b.speedMph!)),
       averageBreakScore: mean(scores.map((s) => s.toDouble())),
       scratches: scored.where((b) => b.outcome!.scratched).length,
-      averageBallsMade: mean(scored.map((b) => b.outcome!.ballsMade.toDouble())),
+      averageBallsMade:
+          mean(scored.map((b) => b.outcome!.ballsMade.toDouble())),
     );
   }
 

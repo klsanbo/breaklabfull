@@ -40,8 +40,10 @@ void main() {
   group('break position geometry', () {
     test('centre of the head string reproduces every locked preset', () {
       const p = BreakPosition.headStringCentre;
-      expect(p.travelDistanceInches(TableSize.sevenFoot), closeTo(36.75, 0.001));
-      expect(p.travelDistanceInches(TableSize.eightFoot), closeTo(41.75, 0.001));
+      expect(
+          p.travelDistanceInches(TableSize.sevenFoot), closeTo(36.75, 0.001));
+      expect(
+          p.travelDistanceInches(TableSize.eightFoot), closeTo(41.75, 0.001));
       expect(p.travelDistanceInches(TableSize.proEight), closeTo(43.75, 0.001));
       expect(p.travelDistanceInches(TableSize.nineFoot), closeTo(47.75, 0.001));
     });
@@ -73,8 +75,10 @@ void main() {
 
     test('a custom table has no geometry to measure from', () {
       expect(TableSize.custom.hasGeometry, isFalse);
-      expect(() => BreakPosition.headStringCentre
-          .travelDistanceInches(TableSize.custom), throwsArgumentError);
+      expect(
+          () => BreakPosition.headStringCentre
+              .travelDistanceInches(TableSize.custom),
+          throwsArgumentError);
     });
   });
 
@@ -123,8 +127,9 @@ void main() {
         cueBallAfter: CueBallAfter.wild,
       );
       final wild = BreakScore.forBreak(mk(mph: 28.0, outcome: outcome))!;
-      final controlled = BreakScore.forBreak(mk(mph: 24.7, outcome: const
-          BreakOutcome(
+      final controlled = BreakScore.forBreak(mk(
+          mph: 24.7,
+          outcome: const BreakOutcome(
               ballsMade: 2,
               scratched: false,
               spread: SpreadQuality.excellent,
@@ -148,8 +153,8 @@ void main() {
     });
 
     test('an unreliable reading never produces a score', () {
-      final b = mk(
-          mph: null, grade: AccuracyGrade.unreliable, outcome: goodOutcome);
+      final b =
+          mk(mph: null, grade: AccuracyGrade.unreliable, outcome: goodOutcome);
       expect(BreakScore.forBreak(b), isNull);
     });
   });
@@ -167,8 +172,8 @@ void main() {
     });
 
     test('computes from the locked weights once there is enough data', () {
-      final s = BreakLabScore.fromSessions(
-          [session(1), session(2), session(3)]);
+      final s =
+          BreakLabScore.fromSessions([session(1), session(2), session(3)]);
       expect(s.isReady, isTrue);
       expect(s.scoredBreaks, 21);
       expect(s.sessionsCounted, 3);
@@ -213,9 +218,7 @@ void main() {
       final mixed = List.generate(
           21,
           (i) => mk(
-              mph: 21.4,
-              outcome: i.isEven ? goodOutcome : null,
-              sessionId: 1));
+              mph: 21.4, outcome: i.isEven ? goodOutcome : null, sessionId: 1));
       final s = BreakLabScore.fromSessions([mixed, mixed, mixed]);
       // 11 scored per session x3 = 33 scored, all 63 feed speed.
       expect(s.scoredBreaks, 33);

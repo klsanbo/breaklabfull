@@ -82,7 +82,8 @@ class BreakLabScore {
 
   /// [sessionsNewestFirst] is every session's breaks, newest session first.
   /// Only the most recent [sessionWindow] sessions are considered.
-  factory BreakLabScore.fromSessions(List<List<BreakResult>> sessionsNewestFirst) {
+  factory BreakLabScore.fromSessions(
+      List<List<BreakResult>> sessionsNewestFirst) {
     final window = sessionsNewestFirst.take(sessionWindow).toList();
 
     final scored = <BreakResult>[];
@@ -101,18 +102,21 @@ class BreakLabScore {
     double mean(Iterable<double> xs) =>
         xs.isEmpty ? 0 : xs.reduce((a, b) => a + b) / xs.length;
 
-    final control = mean(scored.map((b) => b.outcome!.cueBallAfter.points.toDouble()));
+    final control =
+        mean(scored.map((b) => b.outcome!.cueBallAfter.points.toDouble()));
     final consistency = mean(consistencies);
     final clean = scored.isEmpty
         ? 0.0
         : 100 *
             scored
                 .where((b) =>
-                    !b.outcome!.scratched && b.grade != AccuracyGrade.unreliable)
+                    !b.outcome!.scratched &&
+                    b.grade != AccuracyGrade.unreliable)
                 .length /
             scored.length;
     final balls = mean(scored.map((b) => b.outcome!.ballPoints.toDouble()));
-    final speed = mean(withSpeed.map((b) => BreakScore.speedPoints(b.speedMph!)));
+    final speed =
+        mean(withSpeed.map((b) => BreakScore.speedPoints(b.speedMph!)));
 
     final enoughSessions = window.length >= minSessions;
     final enoughBreaks = scored.length >= minScoredBreaks;

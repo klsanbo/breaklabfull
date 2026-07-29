@@ -181,11 +181,8 @@ class BreakResult {
       engineVersion: map['engine_version'] as String,
       grade: AccuracyGrade.fromLabel(map['grade'] as String),
       detectedPairValid: (map['detected_pair_valid'] as int) == 1,
-      position: (sx == null || sy == null)
-          ? null
-          : BreakPosition(x: sx, y: sy),
-      english:
-          (ex == null || ey == null) ? null : CueEnglish(x: ex, y: ey),
+      position: (sx == null || sy == null) ? null : BreakPosition(x: sx, y: sy),
+      english: (ex == null || ey == null) ? null : CueEnglish(x: ex, y: ey),
       outcome: hasOutcome
           ? BreakOutcome(
               ballsMade: balls,

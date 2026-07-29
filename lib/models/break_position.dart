@@ -33,8 +33,7 @@ class BreakPosition {
   /// Furthest legal x for a break (the head string).
   static const kitchenLimitX = 0.25;
 
-  bool get isLegal =>
-      x >= 0 && x <= kitchenLimitX && y >= 0 && y <= 1;
+  bool get isLegal => x >= 0 && x <= kitchenLimitX && y >= 0 && y <= 1;
 
   BreakPosition clampedToKitchen() => BreakPosition(
         x: math.min(kitchenLimitX, math.max(0.0, x)),

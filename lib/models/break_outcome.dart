@@ -27,9 +27,8 @@ enum CueBallAfter {
   final String label;
   final int points;
 
-  static CueBallAfter fromLabel(String label) => CueBallAfter.values.firstWhere(
-      (c) => c.label == label,
-      orElse: () => CueBallAfter.drifted);
+  static CueBallAfter fromLabel(String label) => CueBallAfter.values
+      .firstWhere((c) => c.label == label, orElse: () => CueBallAfter.drifted);
 }
 
 enum GameType {

@@ -250,8 +250,8 @@ class MeasureController extends ChangeNotifier {
   Future<Session> _ensureOpenSession() async {
     final open = await db.openSession();
     if (open != null) return open;
-    return db.insertSession(Session(
-        startedAt: _clock(), tableSize: tableSize, gameType: gameType));
+    return db.insertSession(
+        Session(startedAt: _clock(), tableSize: tableSize, gameType: gameType));
   }
 
   Future<void> endSession() async {
