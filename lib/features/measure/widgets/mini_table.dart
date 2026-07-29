@@ -93,7 +93,12 @@ class TableClothPainter extends CustomPainter {
     if (showPockets) {
       final r = w * 0.072;
       final dark = Paint()..color = const Color(0xFF0C0B0A);
-      for (final corner in const [Offset(0, 0), Offset(1, 0), Offset(0, 1), Offset(1, 1)]) {
+      for (final corner in const [
+        Offset(0, 0),
+        Offset(1, 0),
+        Offset(0, 1),
+        Offset(1, 1)
+      ]) {
         canvas.drawCircle(Offset(corner.dx * w, corner.dy * h), r, dark);
       }
       // Side pockets sit halfway up the long rails.

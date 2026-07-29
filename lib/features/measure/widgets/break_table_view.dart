@@ -188,8 +188,8 @@ class _RoomPainter extends CustomPainter {
 
     // The cloth, drawn by the same painter every other table in the app uses.
     canvas.save();
-    canvas.clipRect(
-        Rect.fromLTWH(clothLeft, clothTop, clothWidth, clothHeight));
+    canvas
+        .clipRect(Rect.fromLTWH(clothLeft, clothTop, clothWidth, clothHeight));
     canvas.translate(clothLeft, clothTop);
     const TableClothPainter(
       diamondRadius: 2.4,
@@ -262,8 +262,7 @@ class _RoomPainter extends CustomPainter {
     for (final spread in const [2.7, -2.7]) {
       canvas.drawLine(
         tip,
-        tip +
-            Offset(math.cos(angle + spread), math.sin(angle + spread)) * head,
+        tip + Offset(math.cos(angle + spread), math.sin(angle + spread)) * head,
         stroke,
       );
     }
@@ -278,10 +277,8 @@ class _RoomPainter extends CustomPainter {
       ..color = Colors.white.withValues(alpha: 0.45)
       ..strokeWidth = 1;
     final cross = radius * 2.4;
-    canvas.drawLine(
-        pin - Offset(cross, 0), pin + Offset(cross, 0), guide);
-    canvas.drawLine(
-        pin - Offset(0, cross), pin + Offset(0, cross), guide);
+    canvas.drawLine(pin - Offset(cross, 0), pin + Offset(cross, 0), guide);
+    canvas.drawLine(pin - Offset(0, cross), pin + Offset(0, cross), guide);
 
     _dashedCircle(
       canvas,

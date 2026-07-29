@@ -304,8 +304,7 @@ void main() {
       expect(scroll.offset, 0, reason: 'the list scrolled instead');
     });
 
-    testWidgets('draws nothing for a table with no dimensions',
-        (tester) async {
+    testWidgets('draws nothing for a table with no dimensions', (tester) async {
       await tester.pumpWidget(view(table: TableSize.custom));
       expect(paintOf<BreakTableView>(), findsNothing);
     });
@@ -471,15 +470,13 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.remove));
       await tester.pump();
-      expect(
-          controller.customDistanceInches, BreakSetupScreen.minCustomInches);
+      expect(controller.customDistanceInches, BreakSetupScreen.minCustomInches);
 
       controller.setCustomDistance(BreakSetupScreen.maxCustomInches);
       await tester.pump();
       await tester.tap(find.byIcon(Icons.add));
       await tester.pump();
-      expect(
-          controller.customDistanceInches, BreakSetupScreen.maxCustomInches);
+      expect(controller.customDistanceInches, BreakSetupScreen.maxCustomInches);
     });
 
     testWidgets('the english face writes back to the controller',
