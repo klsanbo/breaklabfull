@@ -50,13 +50,17 @@ class StatusPill extends StatelessWidget {
                   color: filled ? Colors.white : BreakLabColors.labGreen),
             ),
             const SizedBox(width: 9),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: filled ? FontWeight.w800 : FontWeight.w600,
-                letterSpacing: 0.5,
-                color: fg,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: filled ? FontWeight.w800 : FontWeight.w600,
+                  letterSpacing: 0.5,
+                  color: fg,
+                ),
               ),
             ),
           ],
@@ -64,16 +68,17 @@ class StatusPill extends StatelessWidget {
       ),
     );
 
+    // The rules absorb whatever is left over, so the pill always gets the
+    // width it needs and the row can never overflow.
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const _Rule(),
+        const Expanded(child: _Rule()),
         const SizedBox(width: 10),
         const _Slashes(),
         const SizedBox(width: 10),
         Flexible(child: pill),
         const SizedBox(width: 10),
-        const _Rule(),
+        const Expanded(child: _Rule()),
       ],
     );
   }
@@ -84,8 +89,8 @@ class _Rule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: 44,
         height: 1.5,
+        constraints: const BoxConstraints(maxWidth: 44),
         color: BreakLabColors.ink,
       );
 }
@@ -177,6 +182,8 @@ class HomeTile extends StatelessWidget {
                   child: Text(
                     name,
                     textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,

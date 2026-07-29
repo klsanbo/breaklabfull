@@ -410,15 +410,19 @@ class _Masthead extends StatelessWidget {
           child: CustomPaint(painter: _CrossPainter()),
         ),
         const SizedBox(width: 11),
-        const Text(
-          'BREAKLAB',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
+        const Expanded(
+          child: Text(
+            'BREAKLAB',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
           ),
         ),
-        const Spacer(),
+        const SizedBox(width: 8),
         Container(
           width: 42,
           height: 42,
@@ -462,13 +466,17 @@ class _Tagline extends StatelessWidget {
                 letterSpacing: -2,
               )),
           SizedBox(width: 9),
-          Text('TRAIN YOUR BREAK',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                fontStyle: FontStyle.italic,
-                letterSpacing: 1.2,
-              )),
+          Flexible(
+            child: Text('TRAIN YOUR BREAK',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  fontStyle: FontStyle.italic,
+                  letterSpacing: 1.2,
+                )),
+          ),
         ],
       );
 }
@@ -496,9 +504,13 @@ class _StatusLine extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 13.5, fontStyle: FontStyle.italic),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 13.5, fontStyle: FontStyle.italic),
+          ),
         ),
       ],
     );

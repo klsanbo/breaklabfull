@@ -135,6 +135,10 @@ void main() {
 
   testWidgets('tapping a tile opens its destination', (tester) async {
     await pumpHome(tester);
+    // The tiles live below the fold on a short surface — scroll to them the
+    // way a player would.
+    await tester.scrollUntilVisible(find.text('Break Map'), 120,
+        scrollable: find.byType(Scrollable).first);
     await tester.tap(find.text('Break Map'));
     await tester.pumpAndSettle();
 
@@ -180,8 +184,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 20));
 
     expect(controller.phase, MeasurePhase.recording);
+    // Status lives in the pill only; the button keeps saying BREAK.
     expect(find.text('LISTENING'), findsOneWidget);
     expect(find.text('READY'), findsNothing);
+    expect(find.text('BREAK'), findsOneWidget);
 
     await controller.cancelBreak();
     await tester.pump();

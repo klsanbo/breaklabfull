@@ -115,12 +115,16 @@ class StatCell extends StatelessWidget {
               ),
               if (unit != null) ...[
                 const SizedBox(width: 4),
-                Text(
-                  unit!,
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: BreakLabColors.inkSoft,
+                Flexible(
+                  child: Text(
+                    unit!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: BreakLabColors.inkSoft,
+                    ),
                   ),
                 ),
               ],

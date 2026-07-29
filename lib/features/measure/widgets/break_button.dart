@@ -62,17 +62,8 @@ class _BreakButtonState extends State<BreakButton>
 
   @override
   Widget build(BuildContext context) {
-    final label = widget.heard
-        ? 'GOT IT'
-        : widget.listening
-            ? 'LISTENING'
-            : 'BREAK';
-    final sub = widget.heard
-        ? 'MEASURING THE BREAK'
-        : widget.listening
-            ? 'BREAK WHEN READY'
-            : 'TAP ONCE · THEN JUST BREAK';
-
+    // The button says one word, always. State lives in the pill below it,
+    // so the two never say the same thing twice.
     final ringSize = widget.diameter + 42;
 
     return SizedBox(
@@ -135,30 +126,21 @@ class _BreakButtonState extends State<BreakButton>
                     ),
                   ],
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
+                alignment: Alignment.center,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: Text(
+                      'BREAK',
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 4,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      sub,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Color(0xFFBBD8F7),
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
+                        fontSize: widget.diameter * 0.21,
+                        fontWeight: FontWeight.w800,
                         letterSpacing: 1.5,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
