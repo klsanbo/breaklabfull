@@ -3,10 +3,11 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'engine/stub_engine.dart';
+import 'features/home/home_screen.dart';
 import 'features/measure/measure_controller.dart';
-import 'features/measure/measure_screen.dart';
 import 'services/audio/pcm_wav_recorder.dart';
 import 'services/db/breaklab_database.dart';
+import 'theme/breaklab_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,8 +48,9 @@ class RecorderAdapter implements BreakRecorder {
       _recorder.levels.map((level) => level.normalized);
 }
 
-/// BreakLab v1 — guest-only, local-first. Build order: measure (this),
-/// sessions, history, records, stats, progress, settings.
+/// BreakLab v1 — guest-only, local-first. Home is the whole app: setup,
+/// measuring and results all happen there; the other screens hang off the
+/// tiles and the bottom bar.
 class BreakLabApp extends StatelessWidget {
   const BreakLabApp({super.key, required this.controller});
 
@@ -58,11 +60,8 @@ class BreakLabApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BreakLab',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A7F37)),
-        useMaterial3: true,
-      ),
-      home: MeasureScreen(controller: controller),
+      theme: breakLabTheme(),
+      home: HomeScreen(controller: controller),
     );
   }
 }

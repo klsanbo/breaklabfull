@@ -11,6 +11,7 @@ import '../../models/cue_english.dart';
 import '../../models/session.dart';
 import '../../models/table_size.dart';
 import '../../services/audio/wav_pcm_reader.dart';
+import '../../scoring/breaklab_score.dart';
 import '../../services/db/breaklab_database.dart';
 
 /// What the measure screen is currently doing.
@@ -88,6 +89,26 @@ class MeasureController extends ChangeNotifier {
   BreakResult? lastBreak;
   String? errorMessage;
 
+  // ---- the numbers the home strip shows -------------------------------
+
+  /// Current form across the last 20 sessions. Null until first loaded.
+  BreakLabScore? labScore;
+  int sessionCount = 0;
+  DateTime? lastSessionAt;
+  SessionStats? tonight;
+
+  /// Recomputes everything the dashboard displays. Cheap — all of it is
+  /// derived from stored breaks, nothing is cached in the database.
+  Future<void> refreshStats() async {
+    final all = await db.sessions();
+    sessionCount = all.length;
+    lastSessionAt = all.isEmpty ? null : all.first.startedAt;
+    labScore = await db.breakLabScore();
+    final open = await db.openSession();
+    tonight = open == null ? null : await db.sessionStats(open.id!);
+    notifyListeners();
+  }
+
   StreamSubscription<double>? _levelSub;
   Timer? _armTimer;
   Timer? _tailTimer;
@@ -147,7 +168,7 @@ class MeasureController extends ChangeNotifier {
     final updated = b!.copyWith(outcome: outcome);
     await db.updateOutcome(updated);
     lastBreak = updated;
-    notifyListeners();
+    await refreshStats();
   }
 
   /// The single tap. Everything after this is automatic.
@@ -230,6 +251,7 @@ class MeasureController extends ChangeNotifier {
         english: english,
       ));
       lastBreak = saved;
+      await refreshStats();
       return saved;
     } on Object catch (e) {
       errorMessage = e.toString();
@@ -269,7 +291,8 @@ class MeasureController extends ChangeNotifier {
     final open = await db.openSession();
     if (open != null) {
       await db.endSession(open.id!, _clock());
-      notifyListeners();
+      lastBreak = null;
+      await refreshStats();
     }
   }
 
