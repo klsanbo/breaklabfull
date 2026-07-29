@@ -192,7 +192,7 @@ void main() {
         reason: 'READY rendered narrower than its own text');
   });
 
-  testWidgets('tapping BREAK arms the listener and the pill follows'
+  testWidgets('tapping BREAK arms the listener and the pill follows',
       (tester) async {
     await pumpHome(tester);
     expect(find.text('READY'), findsOneWidget);
