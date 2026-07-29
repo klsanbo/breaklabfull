@@ -144,7 +144,8 @@ void main() {
     await pump(const Duration(milliseconds: 10));
     expect(c.heardBreak, isTrue);
 
-    await pump(const Duration(milliseconds: 120)); // past tail
+    await pump(const Duration(milliseconds: 60)); // past the tail
+    await c.autoMeasurement; // then wait for the work itself, don't guess
     expect(c.phase, MeasurePhase.idle);
     expect(c.lastBreak, isNotNull);
     expect(c.lastBreak!.speedMph, 4.75);

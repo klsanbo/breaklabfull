@@ -94,6 +94,14 @@ class MeasureController extends ChangeNotifier {
   Timer? _timeoutTimer;
   bool _armed = false;
   bool _triggered = false;
+  Future<BreakResult?>? _autoMeasurement;
+
+  /// Completes when the automatic measurement kicked off by the break sound
+  /// has finished saving. Null until a break trips the trigger.
+  ///
+  /// Exists so callers never have to guess how long the work takes: the UI
+  /// can await it before navigating, and tests await it instead of sleeping.
+  Future<BreakResult?>? get autoMeasurement => _autoMeasurement;
 
   /// Distance the cue ball travels, computed from where the ball actually
   /// sits. A custom table has no geometry, so it keeps the manual value.
@@ -152,6 +160,7 @@ class MeasureController extends ChangeNotifier {
       phase = MeasurePhase.recording;
       _armed = false;
       _triggered = false;
+      _autoMeasurement = null;
       _armTimer = Timer(armDelay, () => _armed = true);
       _timeoutTimer = Timer(silenceTimeout, _onSilenceTimeout);
       _levelSub = recorder.levels.listen(_onLevel);
@@ -167,8 +176,10 @@ class MeasureController extends ChangeNotifier {
       _triggered = true;
       _timeoutTimer?.cancel();
       _tailTimer = Timer(tailAfterTrigger, () {
-        // Fire-and-forget: errors surface through errorMessage.
-        unawaited(measureNow());
+        // Errors surface through errorMessage; the future is kept so callers
+        // can await completion instead of guessing at a duration.
+        _autoMeasurement = measureNow();
+        unawaited(_autoMeasurement!);
       });
       notifyListeners();
     }
