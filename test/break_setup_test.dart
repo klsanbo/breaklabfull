@@ -245,6 +245,50 @@ void main() {
       expect(picked!.label, 'Draw');
     });
 
+    testWidgets('draw and follow survive a scrolling sheet', (tester) async {
+      // On a ball face the vertical axis IS draw and follow, so a pan that
+      // loses to the scroll view loses the two most important directions.
+      final scroll = ScrollController();
+      CueEnglish? picked;
+
+      await tester.pumpWidget(MaterialApp(
+        theme: breakLabTheme(),
+        home: Scaffold(
+          body: SizedBox(
+            width: 340,
+            child: ListView(
+              controller: scroll,
+              children: [
+                const SizedBox(height: 40),
+                Center(
+                  child: EnglishPicker(
+                    english: CueEnglish.centre,
+                    onChanged: (e) => picked = e,
+                  ),
+                ),
+                const SizedBox(height: 1200),
+              ],
+            ),
+          ),
+        ),
+      ));
+
+      final face = tester.getRect(paintOf<EnglishPicker>());
+      final gesture = await tester.startGesture(face.center);
+      await tester.pump();
+      for (var i = 0; i < 3; i++) {
+        await gesture.moveBy(const Offset(0, 8));
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pump();
+
+      expect(picked, isNotNull, reason: 'the drag never reached the face');
+      expect(picked!.y, lessThan(-0.3), reason: 'dragged down, expected draw');
+      expect(picked!.label, 'Draw');
+      expect(scroll.offset, 0);
+    });
+
     testWidgets('a custom table trades the drawing for a distance',
         (tester) async {
       double? set;
@@ -290,6 +334,104 @@ void main() {
       await tester.pumpWidget(sheet(onDone: () => done = true));
       await tester.tap(find.text('DONE'));
       expect(done, isTrue);
+    });
+
+    testWidgets('the ball goes up and down inside a scrolling sheet',
+        (tester) async {
+      // The bug: the picker used a pan recognizer, a pan needs 36 logical
+      // pixels to claim a gesture, and the scroll view above it needs 18 —
+      // so every vertical drag went to the scroll and the ball could only be
+      // moved left and right. This drags straight down inside a real
+      // scrollable and expects the ball to follow and the sheet to stay put.
+      final scroll = ScrollController();
+      BreakPosition? moved;
+
+      await tester.pumpWidget(MaterialApp(
+        theme: breakLabTheme(),
+        home: Scaffold(
+          body: SizedBox(
+            width: 340,
+            child: ListView(
+              controller: scroll,
+              children: [
+                const SizedBox(height: 40),
+                TablePositionPicker(
+                  table: TableSize.sevenFoot,
+                  position: BreakPosition.headStringCentre,
+                  onChanged: (p) => moved = p,
+                ),
+                const SizedBox(height: 1200), // plenty of room to scroll
+              ],
+            ),
+          ),
+        ),
+      ));
+
+      final cloth = tester.getRect(paintOf<TablePositionPicker>());
+      final gesture = await tester.startGesture(
+        Offset(cloth.left + 20, cloth.top + 12),
+      );
+      await tester.pump();
+      for (var i = 0; i < 4; i++) {
+        await gesture.moveBy(const Offset(0, 9));
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pump();
+
+      expect(moved, isNotNull, reason: 'the drag never reached the table');
+      expect(moved!.y, greaterThan(0.2),
+          reason: 'dragged down 36px and the ball did not go down');
+      expect(scroll.offset, 0,
+          reason: 'the sheet scrolled instead of moving the ball');
+    });
+
+    testWidgets('a diagonal drag lands where the finger is, not on an axis',
+        (tester) async {
+      BreakPosition? moved;
+      await tester.pumpWidget(sheet(onPosition: (p) => moved = p));
+
+      final cloth = tester.getRect(paintOf<TablePositionPicker>());
+      // Start inside the kitchen so the sideways movement is not clamped away
+      // before it can be measured.
+      final gesture = await tester.startGesture(
+        Offset(cloth.left + 60, cloth.top + 20),
+      );
+      await tester.pump();
+      // Mostly down, but back toward the head rail at the same time. Kept
+      // vertical-dominant so it is the vertical recognizer that claims it —
+      // that is the case where reporting only the axis delta would lose the
+      // sideways movement entirely.
+      for (var i = 0; i < 4; i++) {
+        await gesture.moveBy(const Offset(-5, 12));
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pump();
+
+      expect(moved, isNotNull);
+      expect(moved!.y, greaterThan(0.35), reason: 'the drag went down');
+      expect(moved!.x, lessThan(0.2),
+          reason: 'the sideways part of the drag was dropped');
+      expect(moved!.isLegal, isTrue);
+    });
+
+    testWidgets('the ball cannot be put in front of the head string',
+        (tester) async {
+      BreakPosition? moved;
+      await tester.pumpWidget(sheet(onPosition: (p) => moved = p));
+
+      final cloth = tester.getRect(paintOf<TablePositionPicker>());
+      // Well down the table toward the rack, and low.
+      await tester.tapAt(Offset(cloth.left + cloth.width * 0.8,
+          cloth.top + cloth.height * 0.9));
+      await tester.pump();
+
+      // Pulled back to the line, but the rail-to-rail position is kept —
+      // anywhere behind the line is legal, in front of it is not.
+      expect(moved!.x, BreakPosition.kitchenLimitX);
+      expect(moved!.y, greaterThan(0.85));
+      expect(moved!.isLegal, isTrue);
     });
 
     testWidgets('lays out on a small phone without overflowing',

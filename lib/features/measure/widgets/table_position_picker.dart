@@ -7,9 +7,10 @@ import 'mini_table.dart';
 
 /// A scale drawing of the table with a draggable cue ball.
 ///
-/// Drag the ball anywhere in the kitchen and the exact travel distance to
-/// the rack falls out of the geometry — no presets, no measuring tape. The
-/// position is sticky, so a player sets it once and breaks all night.
+/// Drag the ball anywhere in the kitchen — up, down, or diagonally, not just
+/// along the head string — and the exact travel distance to the rack falls out
+/// of the geometry. No presets, no measuring tape. The position is sticky, so
+/// a player sets it once and breaks all night.
 class TablePositionPicker extends StatelessWidget {
   const TablePositionPicker({
     super.key,
@@ -63,8 +64,20 @@ class TablePositionPicker extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(5),
                 child: GestureDetector(
-                  onPanStart: (d) => handle(d.localPosition),
-                  onPanUpdate: (d) => handle(d.localPosition),
+                  // Two axis recognizers, not one pan recognizer. A pan
+                  // needs 36 logical pixels before it claims the gesture
+                  // while the scroll view underneath needs only 18, so a
+                  // pan always lost every vertical drag to the scroll and
+                  // the ball could only be moved left and right. Axis
+                  // recognizers share the scroll view's threshold and sit
+                  // deeper in the tree, so they win. Both handlers read the
+                  // full local position rather than a single-axis delta,
+                  // which is why a diagonal drag still lands where the
+                  // finger actually is.
+                  onVerticalDragStart: (d) => handle(d.localPosition),
+                  onVerticalDragUpdate: (d) => handle(d.localPosition),
+                  onHorizontalDragStart: (d) => handle(d.localPosition),
+                  onHorizontalDragUpdate: (d) => handle(d.localPosition),
                   onTapDown: (d) => handle(d.localPosition),
                   child: SizedBox(
                     width: clothWidth,

@@ -51,8 +51,13 @@ class EnglishPicker extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onPanStart: (d) => handle(d.localPosition),
-          onPanUpdate: (d) => handle(d.localPosition),
+          // Axis recognizers rather than a pan, for the same reason as the
+          // table: a pan loses every vertical drag to the scroll view above
+          // it, and on a cue ball face vertical IS draw and follow.
+          onVerticalDragStart: (d) => handle(d.localPosition),
+          onVerticalDragUpdate: (d) => handle(d.localPosition),
+          onHorizontalDragStart: (d) => handle(d.localPosition),
+          onHorizontalDragUpdate: (d) => handle(d.localPosition),
           onTapDown: (d) => handle(d.localPosition),
           child: SizedBox(
             width: size,
