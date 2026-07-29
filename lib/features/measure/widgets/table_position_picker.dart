@@ -89,7 +89,8 @@ class TablePositionPicker extends StatelessWidget {
                         : 'Breaking from ${position.label} · ',
                   ),
                   TextSpan(
-                    text: '${position.travelDistanceInches(table).toStringAsFixed(1)}"'
+                    text:
+                        '${position.travelDistanceInches(table).toStringAsFixed(1)}"'
                         ' to the rack',
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
