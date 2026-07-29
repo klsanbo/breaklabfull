@@ -148,8 +148,11 @@ class SetupChip extends StatelessWidget {
 }
 
 /// Tiny felt rectangle with the cue ball where it currently sits.
-class MiniTable extends StatelessWidget {
-  const MiniTable({super.key, required this.x, required this.y});
+/// SUPERSEDED by the shared portrait MiniTable in
+/// features/measure/widgets/mini_table.dart. Still here only because the
+/// old setup chips use it; it goes when home is rebuilt.
+class ChipTable extends StatelessWidget {
+  const ChipTable({super.key, required this.x, required this.y});
 
   final double x;
   final double y;

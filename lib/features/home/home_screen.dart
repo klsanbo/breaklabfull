@@ -3,13 +3,11 @@ import 'package:intl/intl.dart';
 
 import '../../models/break_outcome.dart';
 import '../../models/break_result.dart';
-import '../../models/table_size.dart';
 import '../../scoring/break_score.dart';
 import '../../theme/breaklab_theme.dart';
+import '../measure/break_setup_screen.dart';
 import '../measure/measure_controller.dart';
-import '../measure/widgets/english_picker.dart';
 import '../measure/widgets/outcome_card.dart';
-import '../measure/widgets/table_position_picker.dart';
 import 'coming_next_screen.dart';
 import 'widgets/home_chrome.dart';
 import 'widgets/orbital_break.dart';
@@ -78,113 +76,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
 
-  Future<void> _editPosition() async {
-    if (!c.tableSize.hasGeometry) return;
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: BreakLabColors.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-      ),
-      builder: (_) => StatefulBuilder(
-        builder: (context, setSheet) => Padding(
-          padding: const EdgeInsets.fromLTRB(18, 14, 18, 26),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const _SheetTitle('Where do you break from?'),
-              Wrap(
-                spacing: 6,
-                children: [
-                  for (final size in TableSize.values)
-                    ChoiceChip(
-                      label: Text(size == TableSize.custom
-                          ? 'Custom'
-                          : size.label.split(' ').first),
-                      selected: c.tableSize == size,
-                      onSelected: (_) {
-                        c.setTableSize(size);
-                        setSheet(() {});
-                      },
-                      visualDensity: VisualDensity.compact,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TablePositionPicker(
-                table: c.tableSize,
-                position: c.position,
-                onChanged: (p) {
-                  c.setPosition(p);
-                  setSheet(() {});
-                },
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: BreakLabColors.labGreenDark,
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Done'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _editEnglish() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: BreakLabColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-      ),
-      builder: (_) => StatefulBuilder(
-        builder: (context, setSheet) => Padding(
-          padding: const EdgeInsets.fromLTRB(18, 14, 18, 26),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const _SheetTitle('Where are you hitting it?'),
-              const Text(
-                'Recorded with every break so the lab can tell you which '
-                'english actually works for you. It never affects your score.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 12.5, color: BreakLabColors.inkSoft, height: 1.4),
-              ),
-              const SizedBox(height: 16),
-              Center(
-                child: EnglishPicker(
-                  english: c.english,
-                  size: 150,
-                  onChanged: (e) {
-                    c.setEnglish(e);
-                    setSheet(() {});
-                  },
-                ),
-              ),
-              const SizedBox(height: 18),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: BreakLabColors.labGreenDark,
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Done'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  /// Both setup chips open the same screen. One door for table size, cue ball
+  /// and english — a second place to change the same three things is how two
+  /// versions of one screen drift apart.
+  Future<void> _editSetup() => openBreakSetup(context, widget.controller);
 
   @override
   Widget build(BuildContext context) {
@@ -228,14 +123,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             '${c.activeDistanceInches.toStringAsFixed(1)}"'
                         : 'Custom',
                     enabled: c.phase == MeasurePhase.idle,
-                    onTap: _editPosition,
-                    child: MiniTable(x: c.position.x, y: c.position.y),
+                    onTap: _editSetup,
+                    child: ChipTable(x: c.position.x, y: c.position.y),
                   ),
                   right: SetupChip(
                     caption: 'ENGLISH',
                     value: c.english.label,
                     enabled: c.phase == MeasurePhase.idle,
-                    onTap: _editEnglish,
+                    onTap: _editSetup,
                     child: MiniBallFace(x: c.english.x, y: c.english.y),
                   ),
                 ),
@@ -656,28 +551,3 @@ class _HomeNavItem extends StatelessWidget {
       );
 }
 
-class _SheetTitle extends StatelessWidget {
-  const _SheetTitle(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Column(
-        children: [
-          Container(
-            width: 34,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFD5D2C8),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 12),
-        ],
-      );
-}

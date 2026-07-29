@@ -38,7 +38,7 @@ class SetupStrip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(10, 9, 8, 9),
+        padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: BreakLabColors.ink, width: 1.5),
@@ -49,10 +49,8 @@ class SetupStrip extends StatelessWidget {
             MiniTable(
               table: table,
               position: position,
-              width: 76,
-              railWidth: 2.5,
-              ballDiameter: 8,
-              borderRadius: 3,
+              width: 32,
+              railWidth: 2,
             ),
             const SizedBox(width: 10),
             // The face is decoration here; the sheet is where it's set.

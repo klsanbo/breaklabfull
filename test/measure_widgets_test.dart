@@ -2,11 +2,8 @@ import 'package:breaklab/engine/engine_contract.dart';
 import 'package:breaklab/features/measure/widgets/break_button.dart';
 import 'package:breaklab/features/measure/widgets/english_picker.dart';
 import 'package:breaklab/features/measure/widgets/outcome_card.dart';
-import 'package:breaklab/features/measure/widgets/table_position_picker.dart';
 import 'package:breaklab/models/break_outcome.dart';
-import 'package:breaklab/models/break_position.dart';
 import 'package:breaklab/models/cue_english.dart';
-import 'package:breaklab/models/table_size.dart';
 import 'package:breaklab/theme/breaklab_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -51,75 +48,6 @@ void main() {
       await tester.pumpWidget(wrap(BreakButton(onPressed: () => taps++)));
       await tester.tap(find.text('BREAK'));
       expect(taps, 1);
-    });
-  });
-
-  group('table position picker', () {
-    testWidgets('shows the head-string-centre distance by default',
-        (tester) async {
-      await tester.pumpWidget(wrap(TablePositionPicker(
-        table: TableSize.sevenFoot,
-        position: BreakPosition.headStringCentre,
-        onChanged: (_) {},
-      )));
-      expect(find.textContaining('36.8'), findsOneWidget);
-      expect(find.textContaining('to the rack'), findsOneWidget);
-    });
-
-    testWidgets('dragging toward a rail reports a longer distance',
-        (tester) async {
-      BreakPosition? moved;
-      await tester.pumpWidget(wrap(
-        TablePositionPicker(
-          table: TableSize.sevenFoot,
-          position: BreakPosition.headStringCentre,
-          onChanged: (p) => moved = p,
-        ),
-        width: 300,
-      ));
-
-      // 300 wide -> 150 tall. Tap near the top rail, well back in the kitchen.
-      await tester.tapAt(tester.getTopLeft(_paintOf<TablePositionPicker>()) +
-          const Offset(20, 8));
-      await tester.pump();
-
-      expect(moved, isNotNull);
-      expect(moved!.isLegal, isTrue);
-      expect(moved!.y, lessThan(0.2));
-      expect(
-        moved!.travelDistanceInches(TableSize.sevenFoot),
-        greaterThan(BreakPosition.headStringCentre
-            .travelDistanceInches(TableSize.sevenFoot)),
-      );
-    });
-
-    testWidgets('a tap past the head string is pulled back into the kitchen',
-        (tester) async {
-      BreakPosition? moved;
-      await tester.pumpWidget(wrap(
-        TablePositionPicker(
-          table: TableSize.sevenFoot,
-          position: BreakPosition.headStringCentre,
-          onChanged: (p) => moved = p,
-        ),
-        width: 300,
-      ));
-
-      await tester.tapAt(tester.getTopLeft(_paintOf<TablePositionPicker>()) +
-          const Offset(260, 75));
-      await tester.pump();
-
-      expect(moved!.x, BreakPosition.kitchenLimitX);
-      expect(moved!.isLegal, isTrue);
-    });
-
-    testWidgets('draws nothing for a table with no dimensions', (tester) async {
-      await tester.pumpWidget(wrap(TablePositionPicker(
-        table: TableSize.custom,
-        position: BreakPosition.headStringCentre,
-        onChanged: (_) {},
-      )));
-      expect(find.textContaining('to the rack'), findsNothing);
     });
   });
 

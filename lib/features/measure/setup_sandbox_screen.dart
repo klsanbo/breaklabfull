@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../theme/breaklab_theme.dart';
 import '../home/widgets/setup_strip.dart';
+import 'break_setup_screen.dart';
 import 'measure_controller.dart';
-import 'widgets/break_setup_sheet.dart';
 import 'widgets/mini_table.dart';
 
 /// TEMPORARY — patch 1 of the V006 rebuild.
@@ -47,23 +47,26 @@ class SetupSandboxScreen extends StatelessWidget {
               position: controller.position,
               english: controller.english,
               distanceInches: controller.activeDistanceInches,
-              onTap: () => showBreakSetupSheet(context, controller),
+              onTap: () => openBreakSetup(context, controller),
             ),
             const SizedBox(height: 26),
             const Text(
-              'The same drawing at the size Recent Session uses — it should '
-              'show the ball in the same place.',
+              'The same drawing at three sizes. The ball must sit in the same '
+              'place on all of them.',
               style: TextStyle(fontSize: 12.5, color: BreakLabColors.inkSoft),
             ),
             const SizedBox(height: 10),
-            Center(
-              child: MiniTable(
-                table: controller.tableSize,
-                position: controller.position,
-                width: 160,
-                ballDiameter: 9,
-                caption: 'WHERE YOU BROKE FROM',
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (final w in const [32.0, 60.0, 96.0])
+                  MiniTable(
+                    table: controller.tableSize,
+                    position: controller.position,
+                    width: w,
+                  ),
+              ],
             ),
             const SizedBox(height: 26),
             _Values(controller: controller),
