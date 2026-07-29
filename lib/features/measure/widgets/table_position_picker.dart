@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../models/break_position.dart';
 import '../../../models/table_size.dart';
 import '../../../theme/breaklab_theme.dart';
+import 'mini_table.dart';
 
 /// A scale drawing of the table with a draggable cue ball.
 ///
@@ -16,12 +17,17 @@ class TablePositionPicker extends StatelessWidget {
     required this.position,
     required this.onChanged,
     this.enabled = true,
+    this.showCaption = true,
   });
 
   final TableSize table;
   final BreakPosition position;
   final ValueChanged<BreakPosition> onChanged;
   final bool enabled;
+
+  /// The built-in line under the table. The setup sheet draws its own
+  /// two-ended readout instead, so it turns this off.
+  final bool showCaption;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +72,7 @@ class TablePositionPicker extends StatelessWidget {
                     child: Stack(
                       children: [
                         Positioned.fill(
-                          child: CustomPaint(painter: _TablePainter()),
+                          child: CustomPaint(painter: TableClothPainter()),
                         ),
                         Positioned(
                           left: position.x * clothWidth - 11,
@@ -79,32 +85,33 @@ class TablePositionPicker extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 6),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: enabled
-                        ? 'Drag the cue ball to where you break from · '
-                        : 'Breaking from ${position.label} · ',
-                  ),
-                  TextSpan(
-                    text:
-                        '${position.travelDistanceInches(table).toStringAsFixed(1)}"'
-                        ' to the rack',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: BreakLabColors.ink,
+            if (showCaption) const SizedBox(height: 6),
+            if (showCaption)
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: enabled
+                          ? 'Drag the cue ball to where you break from · '
+                          : 'Breaking from ${position.label} · ',
                     ),
-                  ),
-                ],
+                    TextSpan(
+                      text:
+                          '${position.travelDistanceInches(table).toStringAsFixed(1)}"'
+                          ' to the rack',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: BreakLabColors.ink,
+                      ),
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: BreakLabColors.inkSoft,
+                ),
               ),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                color: BreakLabColors.inkSoft,
-              ),
-            ),
           ],
         );
       },
@@ -143,59 +150,4 @@ class _CueBall extends StatelessWidget {
       ),
     );
   }
-}
-
-class _TablePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final felt = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [BreakLabColors.felt, BreakLabColors.feltDark],
-      ).createShader(Offset.zero & size);
-    canvas.drawRect(Offset.zero & size, felt);
-
-    // The kitchen — the legal break area, behind the head string.
-    final kitchen = Paint()..color = Colors.white.withValues(alpha: 0.08);
-    canvas.drawRect(
-      Rect.fromLTWH(
-          0, 0, size.width * BreakPosition.kitchenLimitX, size.height),
-      kitchen,
-    );
-
-    // Head string.
-    final headString = Paint()
-      ..color = Colors.white.withValues(alpha: 0.4)
-      ..strokeWidth = 1.5;
-    final hx = size.width * BreakPosition.kitchenLimitX;
-    canvas.drawLine(Offset(hx, 0), Offset(hx, size.height), headString);
-
-    // Rail diamonds.
-    final diamond = Paint()..color = BreakLabColors.diamond;
-    for (final f in const [0.25, 0.5, 0.75]) {
-      canvas.drawCircle(Offset(size.width * f, 2.5), 2.5, diamond);
-      canvas.drawCircle(
-          Offset(size.width * f, size.height - 2.5), 2.5, diamond);
-    }
-
-    // Foot spot and a suggestion of the rack.
-    final spot = Paint()..color = Colors.white.withValues(alpha: 0.5);
-    final fx = size.width * BreakPosition.footSpotX;
-    final fy = size.height * BreakPosition.footSpotY;
-    canvas.drawCircle(Offset(fx, fy), 3, spot);
-
-    // The rack: apex ball sits on the foot spot, widening toward the foot
-    // rail — so the triangle points back at the breaker.
-    final rack = Paint()..color = Colors.white.withValues(alpha: 0.22);
-    final path = Path()
-      ..moveTo(fx, fy)
-      ..lineTo(fx + size.width * 0.13, fy - size.height * 0.22)
-      ..lineTo(fx + size.width * 0.13, fy + size.height * 0.22)
-      ..close();
-    canvas.drawPath(path, rack);
-  }
-
-  @override
-  bool shouldRepaint(covariant _TablePainter oldDelegate) => false;
 }

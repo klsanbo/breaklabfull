@@ -17,12 +17,17 @@ class EnglishPicker extends StatelessWidget {
     required this.onChanged,
     this.size = 74,
     this.enabled = true,
+    this.showLabel = true,
   });
 
   final CueEnglish english;
   final ValueChanged<CueEnglish> onChanged;
   final double size;
   final bool enabled;
+
+  /// The name under the face. The setup sheet prints it in its own heading
+  /// beside the ball instead, so it turns this off.
+  final bool showLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -55,15 +60,16 @@ class EnglishPicker extends StatelessWidget {
             child: CustomPaint(painter: _BallFacePainter(english)),
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          english.label,
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: BreakLabColors.inkSoft,
+        if (showLabel) const SizedBox(height: 4),
+        if (showLabel)
+          Text(
+            english.label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: BreakLabColors.inkSoft,
+            ),
           ),
-        ),
       ],
     );
   }
