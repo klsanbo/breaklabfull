@@ -78,8 +78,7 @@ class StatCell extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   border: Border.all(color: BreakLabColors.ink, width: 1.5),
-                  borderRadius:
-                      BorderRadius.circular(round ? 11 : 4),
+                  borderRadius: BorderRadius.circular(round ? 11 : 4),
                 ),
                 child: Icon(icon, size: 12, color: BreakLabColors.ink),
               ),

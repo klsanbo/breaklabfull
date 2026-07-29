@@ -140,8 +140,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ComingNextScreen), findsOneWidget);
-    expect(find.text('Approved and specified — building next.'),
-        findsOneWidget);
+    expect(
+        find.text('Approved and specified — building next.'), findsOneWidget);
   });
 
   testWidgets('tapping BREAK arms the listener and the pill follows',

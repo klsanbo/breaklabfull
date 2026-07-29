@@ -102,8 +102,10 @@ class _BallFacePainter extends CustomPainter {
     final guide = Paint()
       ..color = BreakLabColors.inkFaint.withValues(alpha: 0.35)
       ..strokeWidth = 0.8;
-    canvas.drawLine(Offset(r * 0.35, r), Offset(size.width - r * 0.35, r), guide);
-    canvas.drawLine(Offset(r, r * 0.35), Offset(r, size.height - r * 0.35), guide);
+    canvas.drawLine(
+        Offset(r * 0.35, r), Offset(size.width - r * 0.35, r), guide);
+    canvas.drawLine(
+        Offset(r, r * 0.35), Offset(r, size.height - r * 0.35), guide);
     canvas.drawCircle(
       centre,
       r * CueEnglish.miscueLimit,
@@ -115,8 +117,7 @@ class _BallFacePainter extends CustomPainter {
 
     // The contact point.
     final dot = Offset(r + english.x * r, r - english.y * r);
-    canvas.drawCircle(
-        dot, 7, Paint()..color = BreakLabColors.breakBlue);
+    canvas.drawCircle(dot, 7, Paint()..color = BreakLabColors.breakBlue);
     canvas.drawCircle(
       dot,
       7,
@@ -128,6 +129,5 @@ class _BallFacePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BallFacePainter old) =>
-      old.english != english;
+  bool shouldRepaint(covariant _BallFacePainter old) => old.english != english;
 }

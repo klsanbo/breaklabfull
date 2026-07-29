@@ -552,13 +552,15 @@ class _BottomBar extends StatelessWidget {
               _NavItem(
                 icon: Icons.list,
                 label: 'History',
-                onTap: () => onOpen('History', 'Every break you have measured.'),
+                onTap: () =>
+                    onOpen('History', 'Every break you have measured.'),
               ),
               const _HomeNavItem(),
               _NavItem(
                 icon: Icons.emoji_events_outlined,
                 label: 'Records',
-                onTap: () => onOpen('Records', 'Personal bests and milestones.'),
+                onTap: () =>
+                    onOpen('Records', 'Personal bests and milestones.'),
               ),
               _NavItem(
                 icon: Icons.trending_up,

@@ -128,8 +128,8 @@ class _BreakButtonState extends State<BreakButton>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: BreakLabColors.breakBlueDark
-                          .withValues(alpha: 0.45),
+                      color:
+                          BreakLabColors.breakBlueDark.withValues(alpha: 0.45),
                       blurRadius: 40,
                       offset: const Offset(0, 18),
                     ),

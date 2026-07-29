@@ -114,8 +114,7 @@ class SetupChip extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    border:
-                        Border.all(color: BreakLabColors.ink, width: 1.5),
+                    border: Border.all(color: BreakLabColors.ink, width: 1.5),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: child,

@@ -21,8 +21,7 @@ class ComingNextScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title,
-            style: const TextStyle(fontWeight: FontWeight.w800)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
       ),
       body: Center(
         child: Padding(

@@ -27,13 +27,13 @@ void main() {
       expect(find.text('BREAK'), findsOneWidget);
       expect(find.text('TAP ONCE · THEN JUST BREAK'), findsOneWidget);
 
-      await tester.pumpWidget(
-          wrap(BreakButton(onPressed: () {}, listening: true)));
+      await tester
+          .pumpWidget(wrap(BreakButton(onPressed: () {}, listening: true)));
       await tester.pump();
       expect(find.text('LISTENING'), findsOneWidget);
 
-      await tester.pumpWidget(wrap(
-          BreakButton(onPressed: () {}, listening: true, heard: true)));
+      await tester.pumpWidget(
+          wrap(BreakButton(onPressed: () {}, listening: true, heard: true)));
       await tester.pump();
       expect(find.text('GOT IT'), findsOneWidget);
     });
@@ -105,8 +105,7 @@ void main() {
       expect(moved!.isLegal, isTrue);
     });
 
-    testWidgets('draws nothing for a table with no dimensions',
-        (tester) async {
+    testWidgets('draws nothing for a table with no dimensions', (tester) async {
       await tester.pumpWidget(wrap(TablePositionPicker(
         table: TableSize.custom,
         position: BreakPosition.headStringCentre,
@@ -117,8 +116,7 @@ void main() {
   });
 
   group('english picker', () {
-    testWidgets('starts at centre and names where you hit it',
-        (tester) async {
+    testWidgets('starts at centre and names where you hit it', (tester) async {
       CueEnglish? picked;
       await tester.pumpWidget(wrap(
         EnglishPicker(english: CueEnglish.centre, onChanged: (e) => picked = e),

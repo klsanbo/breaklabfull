@@ -181,7 +181,8 @@ class HomeTile extends StatelessWidget {
                   ),
                 ),
                 if (locked)
-                  const Icon(Icons.lock, size: 9, color: BreakLabColors.inkFaint),
+                  const Icon(Icons.lock,
+                      size: 9, color: BreakLabColors.inkFaint),
               ],
             ),
             const SizedBox(height: 2),

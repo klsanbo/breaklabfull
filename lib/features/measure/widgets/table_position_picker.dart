@@ -156,7 +156,8 @@ class _TablePainter extends CustomPainter {
     // The kitchen — the legal break area, behind the head string.
     final kitchen = Paint()..color = Colors.white.withValues(alpha: 0.08);
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width * BreakPosition.kitchenLimitX, size.height),
+      Rect.fromLTWH(
+          0, 0, size.width * BreakPosition.kitchenLimitX, size.height),
       kitchen,
     );
 
