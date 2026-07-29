@@ -27,8 +27,7 @@ Finder paintOf<T extends Widget>() => find.descendant(
 
 void main() {
   group('mini table', () {
-    testWidgets('draws the ball where the position says it is',
-        (tester) async {
+    testWidgets('draws the ball where the position says it is', (tester) async {
       await tester.pumpWidget(wrap(const Center(
         child: MiniTable(
           table: TableSize.sevenFoot,
@@ -45,10 +44,12 @@ void main() {
       // centre is a quarter along and halfway down.
       final table = tester.getRect(find.byType(MiniTable));
       final ball = tester.getRect(
-        find.descendant(
-          of: find.byType(MiniTable),
-          matching: find.byType(Container),
-        ).last,
+        find
+            .descendant(
+              of: find.byType(MiniTable),
+              matching: find.byType(Container),
+            )
+            .last,
       );
       final clothLeft = table.left + 3;
       final clothTop = table.top + 3;
