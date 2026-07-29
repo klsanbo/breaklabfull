@@ -178,10 +178,10 @@ class _RoomPainter extends CustomPainter {
         Radius.circular(rail * 1.4),
       ),
       Paint()
-        ..shader = LinearGradient(
+        ..shader = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: const [BreakLabColors.rail, Color(0xFF3E2A18)],
+          colors: [BreakLabColors.rail, Color(0xFF3E2A18)],
         ).createShader(Rect.fromLTWH(
             clothLeft - rail, clothTop - rail, clothWidth, clothHeight)),
     );
