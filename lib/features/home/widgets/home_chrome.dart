@@ -112,14 +112,18 @@ class TileRow extends StatelessWidget {
   final List<HomeTile> tiles;
 
   @override
-  Widget build(BuildContext context) => Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < tiles.length; i++) ...[
-            if (i > 0) const SizedBox(width: 6),
-            Expanded(child: tiles[i]),
+  Widget build(BuildContext context) => IntrinsicHeight(
+        // Without this the stretch has no height to stretch to and the whole
+        // column collapses — the same trap the stat strip fell into.
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < tiles.length; i++) ...[
+              if (i > 0) const SizedBox(width: 6),
+              Expanded(child: tiles[i]),
+            ],
           ],
-        ],
+        ),
       );
 }
 

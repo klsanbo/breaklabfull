@@ -20,19 +20,21 @@ class StatStrip extends StatelessWidget {
         border: Border.all(color: BreakLabColors.ink, width: 1.5),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < cells.length; i++) ...[
-            if (i > 0)
-              const VerticalDivider(
-                width: 1.5,
-                thickness: 1.5,
-                color: BreakLabColors.hairline,
-              ),
-            Expanded(child: cells[i]),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < cells.length; i++) ...[
+              if (i > 0)
+                const VerticalDivider(
+                  width: 1.5,
+                  thickness: 1.5,
+                  color: BreakLabColors.hairline,
+                ),
+              Expanded(child: cells[i]),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -99,17 +101,15 @@ class StatCell extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      height: 1.1,
-                      letterSpacing: -0.5,
-                    ),
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    height: 1.15,
+                    letterSpacing: -0.5,
                   ),
                 ),
               ),

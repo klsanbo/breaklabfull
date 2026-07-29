@@ -19,6 +19,12 @@ Widget wrap(Widget child, {double width = 320}) => MaterialApp(
       ),
     );
 
+/// The painted surface belonging to [T] — never Material's own chrome.
+Finder _paintOf<T extends Widget>() => find.descendant(
+      of: find.byType(T),
+      matching: find.byType(CustomPaint),
+    );
+
 void main() {
   group('break button', () {
     testWidgets('reads BREAK when idle and LISTENING when armed',
@@ -71,7 +77,7 @@ void main() {
       ));
 
       // 300 wide -> 150 tall. Tap near the top rail, well back in the kitchen.
-      await tester.tapAt(tester.getTopLeft(find.byType(CustomPaint).first) +
+      await tester.tapAt(tester.getTopLeft(_paintOf<TablePositionPicker>()) +
           const Offset(20, 8));
       await tester.pump();
 
@@ -97,7 +103,7 @@ void main() {
         width: 300,
       ));
 
-      await tester.tapAt(tester.getTopLeft(find.byType(CustomPaint).first) +
+      await tester.tapAt(tester.getTopLeft(_paintOf<TablePositionPicker>()) +
           const Offset(260, 75));
       await tester.pump();
 
@@ -124,7 +130,7 @@ void main() {
       ));
       expect(find.text('Center'), findsOneWidget);
 
-      final topLeft = tester.getTopLeft(find.byType(CustomPaint).first);
+      final topLeft = tester.getTopLeft(_paintOf<EnglishPicker>());
       // Left of centre on a 74pt face.
       await tester.tapAt(topLeft + const Offset(8, 37));
       await tester.pump();
@@ -140,7 +146,7 @@ void main() {
         EnglishPicker(english: CueEnglish.centre, onChanged: (e) => picked = e),
         width: 120,
       ));
-      final topLeft = tester.getTopLeft(find.byType(CustomPaint).first);
+      final topLeft = tester.getTopLeft(_paintOf<EnglishPicker>());
       await tester.tapAt(topLeft + const Offset(37, 66));
       await tester.pump();
 

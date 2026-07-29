@@ -80,26 +80,28 @@ class TablePositionPicker extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            DefaultTextStyle(
-              style: const TextStyle(
-                fontSize: 12,
-                color: BreakLabColors.inkSoft,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+            Text.rich(
+              TextSpan(
                 children: [
-                  Text(enabled
-                      ? 'Drag the cue ball to where you break from · '
-                      : 'Breaking from ${position.label} · '),
-                  Text(
-                    '${position.travelDistanceInches(table).toStringAsFixed(1)}"'
-                    ' to the rack',
+                  TextSpan(
+                    text: enabled
+                        ? 'Drag the cue ball to where you break from · '
+                        : 'Breaking from ${position.label} · ',
+                  ),
+                  TextSpan(
+                    text: '${position.travelDistanceInches(table).toStringAsFixed(1)}"'
+                        ' to the rack',
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       color: BreakLabColors.ink,
                     ),
                   ),
                 ],
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                color: BreakLabColors.inkSoft,
               ),
             ),
           ],

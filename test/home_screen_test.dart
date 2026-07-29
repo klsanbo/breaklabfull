@@ -143,6 +143,33 @@ void main() {
         find.text('Approved and specified — building next.'), findsOneWidget);
   });
 
+  testWidgets('lays out without overflow on a small phone', (tester) async {
+    // The bug this exists to catch: an unbounded Row inside the scrolling
+    // column made the whole body fail to lay out and the screen came up
+    // blank on the phone while the widget tests still passed.
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
+
+    await pumpHome(tester);
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Break Lab'), findsOneWidget);
+    expect(find.text('BREAK'), findsOneWidget);
+    expect(find.text('STOP GUESSING. START TUNING.'), findsOneWidget);
+  });
+
+  testWidgets('lays out without overflow on a tall narrow phone',
+      (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
+
+    await pumpHome(tester);
+    expect(tester.takeException(), isNull);
+    expect(find.text('READY'), findsOneWidget);
+  });
+
   testWidgets('tapping BREAK arms the listener and the pill follows',
       (tester) async {
     await pumpHome(tester);
