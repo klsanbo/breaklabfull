@@ -84,7 +84,7 @@ class TablePositionPicker extends StatelessWidget {
                     height: clothHeight,
                     child: Stack(
                       children: [
-                        Positioned.fill(
+                        const Positioned.fill(
                           child: CustomPaint(painter: TableClothPainter()),
                         ),
                         Positioned(

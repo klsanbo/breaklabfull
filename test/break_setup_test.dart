@@ -332,6 +332,10 @@ void main() {
     testWidgets('DONE closes it', (tester) async {
       var done = false;
       await tester.pumpWidget(sheet(onDone: () => done = true));
+      // The sheet is taller than the default 800x600 test surface, so DONE is
+      // below the fold — scroll to it rather than tapping at empty space.
+      await tester.ensureVisible(find.text('DONE'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('DONE'));
       expect(done, isTrue);
     });
