@@ -53,15 +53,15 @@ class _OutcomeCardState extends State<OutcomeCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
+          const Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
+              Text(
                 "How'd it go?",
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Text(
                 '(optional)',
                 style: TextStyle(
