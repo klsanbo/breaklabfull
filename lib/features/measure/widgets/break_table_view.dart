@@ -96,16 +96,21 @@ class _BreakTableViewState extends State<BreakTableView> {
           onHorizontalDragStart: (d) => _start(d.localPosition),
           onHorizontalDragUpdate: (d) =>
               _move(d.localPosition, clothWidth, clothHeight),
-          child: SizedBox(
-            width: viewWidth,
-            height: viewHeight,
-            child: CustomPaint(
-              painter: _RoomPainter(
-                table: widget.table,
-                position: widget.position,
-                clothWidth: clothWidth,
-                clothHeight: clothHeight,
-                wordmark: widget.wordmark,
+          child: ClipRect(
+            // A CustomPaint does not clip, and the table is deliberately
+            // bigger than the view — without this the apron and the wordmark
+            // paint straight over whatever sits below the table.
+            child: SizedBox(
+              width: viewWidth,
+              height: viewHeight,
+              child: CustomPaint(
+                painter: _RoomPainter(
+                  table: widget.table,
+                  position: widget.position,
+                  clothWidth: clothWidth,
+                  clothHeight: clothHeight,
+                  wordmark: widget.wordmark,
+                ),
               ),
             ),
           ),

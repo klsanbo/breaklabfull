@@ -177,6 +177,39 @@ void main() {
       expect(size.height, 400);
     });
 
+    testWidgets('clips its drawing so nothing bleeds onto what is below it',
+        (tester) async {
+      // On the phone the apron and the wordmark were painted over the readout
+      // row beneath the table: dark ink on near-black, unreadable. A
+      // CustomPaint does not clip and the table is deliberately bigger than
+      // the view it sits in.
+      await tester.pumpWidget(wrap(Column(
+        children: [
+          SizedBox(
+            height: 300,
+            child: BreakTableView(
+              table: TableSize.sevenFoot,
+              position: BreakPosition.headStringCentre,
+              onChanged: (_) {},
+            ),
+          ),
+          const Text('under the table'),
+        ],
+      )));
+
+      expect(
+        find.descendant(
+            of: find.byType(BreakTableView), matching: find.byType(ClipRect)),
+        findsOneWidget,
+        reason: 'nothing is stopping the painter drawing outside its box',
+      );
+
+      final view = tester.getRect(find.byType(BreakTableView));
+      final below = tester.getRect(find.text('under the table'));
+      expect(below.top, greaterThanOrEqualTo(view.bottom - 0.5),
+          reason: 'the readout would be underneath the table drawing');
+    });
+
     testWidgets('dragging down moves the ball up the table', (tester) async {
       BreakPosition? moved;
       await tester.pumpWidget(view(
