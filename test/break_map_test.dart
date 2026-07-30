@@ -271,26 +271,33 @@ void main() {
         spread: SpreadQuality.good,
         cueBallAfter: CueBallAfter.stayedCenter,
       );
-      final s = await db.insertSession(Session(
-          startedAt: DateTime(2026, 7, 30, 19),
-          tableSize: TableSize.sevenFoot));
-      for (var i = 0; i < 5; i++) {
-        await db.insertBreak(BreakResult(
-          sessionId: s.id!,
-          recordedAt: DateTime(2026, 7, 30, 20),
-          tableSize: TableSize.sevenFoot,
-          travelDistanceInches: 36.75,
-          preset: SensitivityPreset.normal,
-          engineVersion: '0.1.0',
-          grade: AccuracyGrade.excellent,
-          detectedPairValid: true,
-          position: const BreakPosition(x: 0.25, y: 0.5),
-          gapMs: 500,
-          speedMph: 21.0,
-          outcome: outcome,
-        ));
-      }
-      await controller.refreshStats();
+      // Real database work has to run inside runAsync. testWidgets bodies run
+      // under a fake clock, so a sqflite future awaited directly here never
+      // completes — and because the clock never advances, the test framework's
+      // own timeout cannot fire either. It hangs silently rather than failing.
+      await tester.runAsync(() async {
+        final s = await db.insertSession(Session(
+            startedAt: DateTime(2026, 7, 30, 19),
+            tableSize: TableSize.sevenFoot));
+        for (var i = 0; i < 5; i++) {
+          await db.insertBreak(BreakResult(
+            sessionId: s.id!,
+            recordedAt: DateTime(2026, 7, 30, 20),
+            tableSize: TableSize.sevenFoot,
+            travelDistanceInches: 36.75,
+            preset: SensitivityPreset.normal,
+            engineVersion: '0.1.0',
+            grade: AccuracyGrade.excellent,
+            detectedPairValid: true,
+            position: const BreakPosition(x: 0.25, y: 0.5),
+            gapMs: 500,
+            speedMph: 21.0,
+            outcome: outcome,
+          ));
+        }
+        await controller.refreshStats();
+      });
+
       await pump(tester);
 
       expect(find.text('NOT ENOUGH BREAKS TO DRAW A MAP'), findsNothing);
