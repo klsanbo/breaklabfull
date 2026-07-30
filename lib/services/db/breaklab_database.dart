@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../engine/engine_contract.dart';
 import '../../models/break_result.dart';
+import '../../models/break_zone.dart';
 import '../../models/session.dart';
 import '../../scoring/break_score.dart';
 import '../../scoring/breaklab_score.dart';
@@ -238,6 +239,55 @@ class BreakLabDatabase {
 
   /// Personal records, computed live from stored breaks. Unreliable breaks
   /// never count toward records.
+  /// Break Map's three zones, aggregated from stored positions.
+  ///
+  /// Computed in Dart rather than SQL for the same reason the highest Break
+  /// Score is: the score is not a stored column, by design. Breaks with no
+  /// recorded position are left out entirely — a break we do not know the
+  /// origin of cannot be attributed to a zone, and guessing centre would put
+  /// invented data on a map whose whole promise is that it does not guess.
+  Future<List<ZoneStats>> zoneStats() async {
+    final breaks = await allBreaks();
+    final byZone = <BreakZone, List<BreakResult>>{
+      for (final zone in BreakZone.values) zone: <BreakResult>[],
+    };
+    for (final b in breaks) {
+      final position = b.position;
+      if (position == null) continue;
+      byZone[BreakZone.forPosition(position)]!.add(b);
+    }
+
+    double? mean(Iterable<double> xs) {
+      final list = xs.toList(growable: false);
+      if (list.isEmpty) return null;
+      return list.reduce((a, b) => a + b) / list.length;
+    }
+
+    return [
+      for (final zone in BreakZone.values)
+        () {
+          final all = byZone[zone]!;
+          final readable = all.where((b) => b.hasSpeed).toList();
+          final scores = all
+              .map(BreakScore.forBreak)
+              .whereType<int>()
+              .map((s) => s.toDouble());
+          return ZoneStats(
+            zone: zone,
+            breakCount: all.length,
+            reliableCount: readable.length,
+            bestMph: readable.isEmpty
+                ? null
+                : readable
+                    .map((b) => b.speedMph!)
+                    .reduce((a, b) => a > b ? a : b),
+            averageMph: mean(readable.map((b) => b.speedMph!)),
+            averageBreakScore: mean(scores),
+          );
+        }(),
+    ];
+  }
+
   /// Every break ever recorded, whether or not it produced a speed or an
   /// outcome. This is a count of attempts, not of measurements.
   Future<int> totalBreaks() async {

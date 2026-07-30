@@ -7,6 +7,7 @@ import '../../engine/engine_contract.dart';
 import '../../models/break_outcome.dart';
 import '../../models/break_position.dart';
 import '../../models/break_result.dart';
+import '../../models/break_zone.dart';
 import '../../models/cue_english.dart';
 import '../../models/session.dart';
 import '../../models/table_size.dart';
@@ -110,6 +111,14 @@ class MeasureController extends ChangeNotifier {
   int breaksAllTime = 0;
   double? scratchRate;
 
+  /// The three break zones for Break Map, always three entries whether or not
+  /// any of them has enough breaks to be rated.
+  List<ZoneStats> zones = const [
+    ZoneStats.empty(BreakZone.left),
+    ZoneStats.empty(BreakZone.center),
+    ZoneStats.empty(BreakZone.right),
+  ];
+
   /// Recomputes everything the dashboard displays. Cheap — all of it is
   /// derived from stored breaks, nothing is cached in the database.
   Future<void> refreshStats() async {
@@ -123,6 +132,7 @@ class MeasureController extends ChangeNotifier {
     records = await db.personalRecords();
     breaksAllTime = await db.totalBreaks();
     scratchRate = await db.scratchRate();
+    zones = await db.zoneStats();
     notifyListeners();
   }
 

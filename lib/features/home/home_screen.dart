@@ -5,6 +5,7 @@ import '../../models/break_result.dart';
 import '../../models/speed_band.dart';
 import '../../scoring/break_score.dart';
 import '../../theme/breaklab_theme.dart';
+import '../break_map/break_map_screen.dart';
 import '../measure/break_setup_screen.dart';
 import '../measure/measure_controller.dart';
 import '../measure/widgets/break_button.dart';
@@ -89,9 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (destination) {
       case NavDestination.home:
         return;
-      case NavDestination.positions:
-        _open('Positions',
-            'Your break spots ranked by Break Score — breaks taken, average speed, scratch rate and best break for each one. A spot needs five reliable breaks before it earns a ranking.');
+      case NavDestination.breakMap:
+        Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => BreakMapScreen(controller: c, onBreak: _break),
+        ));
         return;
       case NavDestination.sessions:
         _open('Sessions',

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:breaklab/engine/engine_contract.dart';
+import 'package:breaklab/features/break_map/break_map_screen.dart';
 import 'package:breaklab/features/home/coming_next_screen.dart';
 import 'package:breaklab/features/home/home_screen.dart';
 import 'package:breaklab/features/home/widgets/bottom_nav.dart';
@@ -257,13 +258,23 @@ void main() {
     }
   });
 
-  testWidgets('a bar destination opens its screen, HOME does nothing',
+  testWidgets('a bar destination opens its screen', (tester) async {
+    await pumpHome(tester);
+
+    await tester.tap(find.text('TRENDS'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ComingNextScreen), findsOneWidget);
+  });
+
+  testWidgets('BREAK MAP opens the real screen, not a placeholder',
       (tester) async {
     await pumpHome(tester);
 
-    await tester.tap(find.text('POSITIONS'));
+    await tester.tap(find.text('BREAK MAP'));
     await tester.pumpAndSettle();
-    expect(find.byType(ComingNextScreen), findsOneWidget);
+
+    expect(find.byType(BreakMapScreen), findsOneWidget);
+    expect(find.byType(ComingNextScreen), findsNothing);
   });
 
   testWidgets('HOME goes nowhere, because you are already there',

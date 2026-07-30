@@ -4,11 +4,14 @@ import '../../../theme/breaklab_theme.dart';
 
 /// The five destinations, with HOME raised in the middle.
 ///
-/// POSITIONS · SESSIONS · HOME · TRENDS · RECORDS — reading order that puts
+/// BREAK MAP · SESSIONS · HOME · TRENDS · RECORDS — reading order that puts
 /// where-you-break-from first and the trophies last, with home dead centre
 /// where a thumb lands.
+///
+/// This slot was called POSITIONS while Break Map was a v2 idea. They turned
+/// out to be one screen, so it carries the name on it.
 enum NavDestination {
-  positions('POSITIONS', Icons.gps_fixed),
+  breakMap('BREAK MAP', Icons.gps_fixed),
   sessions('SESSIONS', Icons.access_time),
   home('HOME', Icons.home_outlined),
   trends('TRENDS', Icons.trending_up),
