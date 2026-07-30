@@ -26,9 +26,15 @@ class BreakScore {
   static const ballsWeight = 0.20;
   static const speedWeight = 0.10;
 
-  /// MPH mapped to 0–100. 14 MPH and below scores 0; 26 MPH and above 100.
-  static const speedFloorMph = 14.0;
-  static const speedCeilingMph = 26.0;
+  /// MPH mapped to 0–100. 13 MPH and below scores 0; 24 MPH and above 100.
+  ///
+  /// Recalibrated 2026-07-30. The old ceiling of 26 was unreachable: a typical
+  /// player averages about 19 and a hard breaker lands around 20-21, so every
+  /// player was losing speed points they had no way to earn. See [SpeedBand]
+  /// for the words that go with these numbers, and the same caveat — these are
+  /// set from experience until the field protocol gives us our own figures.
+  static const speedFloorMph = 13.0;
+  static const speedCeilingMph = 24.0;
 
   static double speedPoints(double mph) {
     final raw = (mph - speedFloorMph) / (speedCeilingMph - speedFloorMph) * 100;

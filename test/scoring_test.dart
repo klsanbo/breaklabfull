@@ -3,6 +3,7 @@ import 'package:breaklab/models/break_outcome.dart';
 import 'package:breaklab/models/break_position.dart';
 import 'package:breaklab/models/break_result.dart';
 import 'package:breaklab/models/cue_english.dart';
+import 'package:breaklab/models/speed_band.dart';
 import 'package:breaklab/models/table_size.dart';
 import 'package:breaklab/scoring/break_score.dart';
 import 'package:breaklab/scoring/breaklab_score.dart';
@@ -96,17 +97,71 @@ void main() {
     });
   });
 
+  group('speed bands', () {
+    test('the band a speed falls in', () {
+      expect(SpeedBand.forMph(12).label, 'Controlled');
+      expect(SpeedBand.forMph(15.9).label, 'Controlled');
+      expect(SpeedBand.forMph(16).label, 'Solid');
+      expect(SpeedBand.forMph(18).label, 'Solid',
+          reason: '18 MPH is not a soft break');
+      expect(SpeedBand.forMph(19).label, 'Solid',
+          reason: 'the average break must not read as a shortfall');
+      expect(SpeedBand.forMph(19.9).label, 'Solid');
+      expect(SpeedBand.forMph(20).label, 'Strong');
+      expect(SpeedBand.forMph(21).label, 'Strong');
+      expect(SpeedBand.forMph(22.9).label, 'Strong');
+      expect(SpeedBand.forMph(23).label, 'Hard');
+      expect(SpeedBand.forMph(31).label, 'Hard');
+    });
+
+    test('every band is reachable and none of them overlap', () {
+      // A band nobody can reach is the bug this replaced: the old top band
+      // started at 27 MPH.
+      for (final band in SpeedBand.values) {
+        final from = band.fromMph ?? 10.0;
+        expect(SpeedBand.forMph(from), band);
+      }
+      expect(SpeedBand.values.length, 4);
+    });
+
+    test('legend text reads the way a legend should', () {
+      expect(SpeedBand.controlled.range, 'under 16.0');
+      expect(SpeedBand.solid.range, '16.0 - 19.9');
+      expect(SpeedBand.strong.range, '20.0 - 22.9');
+      expect(SpeedBand.hard.range, '23.0+');
+    });
+
+    test('no band name grades the player', () {
+      // Speed is 10% of the score because it is not a verdict. These words
+      // describe what happened; POOR and AVERAGE would judge it.
+      final words = SpeedBand.values.map((b) => b.label.toLowerCase());
+      for (final judgement in ['poor', 'bad', 'weak', 'average', 'soft']) {
+        expect(words, isNot(contains(judgement)));
+      }
+    });
+  });
+
   group('break score', () {
-    test('speed maps 14 MPH to 0 and 26 MPH to 100, clamped', () {
-      expect(BreakScore.speedPoints(14), 0);
-      expect(BreakScore.speedPoints(20), closeTo(50, 0.001));
-      expect(BreakScore.speedPoints(26), 100);
+    test('speed maps 13 MPH to 0 and 24 MPH to 100, clamped', () {
+      // The old scale topped out at 26, which nobody reaches: average is about
+      // 19 and a hard breaker is 20-21. Everyone was losing points they could
+      // not earn.
+      expect(BreakScore.speedPoints(13), 0);
+      expect(BreakScore.speedPoints(18.5), closeTo(50, 0.001));
+      expect(BreakScore.speedPoints(24), 100);
       expect(BreakScore.speedPoints(30), 100);
       expect(BreakScore.speedPoints(9), 0);
     });
 
+    test('a real-world break is no longer punished by the scale', () {
+      // 19 MPH is an ordinary break. On the old scale it scored 41 of 100 on
+      // speed; it should sit around the middle, not near the bottom.
+      expect(BreakScore.speedPoints(19), greaterThan(50));
+      expect(BreakScore.speedPoints(21), greaterThan(70));
+    });
+
     test('a controlled break scores well', () {
-      expect(BreakScore.forBreak(mk(outcome: goodOutcome)), 81);
+      expect(BreakScore.forBreak(mk(outcome: goodOutcome)), 83);
     });
 
     test('a great break scores in the nineties', () {
@@ -116,7 +171,7 @@ void main() {
         spread: SpreadQuality.excellent,
         cueBallAfter: CueBallAfter.stayedCenter,
       );
-      expect(BreakScore.forBreak(mk(mph: 24.7, outcome: outcome)), 95);
+      expect(BreakScore.forBreak(mk(mph: 24.7, outcome: outcome)), 96);
     });
 
     test('power without control scores badly — the whole point', () {
@@ -178,8 +233,8 @@ void main() {
       expect(s.scoredBreaks, 21);
       expect(s.sessionsCounted, 3);
       // control 100·.30 + consistency 100·.25 + clean 100·.20
-      //   + balls 60·.15 + speed 61.67·.10 = 90.17
-      expect(s.score, 90);
+      //   + balls 60·.15 + speed 76.36·.10 = 91.64
+      expect(s.score, 92);
       expect(s.grade, 'Elite');
     });
 
