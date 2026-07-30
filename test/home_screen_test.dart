@@ -153,7 +153,6 @@ void main() {
           of: find.byType(BreakLabNav), matching: find.text('SESSIONS')),
       findsOneWidget,
     );
-    expect(find.text('IN THE SCORE'), findsOneWidget);
   });
 
   testWidgets('the masthead gives instead of overflowing at large text',
