@@ -97,6 +97,10 @@ class MeasureController extends ChangeNotifier {
   DateTime? lastSessionAt;
   SessionStats? tonight;
 
+  /// The newest session's numbers, open or closed — what the Recent Session
+  /// card on home reads. [tonight] is only ever the session still running.
+  SessionStats? recent;
+
   /// Recomputes everything the dashboard displays. Cheap — all of it is
   /// derived from stored breaks, nothing is cached in the database.
   Future<void> refreshStats() async {
@@ -106,6 +110,7 @@ class MeasureController extends ChangeNotifier {
     labScore = await db.breakLabScore();
     final open = await db.openSession();
     tonight = open == null ? null : await db.sessionStats(open.id!);
+    recent = all.isEmpty ? null : await db.sessionStats(all.first.id!);
     notifyListeners();
   }
 

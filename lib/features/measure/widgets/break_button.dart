@@ -14,6 +14,7 @@ class BreakButton extends StatefulWidget {
     this.listening = false,
     this.heard = false,
     this.diameter = 224,
+    this.subtitle,
   });
 
   final VoidCallback? onPressed;
@@ -25,6 +26,10 @@ class BreakButton extends StatefulWidget {
   final bool heard;
 
   final double diameter;
+
+  /// A small line under BREAK, e.g. "TAP TO START". An instruction, never a
+  /// status — the pill owns status and the button must not echo it.
+  final String? subtitle;
 
   @override
   State<BreakButton> createState() => _BreakButtonState();
@@ -131,14 +136,31 @@ class _BreakButtonState extends State<BreakButton>
                   fit: BoxFit.scaleDown,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Text(
-                      'BREAK',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: widget.diameter * 0.21,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.5,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'BREAK',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: widget.diameter * 0.21,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        if (widget.subtitle != null) ...[
+                          SizedBox(height: widget.diameter * 0.035),
+                          Text(
+                            widget.subtitle!,
+                            style: TextStyle(
+                              color: const Color(0xFFCFE3FA),
+                              fontSize: widget.diameter * 0.058,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.6,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),

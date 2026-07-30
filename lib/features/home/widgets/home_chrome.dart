@@ -2,6 +2,97 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/breaklab_theme.dart';
 
+/// The masthead: the BreakLab mark, the name, and settings.
+///
+/// The mark replaced a Profile box that had nothing to open — v1 is guest-only,
+/// and setup is reached by tapping the table rather than a button up here.
+class HomeHeader extends StatelessWidget {
+  const HomeHeader({super.key, this.onSettings});
+
+  final VoidCallback? onSettings;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const _Glyph(),
+        const Spacer(),
+        const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'BREAK LAB',
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                height: 1.05,
+              ),
+            ),
+            SizedBox(height: 3),
+            Text(
+              'PRACTICE. MEASURE. IMPROVE.',
+              style: TextStyle(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.6,
+                color: BreakLabColors.inkSoft,
+              ),
+            ),
+          ],
+        ),
+        const Spacer(),
+        GestureDetector(
+          onTap: onSettings,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(
+              border: Border.all(color: BreakLabColors.ink, width: 1.5),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: const Text(
+              'Settings',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Glyph extends StatelessWidget {
+  const _Glyph();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 30,
+      decoration: BoxDecoration(
+        border: Border.all(color: BreakLabColors.ink, width: 1.5),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: CustomPaint(painter: _CrossPainter()),
+    );
+  }
+}
+
+class _CrossPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final line = Paint()
+      ..color = BreakLabColors.ink
+      ..strokeWidth = 1.5;
+    canvas.drawLine(Offset.zero, Offset(size.width, size.height), line);
+    canvas.drawLine(Offset(0, size.height), Offset(size.width, 0), line);
+  }
+
+  @override
+  bool shouldRepaint(covariant _CrossPainter oldDelegate) => false;
+}
+
 /// The /// READY pill, flanked by rules — also the LISTENING and MEASURING
 /// states, so one piece of furniture carries the whole status.
 class StatusPill extends StatelessWidget {
@@ -64,8 +155,6 @@ class StatusPill extends StatelessWidget {
       ),
     );
 
-    // The rules absorb whatever is left over, so the pill always gets the
-    // width it needs and the row can never overflow.
     // The pill is sized by its content and laid out first; the rules take
     // whatever is left. Making the pill flexible too meant it competed with
     // the rules for the same space and got clipped to "LI...".
@@ -113,172 +202,4 @@ class _Slashes extends StatelessWidget {
           letterSpacing: -2,
         ),
       );
-}
-
-/// The five destination tiles.
-class TileRow extends StatelessWidget {
-  const TileRow({super.key, required this.tiles});
-
-  final List<HomeTile> tiles;
-
-  @override
-  Widget build(BuildContext context) => IntrinsicHeight(
-        // Without this the stretch has no height to stretch to and the whole
-        // column collapses — the same trap the stat strip fell into.
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < tiles.length; i++) ...[
-              if (i > 0) const SizedBox(width: 6),
-              Expanded(child: tiles[i]),
-            ],
-          ],
-        ),
-      );
-}
-
-class HomeTile extends StatelessWidget {
-  const HomeTile({
-    super.key,
-    required this.icon,
-    required this.name,
-    required this.description,
-    required this.onTap,
-    this.locked = false,
-  });
-
-  final IconData icon;
-  final String name;
-  final String description;
-  final VoidCallback onTap;
-
-  /// Drawn dimmed with a padlock — a real destination that isn't in v1.
-  final bool locked;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(3, 11, 3, 9),
-        decoration: BoxDecoration(
-          color: locked ? const Color(0xFFF3F1EC) : Colors.white,
-          border: Border.all(color: BreakLabColors.ink, width: 1.5),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                border: Border.all(color: BreakLabColors.ink, width: 1.5),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Icon(icon, size: 18, color: BreakLabColors.ink),
-            ),
-            const SizedBox(height: 7),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    name,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
-                      height: 1.15,
-                    ),
-                  ),
-                ),
-                if (locked)
-                  const Icon(Icons.lock,
-                      size: 9, color: BreakLabColors.inkFaint),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(
-              description,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 9.5,
-                height: 1.25,
-                color: BreakLabColors.inkSoft,
-              ),
-            ),
-            const SizedBox(height: 3),
-            const Icon(Icons.chevron_right,
-                size: 14, color: BreakLabColors.ink),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The closing banner.
-class LabBanner extends StatelessWidget {
-  const LabBanner({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 78, 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: BreakLabColors.ink, width: 1.5),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  border: Border.all(color: BreakLabColors.ink, width: 1.5),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: const Icon(Icons.emoji_events_outlined, size: 21),
-              ),
-              const SizedBox(width: 13),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'STOP GUESSING. START TUNING.',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                        fontStyle: FontStyle.italic,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Every break is a chance to get better.',
-                      style: TextStyle(
-                        fontSize: 11.5,
-                        color: BreakLabColors.inkSoft,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }

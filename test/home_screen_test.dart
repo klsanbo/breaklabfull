@@ -4,9 +4,14 @@ import 'dart:io';
 import 'package:breaklab/engine/engine_contract.dart';
 import 'package:breaklab/features/home/coming_next_screen.dart';
 import 'package:breaklab/features/home/home_screen.dart';
+import 'package:breaklab/features/home/widgets/bottom_nav.dart';
+import 'package:breaklab/features/home/widgets/recent_session_card.dart';
+import 'package:breaklab/features/home/widgets/score_card.dart';
+import 'package:breaklab/features/home/widgets/setup_strip.dart';
+import 'package:breaklab/features/measure/break_setup_screen.dart';
 import 'package:breaklab/features/measure/measure_controller.dart';
 import 'package:breaklab/models/break_position.dart';
-import 'package:breaklab/models/table_size.dart';
+import 'package:breaklab/scoring/breaklab_score.dart';
 import 'package:breaklab/services/db/breaklab_database.dart';
 import 'package:breaklab/theme/breaklab_theme.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +66,7 @@ void main() {
       engine: StubbedEngine(),
       recorder: recorder,
       tempDirectoryPath: tempDir.path,
-      clock: () => DateTime(2026, 7, 28, 21),
+      clock: () => DateTime(2026, 7, 30, 21),
     );
   });
 
@@ -70,7 +75,11 @@ void main() {
     await tempDir.delete(recursive: true);
   });
 
-  Future<void> pumpHome(WidgetTester tester) async {
+  Future<void> pumpHome(WidgetTester tester,
+      {Size size = const Size(1080, 2400)}) async {
+    tester.view.physicalSize = size;
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(MaterialApp(
       theme: breakLabTheme(),
       home: HomeScreen(controller: controller),
@@ -79,117 +88,128 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
   }
 
-  testWidgets('lays out the dashboard from the approved wireframe',
-      (tester) async {
+  testWidgets('lays out the approved dashboard', (tester) async {
     await pumpHome(tester);
 
-    expect(find.text('BREAKLAB'), findsOneWidget);
-    expect(find.text('Break Lab'), findsOneWidget);
-    expect(find.text('TRAIN YOUR BREAK'), findsOneWidget);
-    expect(find.text('Session ready.'), findsOneWidget);
+    expect(find.text('BREAK LAB'), findsOneWidget);
+    expect(find.text('PRACTICE. MEASURE. IMPROVE.'), findsOneWidget);
 
-    // Stat strip
-    expect(find.text('BreakLab Score'), findsOneWidget);
-    expect(find.text('Last session'), findsOneWidget);
-
-    // The star
+    // The star.
     expect(find.text('BREAK'), findsOneWidget);
+    expect(find.text('TAP TO START'), findsOneWidget);
     expect(find.text('READY'), findsOneWidget);
 
-    // Setup chips
-    expect(find.text('TABLE\n& SPOT'), findsOneWidget);
-    expect(find.text('ENGLISH'), findsOneWidget);
-    expect(find.text('Center'), findsOneWidget);
+    // One door for setup, and the table is the button.
+    expect(find.byType(SetupStrip), findsOneWidget);
+    expect(find.text('7ft Bar Box · Center · 36.8"'), findsOneWidget);
 
-    // Five tiles — names appear in both the tiles and the bottom bar.
-    for (final name in ['Sessions', 'History', 'Records', 'Score']) {
-      expect(find.text(name), findsNWidgets(2));
+    expect(find.byType(ScoreCard), findsOneWidget);
+    expect(find.text('BREAKLAB\nSCORE'), findsOneWidget);
+    expect(find.byType(RecentSessionCard), findsOneWidget);
+    expect(find.text('RECENT SESSION'), findsOneWidget);
+
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the score bars name the components but not the weights',
+      (tester) async {
+    // The weights live on the Score screen. Five bars in weight order here,
+    // heaviest first, and no percentages competing with the number.
+    await pumpHome(tester);
+
+    for (final label in [
+      'CUE BALL\nCONTROL',
+      'CONSISTENCY',
+      'CLEAN\nBREAKS',
+      'BALLS MADE',
+      'SPEED',
+    ]) {
+      expect(find.text(label), findsOneWidget);
     }
-    expect(find.text('Break Map'), findsOneWidget);
-    expect(find.text('STOP GUESSING. START TUNING.'), findsOneWidget);
+    for (final weight in ['30%', '25%', '20%', '15%', '10%']) {
+      expect(find.text(weight), findsNothing);
+    }
+  });
+
+  testWidgets('no number appears twice with two different labels',
+      (tester) async {
+    // Consistency and clean breaks are bars on the score card. Printing them
+    // again as totals underneath would leave a player deciding which one to
+    // believe.
+    await pumpHome(tester);
+    expect(find.text('CONSISTENCY'), findsOneWidget);
+    expect(find.text('CLEAN'), findsNothing);
+    expect(find.text('SESSIONS'), findsOneWidget);
+    expect(find.text('IN THE SCORE'), findsOneWidget);
+  });
+
+  testWidgets('an 84 reads STRONG, not ELITE', (tester) async {
+    // Elite starts at 90 and is not moved down to flatter anyone.
+    expect(BreakLabScore.gradeFor(84), 'Strong');
+    expect(BreakLabScore.gradeFor(90), 'Elite');
+    expect(BreakLabScore.gradeFor(89), 'Strong');
+
+    await pumpHome(tester);
+    expect(find.text('NO SCORE YET'), findsOneWidget);
   });
 
   testWidgets('shows dashes rather than invented numbers when empty',
       (tester) async {
     await pumpHome(tester);
-    // Score and last session both have nothing to report yet.
-    expect(find.text('—'), findsNWidgets(2));
-    expect(find.text('0'), findsOneWidget); // session count
-  });
-
-  testWidgets('the distance chip reflects the current break position',
-      (tester) async {
-    await pumpHome(tester);
-    expect(find.text('7ft · 36.8"'), findsOneWidget);
-
-    controller.setPosition(const BreakPosition(x: 0.25, y: 0.03));
-    await tester.pump();
-
-    // A rail break is a longer trip to the rack.
-    expect(find.text('7ft · 36.8"'), findsNothing);
+    // Nothing measured: no zeros pretending to be measurements.
+    expect(find.text('—'), findsWidgets);
     expect(
-      controller.activeDistanceInches,
-      greaterThan(TableSize.sevenFoot.travelDistanceInches),
+      find.textContaining('No breaks measured yet'),
+      findsOneWidget,
     );
   });
 
-  testWidgets('tapping a tile opens its destination', (tester) async {
+  testWidgets('the setup strip follows the stored position', (tester) async {
     await pumpHome(tester);
-    // The tiles live below the fold on a short surface — scroll to them the
-    // way a player would.
-    await tester.scrollUntilVisible(find.text('Break Map'), 120,
-        scrollable: find.byType(Scrollable).first);
-    await tester.tap(find.text('Break Map'));
+    expect(find.text('7ft Bar Box · Center · 36.8"'), findsOneWidget);
+
+    controller.setPosition(const BreakPosition(x: 0.25, y: 0.08));
+    await tester.pump();
+
+    expect(find.text('7ft Bar Box · Center · 36.8"'), findsNothing);
+    expect(find.text('7ft Bar Box · Left rail · 40.1"'), findsOneWidget);
+  });
+
+  testWidgets('tapping the strip opens the one setup screen', (tester) async {
+    await pumpHome(tester);
+    await tester.tap(find.byType(SetupStrip));
     await tester.pumpAndSettle();
 
+    expect(find.byType(BreakSetupScreen), findsOneWidget);
+  });
+
+  testWidgets('the bottom bar has five destinations with HOME in the middle',
+      (tester) async {
+    await pumpHome(tester);
+    expect(find.byType(BreakLabNav), findsOneWidget);
+    expect(NavDestination.values.length, 5);
+    expect(NavDestination.values[2], NavDestination.home);
+    for (final d in NavDestination.values) {
+      expect(find.text(d.label), findsOneWidget);
+    }
+  });
+
+  testWidgets('a bar destination opens its screen, HOME does nothing',
+      (tester) async {
+    await pumpHome(tester);
+
+    await tester.tap(find.text('POSITIONS'));
+    await tester.pumpAndSettle();
     expect(find.byType(ComingNextScreen), findsOneWidget);
-    expect(
-        find.text('Approved and specified — building next.'), findsOneWidget);
   });
 
-  testWidgets('lays out without overflow on a small phone', (tester) async {
-    // The bug this exists to catch: an unbounded Row inside the scrolling
-    // column made the whole body fail to lay out and the screen came up
-    // blank on the phone while the widget tests still passed.
-    tester.view.physicalSize = const Size(1080, 1920);
-    tester.view.devicePixelRatio = 3.0;
-    addTearDown(tester.view.reset);
-
+  testWidgets('HOME goes nowhere, because you are already there',
+      (tester) async {
     await pumpHome(tester);
-
-    expect(tester.takeException(), isNull);
-    expect(find.text('Break Lab'), findsOneWidget);
+    await tester.tap(find.text('HOME'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ComingNextScreen), findsNothing);
     expect(find.text('BREAK'), findsOneWidget);
-    expect(find.text('STOP GUESSING. START TUNING.'), findsOneWidget);
-  });
-
-  testWidgets('lays out without overflow on a tall narrow phone',
-      (tester) async {
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 3.0;
-    addTearDown(tester.view.reset);
-
-    await pumpHome(tester);
-    expect(tester.takeException(), isNull);
-    expect(find.text('READY'), findsOneWidget);
-  });
-
-  testWidgets('the status pill shows its whole label, never clipped',
-      (tester) async {
-    // It read "LI..." on the phone: the pill was flexible and lost the
-    // contest for space against the rules beside it.
-    tester.view.physicalSize = const Size(1080, 1920);
-    tester.view.devicePixelRatio = 3.0;
-    addTearDown(tester.view.reset);
-
-    await pumpHome(tester);
-    final pill = tester.widget<Text>(find.text('READY'));
-    expect(pill.overflow, isNot(TextOverflow.ellipsis),
-        reason: 'a status label that can ellipsis will eventually ellipsis');
-
-    final painted = tester.renderObject<RenderBox>(find.text('READY'));
-    expect(painted.size.width, greaterThan(40),
-        reason: 'READY rendered narrower than its own text');
   });
 
   testWidgets('tapping BREAK arms the listener and the pill follows',
@@ -206,8 +226,43 @@ void main() {
     expect(find.text('LISTENING'), findsOneWidget);
     expect(find.text('READY'), findsNothing);
     expect(find.text('BREAK'), findsOneWidget);
+    // The instruction goes away once it has been followed.
+    expect(find.text('TAP TO START'), findsNothing);
 
     await controller.cancelBreak();
     await tester.pump();
+  });
+
+  testWidgets('lays out without overflow on a small phone', (tester) async {
+    // The bug this exists to catch: an unbounded Row inside the scrolling
+    // column made the whole body fail to lay out and the screen came up blank
+    // on the phone while the widget tests still passed.
+    await pumpHome(tester, size: const Size(1080, 1920));
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('BREAK'), findsOneWidget);
+    expect(find.byType(BreakLabNav), findsOneWidget);
+  });
+
+  testWidgets('lays out without overflow on a tall narrow phone',
+      (tester) async {
+    await pumpHome(tester, size: const Size(1080, 2400));
+    expect(tester.takeException(), isNull);
+    expect(find.text('READY'), findsOneWidget);
+  });
+
+  testWidgets('the status pill shows its whole label, never clipped',
+      (tester) async {
+    // It read "LI..." on the phone: the pill was flexible and lost the contest
+    // for space against the rules beside it.
+    await pumpHome(tester, size: const Size(1080, 1920));
+
+    final pill = tester.widget<Text>(find.text('READY'));
+    expect(pill.overflow, isNot(TextOverflow.ellipsis),
+        reason: 'a status label that can ellipsis will eventually ellipsis');
+
+    final painted = tester.renderObject<RenderBox>(find.text('READY'));
+    expect(painted.size.width, greaterThan(40),
+        reason: 'READY rendered narrower than its own text');
   });
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../models/break_outcome.dart';
 import '../../models/break_result.dart';
@@ -7,17 +6,22 @@ import '../../scoring/break_score.dart';
 import '../../theme/breaklab_theme.dart';
 import '../measure/break_setup_screen.dart';
 import '../measure/measure_controller.dart';
+import '../measure/widgets/break_button.dart';
 import '../measure/widgets/outcome_card.dart';
 import 'coming_next_screen.dart';
+import 'widgets/bottom_nav.dart';
 import 'widgets/home_chrome.dart';
-import 'widgets/orbital_break.dart';
+import 'widgets/recent_session_card.dart';
+import 'widgets/score_card.dart';
+import 'widgets/setup_strip.dart';
 import 'widgets/stat_strip.dart';
 
-/// Break Lab — the whole app's front door.
+/// BreakLab — the whole app's front door.
 ///
-/// Setup lives in two chips beside the button so nothing competes with it;
-/// results land in the same furniture rather than on a separate screen, so a
-/// player never leaves home during a session.
+/// The big blue button is the star and nothing on the screen competes with it.
+/// Setup is one tappable strip under it, results land in the same furniture
+/// rather than on a separate screen, and everything below is what the breaks
+/// added up to.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.controller});
 
@@ -76,68 +80,64 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
 
-  /// Both setup chips open the same screen. One door for table size, cue ball
-  /// and english — a second place to change the same three things is how two
-  /// versions of one screen drift apart.
-  Future<void> _editSetup() => openBreakSetup(context, widget.controller);
+  /// The one door for table size, cue ball and english. A second place to
+  /// change the same three things is how two versions of one screen drift.
+  Future<void> _editSetup() => openBreakSetup(context, c);
+
+  void _navigate(NavDestination destination) {
+    switch (destination) {
+      case NavDestination.home:
+        return;
+      case NavDestination.positions:
+        _open('Positions',
+            'Your break spots ranked by Break Score — breaks taken, average speed, scratch rate and best break for each one. A spot needs five reliable breaks before it earns a ranking.');
+        return;
+      case NavDestination.sessions:
+        _open('Sessions',
+            'Every night at the table, with its own averages, best break and Break Score, and every break inside it.');
+        return;
+      case NavDestination.trends:
+        _open('Trends',
+            'Whether speed, control and consistency are moving the right way across your last twenty sessions.');
+        return;
+      case NavDestination.records:
+        _open('Records',
+            'Fastest break, highest Break Score, best session average, and the milestones you are closing in on.');
+        return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final result = c.phase == MeasurePhase.idle ? _showing : null;
+    final idle = c.phase == MeasurePhase.idle;
 
     return Scaffold(
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          padding: const EdgeInsets.fromLTRB(14, 6, 14, 18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const _Masthead(),
-              const SizedBox(height: 10),
-              const Text(
-                'Break Lab',
-                style: TextStyle(
-                  fontSize: 44,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                  letterSpacing: -1.4,
-                ),
+              HomeHeader(
+                onSettings: () => _open('Settings',
+                    'Units, sensitivity, and what BreakLab keeps on your phone. Nothing leaves the device.'),
               ),
-              const SizedBox(height: 9),
-              const _Tagline(),
-              const SizedBox(height: 6),
-              _StatusLine(controller: c),
               const SizedBox(height: 14),
-              StatStrip(cells: _cells(result)),
               if (result == null) ...[
-                const SizedBox(height: 4),
-                OrbitalBreak(
-                  listening: c.phase == MeasurePhase.recording,
-                  heard: c.heardBreak,
-                  onBreak: c.phase == MeasurePhase.idle ? _break : null,
-                  left: SetupChip(
-                    caption: 'TABLE\n& SPOT',
-                    value: c.tableSize.hasGeometry
-                        ? '${c.tableSize.label.split(' ').first} · '
-                            '${c.activeDistanceInches.toStringAsFixed(1)}"'
-                        : 'Custom',
-                    enabled: c.phase == MeasurePhase.idle,
-                    onTap: _editSetup,
-                    child: ChipTable(x: c.position.x, y: c.position.y),
-                  ),
-                  right: SetupChip(
-                    caption: 'ENGLISH',
-                    value: c.english.label,
-                    enabled: c.phase == MeasurePhase.idle,
-                    onTap: _editSetup,
-                    child: MiniBallFace(x: c.english.x, y: c.english.y),
+                Center(
+                  child: BreakButton(
+                    diameter: 216,
+                    listening: c.phase == MeasurePhase.recording,
+                    heard: c.heardBreak,
+                    subtitle: idle ? 'TAP TO START' : null,
+                    onPressed: idle ? _break : null,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 12),
                 _statusPill(),
               ] else ...[
-                const SizedBox(height: 14),
                 if (result.hasSpeed && !_outcomeDone)
                   OutcomeCard(
                     initial: _lastOutcome,
@@ -171,15 +171,39 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ],
-              const SizedBox(height: 16),
-              TileRow(tiles: _tiles()),
               const SizedBox(height: 12),
-              const LabBanner(),
+              SetupStrip(
+                table: c.tableSize,
+                position: c.position,
+                english: c.english,
+                distanceInches: c.activeDistanceInches,
+                onTap: _editSetup,
+              ),
+              const SizedBox(height: 10),
+              StatStrip(cells: _speedCells(result)),
+              const SizedBox(height: 10),
+              ScoreCard(
+                score: c.labScore,
+                onTap: () => _navigate(NavDestination.trends),
+              ),
+              const SizedBox(height: 10),
+              StatStrip(cells: _sessionCells()),
+              const SizedBox(height: 10),
+              RecentSessionCard(
+                table: c.tableSize,
+                position: c.position,
+                stats: c.recent,
+                date: c.lastSessionAt,
+                onTap: () => _navigate(NavDestination.sessions),
+              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _BottomBar(onOpen: _open),
+      bottomNavigationBar: BreakLabNav(
+        current: NavDestination.home,
+        onSelected: _navigate,
+      ),
     );
   }
 
@@ -196,219 +220,88 @@ class _HomeScreenState extends State<HomeScreen> {
     return const StatusPill(label: 'READY');
   }
 
-  List<StatCell> _cells(BreakResult? result) {
+  /// The three speed cells. Right after a break they flip to that break's
+  /// numbers, so the same furniture answers both "how am I doing?" and "how
+  /// was that?".
+  List<StatCell> _speedCells(BreakResult? result) {
     if (result != null) {
       final score = BreakScore.forBreak(result);
-      final avg = c.tonight?.averageMph;
       return [
         StatCell(
           icon: Icons.speed,
-          label: 'This break',
+          label: 'THIS BREAK',
           value: result.hasSpeed ? result.speedMph!.toStringAsFixed(1) : '—',
           unit: result.hasSpeed ? 'MPH' : null,
           round: true,
         ),
         StatCell(
           icon: Icons.workspace_premium_outlined,
-          label: 'Break Score',
+          label: 'BREAK SCORE',
           value: score?.toString() ?? '—',
           caption: score == null ? null : result.grade.label.toUpperCase(),
           captionColor: BreakLabColors.forGrade(result.grade).$2,
         ),
         StatCell(
           icon: Icons.bar_chart,
-          label: 'Tonight',
-          value: avg == null ? '—' : avg.toStringAsFixed(1),
-          unit: avg == null ? null : 'avg',
+          label: 'SESSION AVG',
+          value: c.tonight?.averageMph?.toStringAsFixed(1) ?? '—',
+          unit: c.tonight?.averageMph == null ? null : 'MPH',
         ),
       ];
     }
 
-    final s = c.labScore;
-    final last = c.lastSessionAt;
+    final s = c.recent;
     return [
       StatCell(
-        icon: Icons.adjust,
-        label: 'BreakLab Score',
-        value: s?.score?.toString() ?? '—',
-        caption: s == null || !s.isReady ? null : s.grade.toUpperCase(),
+        icon: Icons.speed,
+        label: 'SESSION BEST',
+        value: s?.bestMph?.toStringAsFixed(1) ?? '—',
+        unit: s?.bestMph == null ? null : 'MPH',
         round: true,
       ),
       StatCell(
-        icon: Icons.calendar_today_outlined,
-        label: 'Last session',
-        value: last == null ? '—' : DateFormat('MMM d').format(last),
+        icon: Icons.bar_chart,
+        label: 'SESSION AVG',
+        value: s?.averageMph?.toStringAsFixed(1) ?? '—',
+        unit: s?.averageMph == null ? null : 'MPH',
       ),
       StatCell(
-        icon: Icons.bar_chart,
-        label: '',
-        value: '${c.sessionCount}',
-        unit: c.sessionCount == 1 ? 'session' : 'sessions',
+        icon: Icons.format_list_numbered,
+        label: 'BREAKS',
+        value: '${s?.breakCount ?? 0}',
       ),
     ];
   }
 
-  List<HomeTile> _tiles() => [
-        HomeTile(
-          icon: Icons.access_time,
-          name: 'Sessions',
-          description: 'Review &\nanalyze',
-          onTap: () => _open('Sessions',
-              'Every night at the table, with its own averages, best break and Break Score.'),
-        ),
-        HomeTile(
-          icon: Icons.list,
-          name: 'History',
-          description: 'Every\nbreak',
-          onTap: () => _open('History',
-              'Every break you have ever measured, newest first, filterable by table and grade.'),
-        ),
-        HomeTile(
-          icon: Icons.emoji_events_outlined,
-          name: 'Records',
-          description: 'Personal\nbests',
-          onTap: () => _open('Records',
-              'Fastest break, highest Break Score, best session average, and the milestones you are closing in on.'),
-        ),
-        HomeTile(
-          icon: Icons.trending_up,
-          name: 'Score',
-          description: 'Form &\ntrends',
-          onTap: () => _open('BreakLab Score',
-              'Your current form across the last 20 sessions, and whether speed, control and consistency are moving the right way.'),
-        ),
-        HomeTile(
-          icon: Icons.blur_on,
-          name: 'Break Map',
-          description: 'Coming\nin v2',
-          locked: true,
-          onTap: () => _open('Break Map',
-              'Where you break from, and where it works. Every break already records its start position, so this arrives with real data behind it.'),
-        ),
-      ];
-}
-
-class _Masthead extends StatelessWidget {
-  const _Masthead();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 44,
-          height: 29,
-          decoration: BoxDecoration(
-            border: Border.all(color: BreakLabColors.ink, width: 1.5),
-            borderRadius: BorderRadius.circular(2),
-          ),
-          child: CustomPaint(painter: _CrossPainter()),
-        ),
-        const SizedBox(width: 11),
-        const Expanded(
-          child: Text(
-            'BREAKLAB',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          width: 42,
-          height: 42,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: BreakLabColors.ink, width: 1.5),
-          ),
-          child: const Icon(Icons.settings_outlined, size: 19),
-        ),
-      ],
-    );
-  }
-}
-
-class _CrossPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()
-      ..color = BreakLabColors.ink
-      ..strokeWidth = 1.5;
-    canvas.drawLine(Offset.zero, Offset(size.width, size.height), p);
-    canvas.drawLine(Offset(0, size.height), Offset(size.width, 0), p);
-  }
-
-  @override
-  bool shouldRepaint(covariant _CrossPainter oldDelegate) => false;
-}
-
-class _Tagline extends StatelessWidget {
-  const _Tagline();
-
-  @override
-  Widget build(BuildContext context) => const Row(
-        children: [
-          Text('///',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-                fontStyle: FontStyle.italic,
-                letterSpacing: -2,
-              )),
-          SizedBox(width: 9),
-          Flexible(
-            child: Text('TRAIN YOUR BREAK',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  fontStyle: FontStyle.italic,
-                  letterSpacing: 1.2,
-                )),
-          ),
-        ],
-      );
-}
-
-class _StatusLine extends StatelessWidget {
-  const _StatusLine({required this.controller});
-
-  final MeasureController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final tonight = controller.tonight;
-    final text = tonight == null || tonight.breakCount == 0
-        ? 'Session ready.'
-        : 'This session · ${tonight.breakCount} '
-            '${tonight.breakCount == 1 ? 'break' : 'breaks'}.';
-    return Row(
-      children: [
-        Container(
-          width: 9,
-          height: 9,
-          decoration: const BoxDecoration(
-            color: BreakLabColors.ink,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 13.5, fontStyle: FontStyle.italic),
-          ),
-        ),
-      ],
-    );
+  /// The totals under the score. Deliberately NOT the score's own components —
+  /// consistency and clean breaks are already bars two rows up, and the same
+  /// number printed twice on one screen invites the reader to wonder which one
+  /// is the real one.
+  ///
+  /// V006 asked for BEST SESSION, TOTAL BREAKS and SCRATCH RATE here. Each of
+  /// those needs a database query that does not exist yet, and inventing them
+  /// from what is loaded would be a guess dressed as a statistic. They land
+  /// when the queries do.
+  List<StatCell> _sessionCells() {
+    final s = c.labScore;
+    return [
+      StatCell(
+        icon: Icons.calendar_today_outlined,
+        label: 'SESSIONS',
+        value: '${c.sessionCount}',
+      ),
+      StatCell(
+        icon: Icons.list,
+        label: 'SCORED BREAKS',
+        value: '${s?.scoredBreaks ?? 0}',
+      ),
+      StatCell(
+        icon: Icons.layers_outlined,
+        label: 'IN THE SCORE',
+        value: '${s?.sessionsCounted ?? 0}',
+        unit: 'of 20',
+      ),
+    ];
   }
 }
 
@@ -416,137 +309,39 @@ class _RetryTip extends StatelessWidget {
   const _RetryTip();
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFAEEDA),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Text(
-          "Couldn't read that break. Set the phone on the rail near the head "
-          'string, screen up — music and chatter are the usual culprits.',
-          style: TextStyle(fontSize: 12.5, color: Color(0xFF854F0B)),
-        ),
-      );
-}
-
-class _BottomBar extends StatelessWidget {
-  const _BottomBar({required this.onOpen});
-
-  final void Function(String, String) onOpen;
-
-  @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 13),
+      decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: BreakLabColors.hairline, width: 1.5),
-        ),
+        border: Border.all(color: BreakLabColors.ink, width: 1.5),
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 70,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _NavItem(
-                icon: Icons.access_time,
-                label: 'Sessions',
-                onTap: () => onOpen('Sessions', 'Every night at the table.'),
-              ),
-              _NavItem(
-                icon: Icons.list,
-                label: 'History',
-                onTap: () =>
-                    onOpen('History', 'Every break you have measured.'),
-              ),
-              const _HomeNavItem(),
-              _NavItem(
-                icon: Icons.emoji_events_outlined,
-                label: 'Records',
-                onTap: () =>
-                    onOpen('Records', 'Personal bests and milestones.'),
-              ),
-              _NavItem(
-                icon: Icons.trending_up,
-                label: 'Score',
-                onTap: () =>
-                    onOpen('BreakLab Score', 'Your current form and trends.'),
-              ),
-            ],
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "COULDN'T READ THAT ONE",
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
+            ),
           ),
-        ),
+          SizedBox(height: 5),
+          Text(
+            'Set the phone on the rail, close to where the cue ball starts, '
+            'and break normally. A recording with no clear pair of hits is '
+            'thrown away rather than turned into a number.',
+            style: TextStyle(
+              fontSize: 12,
+              height: 1.4,
+              color: BreakLabColors.inkSoft,
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-        child: GestureDetector(
-          onTap: onTap,
-          behavior: HitTestBehavior.opaque,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 21, color: BreakLabColors.ink),
-              const SizedBox(height: 3),
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 11, color: BreakLabColors.inkSoft)),
-            ],
-          ),
-        ),
-      );
-}
-
-class _HomeNavItem extends StatelessWidget {
-  const _HomeNavItem();
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Transform.translate(
-              offset: const Offset(0, -16),
-              child: Container(
-                width: 48,
-                height: 48,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: BreakLabColors.ink, width: 1.5),
-                ),
-                child: const Icon(Icons.home_outlined, size: 22),
-              ),
-            ),
-            Transform.translate(
-              offset: const Offset(0, -12),
-              child: const Text(
-                'Break',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: BreakLabColors.ink,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
 }
