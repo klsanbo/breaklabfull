@@ -277,7 +277,10 @@ void main() {
       final s = BreakLabScore.fromSessions([mixed, mixed, mixed]);
       // 11 scored per session x3 = 33 scored, all 63 feed speed.
       expect(s.scoredBreaks, 33);
-      expect(s.speed, closeTo(61.67, 0.1));
+      // Derived from the scale rather than hardcoded: this test is about
+      // skipped breaks still feeding the speed average, not about where the
+      // scale happens to sit. Recalibrating should not require editing it.
+      expect(s.speed, closeTo(BreakScore.speedPoints(21.4), 0.1));
     });
   });
 }
