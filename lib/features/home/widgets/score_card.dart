@@ -56,8 +56,7 @@ class ScoreCard extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 11),
                     decoration: BoxDecoration(
-                      border:
-                          Border.all(color: BreakLabColors.ink, width: 1.5),
+                      border: Border.all(color: BreakLabColors.ink, width: 1.5),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(

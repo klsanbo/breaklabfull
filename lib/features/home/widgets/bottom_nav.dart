@@ -105,9 +105,7 @@ class _Item extends StatelessWidget {
             ),
             child: Icon(destination.icon,
                 size: 14,
-                color: selected
-                    ? BreakLabColors.ink
-                    : BreakLabColors.inkSoft),
+                color: selected ? BreakLabColors.ink : BreakLabColors.inkSoft),
           ),
           const SizedBox(height: 4),
           Text(
