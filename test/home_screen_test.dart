@@ -205,8 +205,7 @@ void main() {
       'SCRATCH',
     ]) {
       expect(
-        find.descendant(
-            of: find.byType(StatStrip), matching: find.text(label)),
+        find.descendant(of: find.byType(StatStrip), matching: find.text(label)),
         findsOneWidget,
         reason: '$label is missing from the totals row',
       );

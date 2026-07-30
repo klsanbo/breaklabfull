@@ -266,7 +266,9 @@ class _HomeScreenState extends State<HomeScreen> {
         label: 'PERSONAL BEST',
         value: fastest?.toStringAsFixed(1) ?? '—',
         unit: fastest == null ? null : 'MPH',
-        caption: fastest == null ? null : SpeedBand.forMph(fastest).label.toUpperCase(),
+        caption: fastest == null
+            ? null
+            : SpeedBand.forMph(fastest).label.toUpperCase(),
       ),
       StatCell(
         icon: Icons.bar_chart,
