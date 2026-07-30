@@ -218,7 +218,14 @@ void main() {
     expect(NavDestination.values.length, 5);
     expect(NavDestination.values[2], NavDestination.home);
     for (final d in NavDestination.values) {
-      expect(find.text(d.label), findsOneWidget);
+      // Scoped to the bar: SESSIONS is also a totals cell, and an unscoped
+      // finder here is the same mistake twice in one file.
+      expect(
+        find.descendant(
+            of: find.byType(BreakLabNav), matching: find.text(d.label)),
+        findsOneWidget,
+        reason: '${d.label} is missing from the bar',
+      );
     }
   });
 
