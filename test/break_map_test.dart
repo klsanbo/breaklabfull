@@ -121,9 +121,8 @@ void main() {
           travelDistanceInches: 36.75,
           preset: SensitivityPreset.normal,
           engineVersion: '0.1.0',
-          grade: mph == null
-              ? AccuracyGrade.unreliable
-              : AccuracyGrade.excellent,
+          grade:
+              mph == null ? AccuracyGrade.unreliable : AccuracyGrade.excellent,
           detectedPairValid: mph != null,
           position: BreakPosition(x: 0.25, y: y),
           gapMs: mph == null ? null : 500,

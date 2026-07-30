@@ -99,8 +99,8 @@ class BreakMapScreen extends StatelessWidget {
     // No outcome cards filled in anywhere: fall back to the fastest, and the
     // copy says so rather than claiming a best.
     if (best == null && rated.isNotEmpty) {
-      best = rated.reduce(
-          (a, b) => (b.averageMph ?? 0) > (a.averageMph ?? 0) ? b : a);
+      best = rated
+          .reduce((a, b) => (b.averageMph ?? 0) > (a.averageMph ?? 0) ? b : a);
     }
     return best;
   }
@@ -246,8 +246,8 @@ class _NotYet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final closest = zones.reduce(
-        (a, b) => b.reliableCount > a.reliableCount ? b : a);
+    final closest =
+        zones.reduce((a, b) => b.reliableCount > a.reliableCount ? b : a);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(13, 13, 13, 14),
