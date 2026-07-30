@@ -50,6 +50,7 @@ class StatCell extends StatelessWidget {
     this.caption,
     this.captionColor,
     this.round = false,
+    this.showIcon = true,
   });
 
   final IconData icon;
@@ -64,6 +65,11 @@ class StatCell extends StatelessWidget {
   final Color? captionColor;
   final bool round;
 
+  /// Four cells across a phone leaves about 35 logical pixels for a label once
+  /// the icon has taken its share, which turns TOTAL BREAKS into "BREA…".
+  /// Rows of four drop the icon and give the words the whole width.
+  final bool showIcon;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -74,17 +80,19 @@ class StatCell extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 22,
-                height: 22,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  border: Border.all(color: BreakLabColors.ink, width: 1.5),
-                  borderRadius: BorderRadius.circular(round ? 11 : 4),
+              if (showIcon) ...[
+                Container(
+                  width: 22,
+                  height: 22,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: BreakLabColors.ink, width: 1.5),
+                    borderRadius: BorderRadius.circular(round ? 11 : 4),
+                  ),
+                  child: Icon(icon, size: 12, color: BreakLabColors.ink),
                 ),
-                child: Icon(icon, size: 12, color: BreakLabColors.ink),
-              ),
-              const SizedBox(width: 7),
+                const SizedBox(width: 7),
+              ],
               Expanded(
                 child: Text(
                   label,

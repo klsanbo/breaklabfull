@@ -101,6 +101,15 @@ class MeasureController extends ChangeNotifier {
   /// card on home reads. [tonight] is only ever the session still running.
   SessionStats? recent;
 
+  /// Career bests. This query already existed; home simply was not loading it,
+  /// which is why the dashboard showed placeholders for a while.
+  PersonalRecords? records;
+
+  /// Every break ever attempted, and scratches as a share of the breaks with an
+  /// outcome recorded. Null scratch rate means nobody has filled a card in yet.
+  int breaksAllTime = 0;
+  double? scratchRate;
+
   /// Recomputes everything the dashboard displays. Cheap — all of it is
   /// derived from stored breaks, nothing is cached in the database.
   Future<void> refreshStats() async {
@@ -111,6 +120,9 @@ class MeasureController extends ChangeNotifier {
     final open = await db.openSession();
     tonight = open == null ? null : await db.sessionStats(open.id!);
     recent = all.isEmpty ? null : await db.sessionStats(all.first.id!);
+    records = await db.personalRecords();
+    breaksAllTime = await db.totalBreaks();
+    scratchRate = await db.scratchRate();
     notifyListeners();
   }
 

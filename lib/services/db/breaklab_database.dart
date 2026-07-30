@@ -238,6 +238,32 @@ class BreakLabDatabase {
 
   /// Personal records, computed live from stored breaks. Unreliable breaks
   /// never count toward records.
+  /// Every break ever recorded, whether or not it produced a speed or an
+  /// outcome. This is a count of attempts, not of measurements.
+  Future<int> totalBreaks() async {
+    final rows = await _db.rawQuery('SELECT COUNT(*) AS n FROM breaks');
+    return (rows.first['n'] as num).toInt();
+  }
+
+  /// Scratches as a share of the breaks a player actually told us about.
+  ///
+  /// The denominator is breaks with an outcome recorded, NOT all breaks. You
+  /// cannot know whether a break scratched if nobody filled the card in, and
+  /// counting those as clean would quietly flatter the number.
+  ///
+  /// Null when no outcome has ever been recorded — a rate over no data is not
+  /// zero, it is unknown.
+  Future<double?> scratchRate() async {
+    final rows = await _db.rawQuery('''
+      SELECT COUNT(*) AS n, SUM(scratched) AS scratches
+      FROM breaks WHERE scratched IS NOT NULL
+    ''');
+    final n = (rows.first['n'] as num).toInt();
+    if (n == 0) return null;
+    final scratches = (rows.first['scratches'] as num?)?.toDouble() ?? 0;
+    return scratches / n * 100;
+  }
+
   Future<PersonalRecords> personalRecords() async {
     final fastest = await _db.rawQuery('''
       SELECT * FROM breaks

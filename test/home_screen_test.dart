@@ -192,6 +192,36 @@ void main() {
     );
   });
 
+  testWidgets('the totals are the four V006 asked for, with real sources',
+      (tester) async {
+    // I claimed these needed queries that did not exist. personalRecords() had
+    // been in the database the whole time; home simply was not loading it.
+    await pumpHome(tester);
+
+    for (final label in [
+      'SESSIONS',
+      'TOTAL BREAKS',
+      'BEST SESSION',
+      'SCRATCH',
+    ]) {
+      expect(
+        find.descendant(
+            of: find.byType(StatStrip), matching: find.text(label)),
+        findsOneWidget,
+        reason: '$label is missing from the totals row',
+      );
+    }
+    expect(find.text('PERSONAL BEST'), findsOneWidget);
+  });
+
+  testWidgets('an unknown scratch rate is a dash, never 0%', (tester) async {
+    // Nobody has filled in an outcome card, so the rate is unknown. Printing
+    // 0% would be a claim that no break has ever scratched.
+    await pumpHome(tester);
+    expect(controller.scratchRate, isNull);
+    expect(find.text('0%'), findsNothing);
+  });
+
   testWidgets('the setup strip follows the stored position', (tester) async {
     await pumpHome(tester);
     expect(find.text('7ft Bar Box · Center · 36.8"'), findsOneWidget);

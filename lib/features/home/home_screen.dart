@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/break_outcome.dart';
 import '../../models/break_result.dart';
+import '../../models/speed_band.dart';
 import '../../scoring/break_score.dart';
 import '../../theme/breaklab_theme.dart';
 import '../measure/break_setup_screen.dart';
@@ -251,6 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final s = c.recent;
+    final fastest = c.records?.fastestBreak?.speedMph;
     return [
       StatCell(
         icon: Icons.speed,
@@ -260,46 +262,58 @@ class _HomeScreenState extends State<HomeScreen> {
         round: true,
       ),
       StatCell(
+        icon: Icons.workspace_premium_outlined,
+        label: 'PERSONAL BEST',
+        value: fastest?.toStringAsFixed(1) ?? '—',
+        unit: fastest == null ? null : 'MPH',
+        caption: fastest == null ? null : SpeedBand.forMph(fastest).label.toUpperCase(),
+      ),
+      StatCell(
         icon: Icons.bar_chart,
         label: 'SESSION AVG',
         value: s?.averageMph?.toStringAsFixed(1) ?? '—',
         unit: s?.averageMph == null ? null : 'MPH',
       ),
-      StatCell(
-        icon: Icons.format_list_numbered,
-        label: 'BREAKS',
-        value: '${s?.breakCount ?? 0}',
-      ),
     ];
   }
 
-  /// The totals under the score. Deliberately NOT the score's own components —
-  /// consistency and clean breaks are already bars two rows up, and the same
-  /// number printed twice on one screen invites the reader to wonder which one
-  /// is the real one.
+  /// The totals under the score: the four V006 asked for.
   ///
-  /// V006 asked for BEST SESSION, TOTAL BREAKS and SCRATCH RATE here. Each of
-  /// those needs a database query that does not exist yet, and inventing them
-  /// from what is loaded would be a guess dressed as a statistic. They land
-  /// when the queries do.
+  /// Deliberately NOT the score's own components — consistency and clean breaks
+  /// are already bars two rows up, and the same number printed twice on one
+  /// screen invites the reader to wonder which one is the real one.
+  ///
+  /// The scratch rate is a share of the breaks with an outcome recorded, not of
+  /// all breaks, and it reads a dash rather than 0% until at least one card has
+  /// been filled in. A rate over no data is unknown, not zero.
   List<StatCell> _sessionCells() {
-    final s = c.labScore;
+    final best = c.records?.bestSessionAverageMph;
+    final scratch = c.scratchRate;
     return [
       StatCell(
+        showIcon: false,
         icon: Icons.calendar_today_outlined,
         label: 'SESSIONS',
         value: '${c.sessionCount}',
       ),
       StatCell(
-        icon: Icons.list,
-        label: 'SCORED BREAKS',
-        value: '${s?.scoredBreaks ?? 0}',
+        showIcon: false,
+        icon: Icons.format_list_numbered,
+        label: 'TOTAL BREAKS',
+        value: '${c.breaksAllTime}',
       ),
       StatCell(
-        icon: Icons.layers_outlined,
-        label: 'IN THE SCORE',
-        value: '${s?.sessionsCounted ?? 0}',
-        unit: 'of 20',
+        showIcon: false,
+        icon: Icons.trending_up,
+        label: 'BEST SESSION',
+        value: best?.toStringAsFixed(1) ?? '—',
+        unit: best == null ? null : 'MPH',
+      ),
+      StatCell(
+        showIcon: false,
+        icon: Icons.error_outline,
+        label: 'SCRATCH',
+        value: scratch == null ? '—' : '${scratch.round()}%',
       ),
     ];
   }

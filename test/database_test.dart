@@ -1,5 +1,6 @@
 import 'package:breaklab/engine/engine_contract.dart';
 import 'package:breaklab/engine/stub_engine.dart';
+import 'package:breaklab/models/break_outcome.dart';
 import 'package:breaklab/models/break_result.dart';
 import 'package:breaklab/models/session.dart';
 import 'package:breaklab/models/table_size.dart';
@@ -130,5 +131,57 @@ void main() {
     final saved = await db.insertBreak(b);
     expect(saved.id, isNotNull);
     expect(saved.hasSpeed, isFalse);
+  });
+
+  test('total breaks counts attempts, including unreadable ones', () async {
+    final s = await db.insertSession(Session(
+        startedAt: DateTime(2026, 7, 28, 19), tableSize: TableSize.sevenFoot));
+    await db.insertBreak(sampleBreak(s.id!, mph: 18.2));
+    await db.insertBreak(sampleBreak(s.id!, mph: 21.4));
+    // No speed and unreliable — still an attempt.
+    await db.insertBreak(sampleBreak(s.id!, grade: AccuracyGrade.unreliable));
+
+    expect(await db.totalBreaks(), 3);
+  });
+
+  test('scratch rate is unknown until an outcome is recorded', () async {
+    final s = await db.insertSession(Session(
+        startedAt: DateTime(2026, 7, 28, 19), tableSize: TableSize.sevenFoot));
+    await db.insertBreak(sampleBreak(s.id!, mph: 18.2));
+    await db.insertBreak(sampleBreak(s.id!, mph: 21.4));
+
+    // Two breaks, no cards filled in. A rate over no data is unknown, not 0%.
+    expect(await db.scratchRate(), isNull);
+  });
+
+  test('scratch rate counts only breaks with an outcome', () async {
+    final s = await db.insertSession(Session(
+        startedAt: DateTime(2026, 7, 28, 19), tableSize: TableSize.sevenFoot));
+
+    final clean = await db.insertBreak(sampleBreak(s.id!, mph: 20.0));
+    final dirty = await db.insertBreak(sampleBreak(s.id!, mph: 21.0));
+    // A third break nobody answered for. It must not dilute the rate by
+    // counting as clean.
+    await db.insertBreak(sampleBreak(s.id!, mph: 19.0));
+
+    await db.updateOutcome(clean.copyWith(
+      outcome: const BreakOutcome(
+        ballsMade: 1,
+        scratched: false,
+        spread: SpreadQuality.good,
+        cueBallAfter: CueBallAfter.stayedCenter,
+      ),
+    ));
+    await db.updateOutcome(dirty.copyWith(
+      outcome: const BreakOutcome(
+        ballsMade: 0,
+        scratched: true,
+        spread: SpreadQuality.poor,
+        cueBallAfter: CueBallAfter.wild,
+      ),
+    ));
+
+    // One scratch out of the two that were answered for: 50%, not 33%.
+    expect(await db.scratchRate(), closeTo(50.0, 0.001));
   });
 }
