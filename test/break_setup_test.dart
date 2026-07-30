@@ -210,6 +210,25 @@ void main() {
           reason: 'the readout would be underneath the table drawing');
     });
 
+    test('the wordmark is drawn whole or not at all', () {
+      // It was being cut in half by the clip, which reads as a defect. It has
+      // to fit entirely inside the view or stay off.
+      expect(
+        BreakTableView.wordmarkFits(viewHeight: 300, top: 250, bottom: 280),
+        isTrue,
+      );
+      expect(
+        BreakTableView.wordmarkFits(viewHeight: 300, top: 290, bottom: 320),
+        isFalse,
+        reason: 'the bottom of the word is past the bottom of the view',
+      );
+      expect(
+        BreakTableView.wordmarkFits(viewHeight: 300, top: -5, bottom: 25),
+        isFalse,
+        reason: 'the top of the word is above the view',
+      );
+    });
+
     testWidgets('dragging down moves the ball up the table', (tester) async {
       BreakPosition? moved;
       await tester.pumpWidget(view(

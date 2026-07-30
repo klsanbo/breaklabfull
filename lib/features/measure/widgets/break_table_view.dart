@@ -43,6 +43,16 @@ class BreakTableView extends StatefulWidget {
   /// line, short enough that the head stays on screen when the rack does not.
   static const aimReachInches = 11.5;
 
+  /// A wordmark cut in half looks like a defect, so it is drawn whole or not at
+  /// all. There is no room under the head rail when the ball is up at the head
+  /// string; pull the ball back toward the rail and the skirt comes into view.
+  static bool wordmarkFits({
+    required double viewHeight,
+    required double top,
+    required double bottom,
+  }) =>
+      top >= 0 && bottom <= viewHeight;
+
   @override
   State<BreakTableView> createState() => _BreakTableViewState();
 }
@@ -146,7 +156,7 @@ class _RoomPainter extends CustomPainter {
 
     final apron = clothWidth * 0.115;
     final rail = clothWidth * 0.062;
-    final skirt = clothWidth * 0.30;
+    final skirt = clothWidth * 0.22;
     final inset = apron + rail;
 
     // The ball is pinned at the centre of the view; the table is placed so the
@@ -207,19 +217,24 @@ class _RoomPainter extends CustomPainter {
 
     _paintWordmark(
       canvas,
+      viewHeight: size.height,
       centre: Offset(
         clothLeft + clothWidth / 2,
-        clothTop + clothHeight + rail + skirt * 0.42,
+        clothTop + clothHeight + rail + skirt * 0.40,
       ),
-      size: clothWidth * 0.115,
+      size: clothWidth * 0.10,
     );
 
     _paintAim(canvas, pin, clothLeft, clothTop);
     _paintBall(canvas, pin);
   }
 
-  void _paintWordmark(Canvas canvas,
-      {required Offset centre, required double size}) {
+  void _paintWordmark(
+    Canvas canvas, {
+    required double viewHeight,
+    required Offset centre,
+    required double size,
+  }) {
     final painter = TextPainter(
       text: TextSpan(
         text: wordmark,
@@ -228,15 +243,21 @@ class _RoomPainter extends CustomPainter {
           fontWeight: FontWeight.w900,
           fontStyle: FontStyle.italic,
           letterSpacing: size * 0.18,
-          color: Colors.white.withValues(alpha: 0.10),
+          color: Colors.white.withValues(alpha: 0.12),
         ),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    painter.paint(
-      canvas,
-      centre - Offset(painter.width / 2, painter.height / 2),
-    );
+
+    final origin = centre - Offset(painter.width / 2, painter.height / 2);
+    if (!BreakTableView.wordmarkFits(
+      viewHeight: viewHeight,
+      top: origin.dy,
+      bottom: origin.dy + painter.height,
+    )) {
+      return;
+    }
+    painter.paint(canvas, origin);
   }
 
   /// A fixed-length arrow toward the rack. Drawing a line all the way there
