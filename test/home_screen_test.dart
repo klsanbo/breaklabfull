@@ -8,6 +8,7 @@ import 'package:breaklab/features/home/widgets/bottom_nav.dart';
 import 'package:breaklab/features/home/widgets/recent_session_card.dart';
 import 'package:breaklab/features/home/widgets/score_card.dart';
 import 'package:breaklab/features/home/widgets/setup_strip.dart';
+import 'package:breaklab/features/home/widgets/stat_strip.dart';
 import 'package:breaklab/features/measure/break_setup_screen.dart';
 import 'package:breaklab/features/measure/measure_controller.dart';
 import 'package:breaklab/models/break_position.dart';
@@ -139,8 +140,35 @@ void main() {
     await pumpHome(tester);
     expect(find.text('CONSISTENCY'), findsOneWidget);
     expect(find.text('CLEAN'), findsNothing);
-    expect(find.text('SESSIONS'), findsOneWidget);
+    // SESSIONS is both a totals cell and a bar destination, which is fine —
+    // they are in different furniture. The finder has to say which one it
+    // means rather than the test asserting a magic count.
+    expect(
+      find.descendant(
+          of: find.byType(StatStrip), matching: find.text('SESSIONS')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+          of: find.byType(BreakLabNav), matching: find.text('SESSIONS')),
+      findsOneWidget,
+    );
     expect(find.text('IN THE SCORE'), findsOneWidget);
+  });
+
+  testWidgets('the masthead gives instead of overflowing at large text',
+      (tester) async {
+    // It overflowed by 98 pixels the moment the type got wider: two Spacers
+    // around a rigid Column left it no way to give. Anyone running a large
+    // system font would have seen the name run off the edge.
+    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await pumpHome(tester);
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('BREAK LAB'), findsOneWidget);
+    expect(find.text('Settings'), findsOneWidget);
   });
 
   testWidgets('an 84 reads STRONG, not ELITE', (tester) async {

@@ -19,10 +19,10 @@ class ScoreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = score;
     final ready = s != null && s.isReady;
-    // Computed here because a bool does not promote a nullable local.
-    final bigNumber = ready ? '${s!.score}' : '—';
+    // Dart promotes s through `ready`, so no ! is needed or wanted here.
+    final bigNumber = ready ? '${s.score}' : '—';
     final gradeLine =
-        ready ? '${s!.grade.toUpperCase()} BREAKER' : 'NO SCORE YET';
+        ready ? '${s.grade.toUpperCase()} BREAKER' : 'NO SCORE YET';
 
     return GestureDetector(
       onTap: onTap,

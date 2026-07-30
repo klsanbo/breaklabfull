@@ -17,32 +17,41 @@ class HomeHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const _Glyph(),
-        const Spacer(),
-        const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'BREAK LAB',
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-                height: 1.05,
-              ),
+        // Expanded plus scaleDown rather than a pair of Spacers: the name gets
+        // whatever is left between the mark and Settings, and shrinks to fit
+        // instead of running off the edge. Two Spacers around a rigid Column
+        // left the header no way to give, and it overflowed by 98 pixels the
+        // moment the type got bigger.
+        const Expanded(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'BREAK LAB',
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                    height: 1.05,
+                  ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  'PRACTICE. MEASURE. IMPROVE.',
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.6,
+                    color: BreakLabColors.inkSoft,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 3),
-            Text(
-              'PRACTICE. MEASURE. IMPROVE.',
-              style: TextStyle(
-                fontSize: 9.5,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.6,
-                color: BreakLabColors.inkSoft,
-              ),
-            ),
-          ],
+          ),
         ),
-        const Spacer(),
+        const SizedBox(width: 8),
         GestureDetector(
           onTap: onSettings,
           child: Container(
