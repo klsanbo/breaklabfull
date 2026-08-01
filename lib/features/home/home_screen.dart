@@ -8,8 +8,12 @@ import '../../theme/breaklab_theme.dart';
 import '../break_map/break_map_screen.dart';
 import '../measure/break_setup_screen.dart';
 import '../measure/measure_controller.dart';
+import '../measure/phone_placement_screen.dart';
 import '../measure/widgets/break_button.dart';
 import '../measure/widgets/outcome_card.dart';
+import '../measure/widgets/reading_review_sheet.dart';
+import '../measure/widgets/unreadable_break_card.dart';
+import '../upgrade/upgrade_screen.dart';
 import 'coming_next_screen.dart';
 import 'widgets/bottom_nav.dart';
 import 'widgets/home_chrome.dart';
@@ -84,11 +88,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _break() async {
+    // The gate lives here and in the controller. Home opens the upgrade
+    // screen so the player is told why nothing happened; the controller
+    // refuses regardless, so no other route into the recorder can slip past.
+    if (!c.canMeasure) return _openUpgrade();
     setState(() {
       _showing = null;
       _outcomeDone = false;
     });
     await c.startBreak();
+  }
+
+  Future<void> _openUpgrade() async {
+    await openUpgrade(context, c);
+    if (mounted) setState(() {});
+  }
+
+  /// From the reading review sheet: close it, then open the one setup screen.
+  /// The distance is the only number a player sets by hand, so it is the only
+  /// thing they can act on when a reading looks wrong.
+  Future<void> _fixSetupFromSheet() async {
+    Navigator.of(context).pop();
+    await _editSetup();
   }
 
   void _open(String title, String blurb) => Navigator.of(context).push(
@@ -129,6 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final result = c.phase == MeasurePhase.idle ? _showing : null;
     final idle = c.phase == MeasurePhase.idle;
+    final locked = !c.canMeasure;
 
     return Scaffold(
       body: SafeArea(
@@ -149,7 +171,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     diameter: 216,
                     listening: c.phase == MeasurePhase.recording,
                     heard: c.heardBreak,
-                    subtitle: idle ? 'TAP TO START' : null,
+                    locked: locked,
+                    subtitle: locked
+                        ? 'TAP TO UNLOCK'
+                        : idle
+                            ? 'TAP TO START'
+                            : null,
                     onPressed: idle ? _break : null,
                   ),
                 ),
@@ -169,7 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     onSkipped: () => setState(() => _outcomeDone = true),
                   )
                 else if (!result.hasSpeed)
-                  const _RetryTip(),
+                  UnreadableBreakCard.forBreak(
+                    result,
+                    onCheckPlacement: () => openPhonePlacement(context),
+                  ),
                 const SizedBox(height: 14),
                 StatusPill(
                   label: result.hasSpeed ? 'BREAK AGAIN' : 'TRY AGAIN',
@@ -235,6 +265,15 @@ class _HomeScreenState extends State<HomeScreen> {
     if (c.phase == MeasurePhase.processing) {
       return const StatusPill(label: 'MEASURING', icon: Icons.timelapse);
     }
+    if (!c.canMeasure) {
+      // A locked button with no way out is an uninstall. There is always a
+      // second door to the upgrade screen on this row.
+      return StatusPill(
+        label: 'TRIAL ENDED',
+        icon: Icons.lock_outline,
+        onTap: _openUpgrade,
+      );
+    }
     return const StatusPill(label: 'READY');
   }
 
@@ -258,6 +297,13 @@ class _HomeScreenState extends State<HomeScreen> {
           value: score?.toString() ?? '—',
           caption: score == null ? null : result.grade.label.toUpperCase(),
           captionColor: BreakLabColors.forGrade(result.grade).$2,
+          // The grade is the door to BL-010. Tapping it says how the reading
+          // was made; most players never will, and that is the point.
+          onTap: () => showReadingReview(
+            context,
+            result,
+            onFixSetup: _fixSetupFromSheet,
+          ),
         ),
         StatCell(
           icon: Icons.bar_chart,
@@ -335,46 +381,5 @@ class _HomeScreenState extends State<HomeScreen> {
         value: scratch == null ? '—' : '${scratch.round()}%',
       ),
     ];
-  }
-}
-
-class _RetryTip extends StatelessWidget {
-  const _RetryTip();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 13),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: BreakLabColors.ink, width: 1.5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            "COULDN'T READ THAT ONE",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.5,
-            ),
-          ),
-          SizedBox(height: 5),
-          Text(
-            'Set the phone on the rail, close to where the cue ball starts, '
-            'and break normally. A recording with no clear pair of hits is '
-            'thrown away rather than turned into a number.',
-            style: TextStyle(
-              fontSize: 12,
-              height: 1.4,
-              color: BreakLabColors.inkSoft,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

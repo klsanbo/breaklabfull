@@ -19,6 +19,10 @@ void main() async {
   final temp = await getTemporaryDirectory();
   final db = await BreakLabDatabase.open(p.join(docs.path, 'breaklab.db'));
 
+  // One store, shared. The controller stamps the trial clock on the first
+  // readable break; the root reads the welcome flag out of the same file.
+  final store = PrefsEntitlementStore();
+
   runApp(BreakLabApp(
     controller: MeasureController(
       db: db,
@@ -27,8 +31,9 @@ void main() async {
       engine: StubEngine(),
       recorder: RecorderAdapter(PcmWavRecorder()),
       tempDirectoryPath: temp.path,
+      entitlements: store,
     ),
-    store: PrefsEntitlementStore(),
+    store: store,
   ));
 }
 

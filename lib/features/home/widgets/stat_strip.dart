@@ -51,6 +51,7 @@ class StatCell extends StatelessWidget {
     this.captionColor,
     this.round = false,
     this.showIcon = true,
+    this.onTap,
   });
 
   final IconData icon;
@@ -70,9 +71,15 @@ class StatCell extends StatelessWidget {
   /// Rows of four drop the icon and give the words the whole width.
   final bool showIcon;
 
+  /// Makes the whole cell tappable. Used for the grade on a fresh break,
+  /// which is the door to BL-010 — the reading review sheet. A cell with no
+  /// story behind it stays inert rather than growing a ripple that leads
+  /// nowhere.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final cell = Padding(
       padding: const EdgeInsets.fromLTRB(11, 10, 8, 11),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,6 +157,13 @@ class StatCell extends StatelessWidget {
             ),
         ],
       ),
+    );
+
+    if (onTap == null) return cell;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: cell,
     );
   }
 }

@@ -9,11 +9,13 @@ import '../../models/break_position.dart';
 import '../../models/break_result.dart';
 import '../../models/break_zone.dart';
 import '../../models/cue_english.dart';
+import '../../models/entitlement.dart';
 import '../../models/session.dart';
 import '../../models/table_size.dart';
 import '../../services/audio/wav_pcm_reader.dart';
 import '../../scoring/breaklab_score.dart';
 import '../../services/db/breaklab_database.dart';
+import '../../services/entitlement/entitlement_store.dart';
 
 /// What the measure screen is currently doing.
 enum MeasurePhase { idle, recording, processing }
@@ -41,19 +43,26 @@ class MeasureController extends ChangeNotifier {
     required this.engine,
     required this.recorder,
     required this.tempDirectoryPath,
+    EntitlementStore? entitlements,
     WavPcmReader reader = const WavPcmReader(),
     DateTime Function()? clock,
     this.armDelay = const Duration(milliseconds: 350),
     this.tailAfterTrigger = const Duration(milliseconds: 1500),
     this.silenceTimeout = const Duration(seconds: 30),
     this.triggerLevel = 0.55,
-  })  : _reader = reader,
+  })  : entitlementStore = entitlements ?? InMemoryEntitlementStore(),
+        _reader = reader,
         _clock = clock ?? DateTime.now;
 
   final BreakLabDatabase db;
   final BreakLabEngine engine;
   final BreakRecorder recorder;
   final String tempDirectoryPath;
+
+  /// Where the trial clock and the purchase flag live. Defaults to an
+  /// in-memory store so every existing test keeps constructing this the way it
+  /// always has; the app hands in the real one.
+  final EntitlementStore entitlementStore;
   final WavPcmReader _reader;
   final DateTime Function() _clock;
 
@@ -85,6 +94,16 @@ class MeasureController extends ChangeNotifier {
 
   /// Applied to the session when one is opened.
   GameType gameType = GameType.eightBall;
+
+  /// Seven days from the first readable break, or bought outright. Loaded by
+  /// [refreshStats]; [Entitlement.fresh] until then, which locks nothing.
+  Entitlement entitlement = Entitlement.fresh;
+
+  /// The app's only gate. False means the week is up and nothing was bought —
+  /// measuring stops, and every screen that reads stored breaks keeps working.
+  bool get canMeasure => entitlement.canMeasureAt(_clock());
+
+  int get trialDaysLeft => entitlement.daysLeftAt(_clock());
 
   /// Latest saved break; null before the first one.
   BreakResult? lastBreak;
@@ -133,6 +152,7 @@ class MeasureController extends ChangeNotifier {
     breaksAllTime = await db.totalBreaks();
     scratchRate = await db.scratchRate();
     zones = await db.zoneStats();
+    entitlement = await entitlementStore.load();
     notifyListeners();
   }
 
@@ -198,9 +218,33 @@ class MeasureController extends ChangeNotifier {
     await refreshStats();
   }
 
+  /// Marks the app bought. Called by the upgrade screen once money has
+  /// actually changed hands, never on the strength of a tap.
+  Future<void> markPurchased() async {
+    entitlement = entitlement.asPurchased();
+    await entitlementStore.save(entitlement);
+    notifyListeners();
+  }
+
+  /// Starts the seven days, once, on the first break with a speed on it.
+  ///
+  /// A break the engine would not vouch for never starts the clock. Spending
+  /// someone's trial on a reading we refused to give them is how an app earns
+  /// a one-star review that happens to be correct.
+  Future<void> _startTrialIfNeeded(BreakResult saved) async {
+    if (!saved.hasSpeed) return;
+    final started = entitlement.startedAt(_clock());
+    if (identical(started, entitlement)) return;
+    entitlement = started;
+    await entitlementStore.save(started);
+  }
+
   /// The single tap. Everything after this is automatic.
   Future<void> startBreak() async {
     if (phase != MeasurePhase.idle) return;
+    // The UI opens the upgrade screen before it gets here. This is the
+    // backstop, so no path into the recorder can bypass the gate.
+    if (!canMeasure) return;
     errorMessage = null;
     final stamp = _clock().millisecondsSinceEpoch;
     try {
@@ -278,6 +322,7 @@ class MeasureController extends ChangeNotifier {
         english: english,
       ));
       lastBreak = saved;
+      await _startTrialIfNeeded(saved);
       await refreshStats();
       return saved;
     } on Object catch (e) {

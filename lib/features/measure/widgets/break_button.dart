@@ -13,6 +13,7 @@ class BreakButton extends StatefulWidget {
     required this.onPressed,
     this.listening = false,
     this.heard = false,
+    this.locked = false,
     this.diameter = 224,
     this.subtitle,
   });
@@ -24,6 +25,12 @@ class BreakButton extends StatefulWidget {
 
   /// The break was heard; the tail is still recording.
   final bool heard;
+
+  /// The trial is over and nothing was bought. The button greys out and wears
+  /// a lock; tapping it opens the upgrade screen rather than doing nothing.
+  /// A dead control with no explanation is how a player decides the app is
+  /// broken instead of deciding to buy it.
+  final bool locked;
 
   final double diameter;
 
@@ -102,9 +109,11 @@ class _BreakButtonState extends State<BreakButton>
           ),
           Semantics(
             button: true,
-            label: widget.listening
-                ? 'Listening for your break'
-                : 'Break — start measuring',
+            label: widget.locked
+                ? 'Break — locked, tap to unlock BreakLab'
+                : widget.listening
+                    ? 'Listening for your break'
+                    : 'Break — start measuring',
             child: GestureDetector(
               onTap: widget.onPressed,
               child: Container(
@@ -112,20 +121,28 @@ class _BreakButtonState extends State<BreakButton>
                 height: widget.diameter,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const RadialGradient(
-                    center: Alignment(-0.35, -0.45),
+                  gradient: RadialGradient(
+                    center: const Alignment(-0.35, -0.45),
                     radius: 1.0,
-                    colors: [
-                      BreakLabColors.breakBlueLight,
-                      BreakLabColors.breakBlue,
-                      BreakLabColors.breakBlueDark,
-                    ],
-                    stops: [0.0, 0.45, 1.0],
+                    colors: widget.locked
+                        ? const [
+                            Color(0xFFB9B7B0),
+                            Color(0xFF9C9A93),
+                            Color(0xFF7E7C76),
+                          ]
+                        : const [
+                            BreakLabColors.breakBlueLight,
+                            BreakLabColors.breakBlue,
+                            BreakLabColors.breakBlueDark,
+                          ],
+                    stops: const [0.0, 0.45, 1.0],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          BreakLabColors.breakBlueDark.withValues(alpha: 0.45),
+                      color: (widget.locked
+                              ? BreakLabColors.ink
+                              : BreakLabColors.breakBlueDark)
+                          .withValues(alpha: widget.locked ? 0.22 : 0.45),
                       blurRadius: 40,
                       offset: const Offset(0, 18),
                     ),
@@ -139,6 +156,14 @@ class _BreakButtonState extends State<BreakButton>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (widget.locked) ...[
+                          Icon(
+                            Icons.lock_outline,
+                            color: Colors.white,
+                            size: widget.diameter * 0.14,
+                          ),
+                          SizedBox(height: widget.diameter * 0.02),
+                        ],
                         Text(
                           'BREAK',
                           style: TextStyle(
