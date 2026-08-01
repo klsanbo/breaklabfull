@@ -23,18 +23,20 @@ void main() async {
   // readable break; the root reads the welcome flag out of the same file.
   final store = PrefsEntitlementStore();
 
-  runApp(BreakLabApp(
-    controller: MeasureController(
-      db: db,
-      // Swapped for the ported, frozen tester engine once timing is dialed
-      // in. Until then no fake speeds: the stub grades everything Unreliable.
-      engine: StubEngine(),
-      recorder: RecorderAdapter(PcmWavRecorder()),
-      tempDirectoryPath: temp.path,
-      entitlements: store,
+  runApp(
+    BreakLabApp(
+      controller: MeasureController(
+        db: db,
+        // Swapped for the ported, frozen tester engine once timing is dialed
+        // in. Until then no fake speeds: the stub grades everything Unreliable.
+        engine: StubEngine(),
+        recorder: RecorderAdapter(PcmWavRecorder()),
+        tempDirectoryPath: temp.path,
+        entitlements: store,
+      ),
+      store: store,
     ),
-    store: store,
-  ));
+  );
 }
 
 /// Adapts the ported tester recorder to the controller's small interface.
@@ -61,11 +63,7 @@ class RecorderAdapter implements BreakRecorder {
 /// measuring and results all happen there; the other screens hang off the
 /// bottom bar.
 class BreakLabApp extends StatelessWidget {
-  const BreakLabApp({
-    super.key,
-    required this.controller,
-    required this.store,
-  });
+  const BreakLabApp({super.key, required this.controller, required this.store});
 
   final MeasureController controller;
   final EntitlementStore store;
@@ -126,12 +124,14 @@ class _BreakLabRootState extends State<BreakLabRoot> {
   /// because a player who sets the table up and then walks off with the phone
   /// in their pocket has done the work in the wrong order.
   void _startPlacement() {
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (routeContext) => PhonePlacementScreen(
-        onDone: () => _finishWelcome(routeContext),
-        onSkip: () => _finishWelcome(routeContext),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (routeContext) => PhonePlacementScreen(
+          onDone: () => _finishWelcome(routeContext),
+          onSkip: () => _finishWelcome(routeContext),
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> _finishWelcome(BuildContext routeContext) async {

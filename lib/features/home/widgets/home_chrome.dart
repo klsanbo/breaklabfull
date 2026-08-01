@@ -145,9 +145,11 @@ class StatusPill extends StatelessWidget {
                   width: 1.5,
                 ),
               ),
-              child: Icon(icon,
-                  size: 12,
-                  color: filled ? Colors.white : BreakLabColors.labGreen),
+              child: Icon(
+                icon,
+                size: 12,
+                color: filled ? Colors.white : BreakLabColors.labGreen,
+              ),
             ),
             const SizedBox(width: 9),
             Text(
@@ -189,13 +191,9 @@ class _Rule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Align(
-        alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          width: 44,
-          height: 1.5,
-          color: BreakLabColors.ink,
-        ),
-      );
+    alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
+    child: Container(width: 44, height: 1.5, color: BreakLabColors.ink),
+  );
 }
 
 class _Slashes extends StatelessWidget {
@@ -203,12 +201,12 @@ class _Slashes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Text(
-        '///',
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w900,
-          fontStyle: FontStyle.italic,
-          letterSpacing: -2,
-        ),
-      );
+    '///',
+    style: TextStyle(
+      fontSize: 15,
+      fontWeight: FontWeight.w900,
+      fontStyle: FontStyle.italic,
+      letterSpacing: -2,
+    ),
+  );
 }

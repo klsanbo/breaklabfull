@@ -14,10 +14,12 @@ Uint8List buildWav(List<int> samples, {int sampleRateHz = 48000}) {
   final dataLength = samples.length * 2;
   final bytes = BytesBuilder();
   void ascii(String s) => bytes.add(s.codeUnits);
-  void u32(int v) => bytes
-      .add((ByteData(4)..setUint32(0, v, Endian.little)).buffer.asUint8List());
-  void u16(int v) => bytes
-      .add((ByteData(2)..setUint16(0, v, Endian.little)).buffer.asUint8List());
+  void u32(int v) => bytes.add(
+    (ByteData(4)..setUint32(0, v, Endian.little)).buffer.asUint8List(),
+  );
+  void u16(int v) => bytes.add(
+    (ByteData(2)..setUint16(0, v, Endian.little)).buffer.asUint8List(),
+  );
 
   ascii('RIFF');
   u32(36 + dataLength);
@@ -89,8 +91,10 @@ void main() {
   late Directory tempDir;
 
   setUp(() async {
-    db = await BreakLabDatabase.open(inMemoryDatabasePath,
-        factory: databaseFactoryFfi);
+    db = await BreakLabDatabase.open(
+      inMemoryDatabasePath,
+      factory: databaseFactoryFfi,
+    );
     tempDir = await Directory.systemTemp.createTemp('breaklab_test');
   });
 
@@ -105,17 +109,16 @@ void main() {
     Duration armDelay = const Duration(milliseconds: 20),
     Duration tail = const Duration(milliseconds: 40),
     Duration timeout = const Duration(milliseconds: 300),
-  }) =>
-      MeasureController(
-        db: db,
-        engine: engine,
-        recorder: recorder,
-        tempDirectoryPath: tempDir.path,
-        clock: () => DateTime(2026, 7, 28, 20),
-        armDelay: armDelay,
-        tailAfterTrigger: tail,
-        silenceTimeout: timeout,
-      );
+  }) => MeasureController(
+    db: db,
+    engine: engine,
+    recorder: recorder,
+    tempDirectoryPath: tempDir.path,
+    clock: () => DateTime(2026, 7, 28, 20),
+    armDelay: armDelay,
+    tailAfterTrigger: tail,
+    silenceTimeout: timeout,
+  );
 
   const goodResult = EngineResult(
     engineVersion: '0.1.0',
@@ -130,71 +133,82 @@ void main() {
 
   Future<void> pump(Duration d) => Future<void>.delayed(d);
 
-  test('one tap: loud level auto-stops, measures, saves, deletes temp wav',
-      () async {
-    final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
-    final engine = FixedEngine(goodResult);
-    final c = makeController(recorder: recorder, engine: engine);
+  test(
+    'one tap: loud level auto-stops, measures, saves, deletes temp wav',
+    () async {
+      final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
+      final engine = FixedEngine(goodResult);
+      final c = makeController(recorder: recorder, engine: engine);
 
-    await c.startBreak();
-    expect(c.phase, MeasurePhase.recording);
+      await c.startBreak();
+      expect(c.phase, MeasurePhase.recording);
 
-    await pump(const Duration(milliseconds: 30)); // past arm delay
-    recorder.levelController.add(0.9); // the break
-    await pump(const Duration(milliseconds: 10));
-    expect(c.heardBreak, isTrue);
+      await pump(const Duration(milliseconds: 30)); // past arm delay
+      recorder.levelController.add(0.9); // the break
+      await pump(const Duration(milliseconds: 10));
+      expect(c.heardBreak, isTrue);
 
-    await pump(const Duration(milliseconds: 60)); // past the tail
-    await c.autoMeasurement; // then wait for the work itself, don't guess
-    expect(c.phase, MeasurePhase.idle);
-    expect(c.lastBreak, isNotNull);
-    expect(c.lastBreak!.speedMph, 4.75);
-    expect(engine.lastInput!.travelDistanceInches, 36.75);
-    expect(engine.lastInput!.sampleRateHz, 48000);
+      await pump(const Duration(milliseconds: 60)); // past the tail
+      await c.autoMeasurement; // then wait for the work itself, don't guess
+      expect(c.phase, MeasurePhase.idle);
+      expect(c.lastBreak, isNotNull);
+      expect(c.lastBreak!.speedMph, 4.75);
+      expect(engine.lastInput!.travelDistanceInches, 36.75);
+      expect(engine.lastInput!.sampleRateHz, 48000);
 
-    final session = await db.openSession();
-    expect(session, isNotNull);
-    expect((await db.breaksForSession(session!.id!)).length, 1);
-    expect(File(recorder.path!).existsSync(), isFalse);
-  });
+      final session = await db.openSession();
+      expect(session, isNotNull);
+      expect((await db.breaksForSession(session!.id!)).length, 1);
+      expect(File(recorder.path!).existsSync(), isFalse);
+    },
+  );
 
-  test('levels during arm delay are ignored (button tap is not a break)',
-      () async {
-    final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
-    final c = makeController(
+  test(
+    'levels during arm delay are ignored (button tap is not a break)',
+    () async {
+      final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
+      final c = makeController(
         recorder: recorder,
         engine: FixedEngine(goodResult),
-        armDelay: const Duration(milliseconds: 100));
+        armDelay: const Duration(milliseconds: 100),
+      );
 
-    await c.startBreak();
-    recorder.levelController.add(0.9); // immediate tap noise
-    await pump(const Duration(milliseconds: 30));
-    expect(c.heardBreak, isFalse);
-    expect(c.phase, MeasurePhase.recording);
-    await c.cancelBreak();
-  });
+      await c.startBreak();
+      recorder.levelController.add(0.9); // immediate tap noise
+      await pump(const Duration(milliseconds: 30));
+      expect(c.heardBreak, isFalse);
+      expect(c.phase, MeasurePhase.recording);
+      await c.cancelBreak();
+    },
+  );
 
-  test('quiet levels never trigger; silence timeout cancels with message',
-      () async {
-    final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
-    final c =
-        makeController(recorder: recorder, engine: FixedEngine(goodResult));
+  test(
+    'quiet levels never trigger; silence timeout cancels with message',
+    () async {
+      final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
+      final c = makeController(
+        recorder: recorder,
+        engine: FixedEngine(goodResult),
+      );
 
-    await c.startBreak();
-    await pump(const Duration(milliseconds: 30));
-    recorder.levelController.add(0.2);
-    recorder.levelController.add(0.3);
-    await pump(const Duration(milliseconds: 350)); // past timeout
-    expect(c.phase, MeasurePhase.idle);
-    expect(c.lastBreak, isNull);
-    expect(recorder.cancelled, isTrue);
-    expect(c.errorMessage, contains("Didn't hear a break"));
-  });
+      await c.startBreak();
+      await pump(const Duration(milliseconds: 30));
+      recorder.levelController.add(0.2);
+      recorder.levelController.add(0.3);
+      await pump(const Duration(milliseconds: 350)); // past timeout
+      expect(c.phase, MeasurePhase.idle);
+      expect(c.lastBreak, isNull);
+      expect(recorder.cancelled, isTrue);
+      expect(c.errorMessage, contains("Didn't hear a break"));
+    },
+  );
 
   test('manual measureNow fallback works without a trigger', () async {
     final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
-    final c =
-        makeController(recorder: recorder, engine: FixedEngine(goodResult));
+    final c = makeController(
+      recorder: recorder,
+      engine: FixedEngine(goodResult),
+    );
     await c.startBreak();
     final saved = await c.measureNow();
     expect(saved, isNotNull);
@@ -213,26 +227,33 @@ void main() {
     expect(engine.lastInput!.travelDistanceInches, 38.0);
   });
 
-  test('bad audio (wrong sample rate) reports error and saves nothing',
-      () async {
-    final recorder =
-        FakeRecorder(buildWav(List.filled(4410, 100), sampleRateHz: 44100));
-    final c =
-        makeController(recorder: recorder, engine: FixedEngine(goodResult));
+  test(
+    'bad audio (wrong sample rate) reports error and saves nothing',
+    () async {
+      final recorder = FakeRecorder(
+        buildWav(List.filled(4410, 100), sampleRateHz: 44100),
+      );
+      final c = makeController(
+        recorder: recorder,
+        engine: FixedEngine(goodResult),
+      );
 
-    await c.startBreak();
-    final saved = await c.measureNow();
-    expect(saved, isNull);
-    expect(c.errorMessage, contains('48000'));
-    expect(c.phase, MeasurePhase.idle);
-    expect(await db.openSession(), isNull);
-    expect(File(recorder.path!).existsSync(), isFalse);
-  });
+      await c.startBreak();
+      final saved = await c.measureNow();
+      expect(saved, isNull);
+      expect(c.errorMessage, contains('48000'));
+      expect(c.phase, MeasurePhase.idle);
+      expect(await db.openSession(), isNull);
+      expect(File(recorder.path!).existsSync(), isFalse);
+    },
+  );
 
   test('cancel discards the recording and stays idle-safe', () async {
     final recorder = FakeRecorder(buildWav(List.filled(480, 0)));
-    final c =
-        makeController(recorder: recorder, engine: FixedEngine(goodResult));
+    final c = makeController(
+      recorder: recorder,
+      engine: FixedEngine(goodResult),
+    );
     await c.startBreak();
     await c.cancelBreak();
     expect(recorder.cancelled, isTrue);
@@ -241,8 +262,10 @@ void main() {
 
   test('second break reuses the open session', () async {
     final recorder = FakeRecorder(buildWav(List.filled(4800, 100)));
-    final c =
-        makeController(recorder: recorder, engine: FixedEngine(goodResult));
+    final c = makeController(
+      recorder: recorder,
+      engine: FixedEngine(goodResult),
+    );
     await c.startBreak();
     await c.measureNow();
     await c.startBreak();

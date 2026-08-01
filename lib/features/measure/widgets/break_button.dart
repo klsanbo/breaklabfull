@@ -98,8 +98,9 @@ class _BreakButtonState extends State<BreakButton>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: BreakLabColors.breakBlue
-                          .withValues(alpha: opacity.clamp(0.0, 1.0)),
+                      color: BreakLabColors.breakBlue.withValues(
+                        alpha: opacity.clamp(0.0, 1.0),
+                      ),
                       width: 1.5,
                     ),
                   ),
@@ -112,8 +113,8 @@ class _BreakButtonState extends State<BreakButton>
             label: widget.locked
                 ? 'Break — locked, tap to unlock BreakLab'
                 : widget.listening
-                    ? 'Listening for your break'
-                    : 'Break — start measuring',
+                ? 'Listening for your break'
+                : 'Break — start measuring',
             child: GestureDetector(
               onTap: widget.onPressed,
               child: Container(
@@ -139,10 +140,11 @@ class _BreakButtonState extends State<BreakButton>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (widget.locked
-                              ? BreakLabColors.ink
-                              : BreakLabColors.breakBlueDark)
-                          .withValues(alpha: widget.locked ? 0.22 : 0.45),
+                      color:
+                          (widget.locked
+                                  ? BreakLabColors.ink
+                                  : BreakLabColors.breakBlueDark)
+                              .withValues(alpha: widget.locked ? 0.22 : 0.45),
                       blurRadius: 40,
                       offset: const Offset(0, 18),
                     ),

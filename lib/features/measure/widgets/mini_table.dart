@@ -97,7 +97,7 @@ class TableClothPainter extends CustomPainter {
         Offset(0, 0),
         Offset(1, 0),
         Offset(0, 1),
-        Offset(1, 1)
+        Offset(1, 1),
       ]) {
         canvas.drawCircle(Offset(corner.dx * w, corner.dy * h), r, dark);
       }
@@ -220,8 +220,10 @@ class MiniTable extends StatelessWidget {
     final pxPerInch = table.hasGeometry
         ? clothHeight / table.playingLengthInches
         : clothHeight / 78.0;
-    final ballDiameter =
-        math.max(3.0, BreakPosition.ballDiameterInches * pxPerInch);
+    final ballDiameter = math.max(
+      3.0,
+      BreakPosition.ballDiameterInches * pxPerInch,
+    );
     final scale = (clothWidth / 150).clamp(0.25, 1.0).toDouble();
 
     final showBall = table.hasGeometry;

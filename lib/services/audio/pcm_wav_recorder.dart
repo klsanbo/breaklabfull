@@ -22,7 +22,7 @@ class MicLevel {
 /// Recorder wrapper that only captures uncompressed 48 kHz mono PCM WAV.
 class PcmWavRecorder {
   PcmWavRecorder({AudioRecorder? recorder})
-      : _recorder = recorder ?? AudioRecorder();
+    : _recorder = recorder ?? AudioRecorder();
 
   final AudioRecorder _recorder;
   final _levelController = StreamController<MicLevel>.broadcast();
@@ -71,7 +71,8 @@ class PcmWavRecorder {
         encoder: AudioEncoder.wav,
         sampleRate: CaptureConstants.sampleRateHz,
         numChannels: CaptureConstants.channelCount,
-        bitRate: CaptureConstants.sampleRateHz *
+        bitRate:
+            CaptureConstants.sampleRateHz *
             CaptureConstants.channelCount *
             CaptureConstants.bitDepth,
         autoGain: false,

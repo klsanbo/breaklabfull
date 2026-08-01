@@ -59,7 +59,8 @@ class BreakScore {
     bool reliable = true,
   }) {
     final clean = (!outcome.scratched && reliable) ? 100.0 : 0.0;
-    final total = outcome.cueBallAfter.points * controlWeight +
+    final total =
+        outcome.cueBallAfter.points * controlWeight +
         clean * cleanWeight +
         outcome.spread.points * spreadWeight +
         outcome.ballPoints * ballsWeight +

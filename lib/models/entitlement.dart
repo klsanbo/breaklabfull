@@ -67,8 +67,7 @@ class Entitlement {
   /// The only gate in the app. Everything already recorded stays readable
   /// forever — sessions, Break Map, records, the score. The one thing that
   /// stops is measuring a new break.
-  bool canMeasureAt(DateTime now) =>
-      statusAt(now) != EntitlementStatus.expired;
+  bool canMeasureAt(DateTime now) => statusAt(now) != EntitlementStatus.expired;
 
   /// Whole days left, rounded up, so the last afternoon still reads "1 day
   /// left" rather than "0". Before the trial starts this is the full week,

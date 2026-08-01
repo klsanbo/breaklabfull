@@ -19,11 +19,7 @@ import '../../onboarding/widgets/onboarding_chrome.dart';
 /// so the wrong input is visible rather than inferred. It is almost always the
 /// distance, which is the one thing set by hand.
 class ReadingReviewSheet extends StatelessWidget {
-  const ReadingReviewSheet({
-    super.key,
-    required this.result,
-    this.onFixSetup,
-  });
+  const ReadingReviewSheet({super.key, required this.result, this.onFixSetup});
 
   final BreakResult result;
 
@@ -32,19 +28,19 @@ class ReadingReviewSheet extends StatelessWidget {
 
   /// Why the engine graded it the way it did, in words a player can act on.
   static String explanationFor(AccuracyGrade grade) => switch (grade) {
-        AccuracyGrade.excellent =>
-          'Two clean impacts, well separated, with quiet either side. Nothing '
-              'about this reading needed a guess.',
-        AccuracyGrade.target =>
-          'Both impacts came through clearly enough to time. Some room noise, '
-              'not enough to move the number.',
-        AccuracyGrade.fallback =>
-          'The impacts were there but not clean. Treat this one as close '
-              'rather than exact.',
-        AccuracyGrade.unreliable =>
-          'No pair of impacts we would stand behind, so no speed was saved. A '
-              'made-up number is worse than none.',
-      };
+    AccuracyGrade.excellent =>
+      'Two clean impacts, well separated, with quiet either side. Nothing '
+          'about this reading needed a guess.',
+    AccuracyGrade.target =>
+      'Both impacts came through clearly enough to time. Some room noise, '
+          'not enough to move the number.',
+    AccuracyGrade.fallback =>
+      'The impacts were there but not clean. Treat this one as close '
+          'rather than exact.',
+    AccuracyGrade.unreliable =>
+      'No pair of impacts we would stand behind, so no speed was saved. A '
+          'made-up number is worse than none.',
+  };
 
   static String _ms(double? value) =>
       value == null ? '—' : '${value.toStringAsFixed(0)} ms';
@@ -61,8 +57,9 @@ class ReadingReviewSheet extends StatelessWidget {
     // relative to the strike — that is the only reading that means anything.
     final tip = result.tipTimestampMs;
     final rack = result.rackTimestampMs;
-    final rackRelative =
-        (tip == null || rack == null) ? null : (rack - tip).abs();
+    final rackRelative = (tip == null || rack == null)
+        ? null
+        : (rack - tip).abs();
 
     return SafeArea(
       top: false,
@@ -96,8 +93,10 @@ class ReadingReviewSheet extends StatelessWidget {
             const SizedBox(height: 10),
             Center(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: pillBg,
                   borderRadius: BorderRadius.circular(999),
@@ -114,30 +113,30 @@ class ReadingReviewSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 11),
-            NoteCard(
-              tone: NoteTone.soft,
-              body: explanationFor(result.grade),
-            ),
+            NoteCard(tone: NoteTone.soft, body: explanationFor(result.grade)),
             const SizedBox(height: 12),
-            _Rows(rows: [
-              ('Cue strike', tip == null ? '—' : '0.000 s'),
-              ('Rack impact', _seconds(rackRelative)),
-              ('Time between', _ms(result.gapMs ?? rackRelative)),
-              (
-                'Travel distance',
-                '${result.travelDistanceInches.toStringAsFixed(1)} in',
-              ),
-              (
-                'Speed',
-                result.hasSpeed
-                    ? '${result.speedMph!.toStringAsFixed(1)} MPH'
-                    : '—',
-              ),
-            ]),
+            _Rows(
+              rows: [
+                ('Cue strike', tip == null ? '—' : '0.000 s'),
+                ('Rack impact', _seconds(rackRelative)),
+                ('Time between', _ms(result.gapMs ?? rackRelative)),
+                (
+                  'Travel distance',
+                  '${result.travelDistanceInches.toStringAsFixed(1)} in',
+                ),
+                (
+                  'Speed',
+                  result.hasSpeed
+                      ? '${result.speedMph!.toStringAsFixed(1)} MPH'
+                      : '—',
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             const NoteCard(
               title: 'IF THIS LOOKS WRONG',
-              body: 'The distance is the only number you set by hand. If the '
+              body:
+                  'The distance is the only number you set by hand. If the '
                   'ball was not where the setup says it was, the speed is off '
                   'by the same proportion.',
             ),

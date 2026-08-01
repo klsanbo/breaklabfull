@@ -18,17 +18,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 Widget wrap(Widget child, {double width = 340}) => MaterialApp(
-      theme: breakLabTheme(),
-      home: Scaffold(
-        body: Center(child: SizedBox(width: width, child: child)),
-      ),
-    );
+  theme: breakLabTheme(),
+  home: Scaffold(
+    body: Center(
+      child: SizedBox(width: width, child: child),
+    ),
+  ),
+);
 
 /// The painted surface belonging to [T] — never Material's own chrome.
-Finder paintOf<T extends Widget>() => find.descendant(
-      of: find.byType(T),
-      matching: find.byType(CustomPaint),
-    );
+Finder paintOf<T extends Widget>() =>
+    find.descendant(of: find.byType(T), matching: find.byType(CustomPaint));
 
 class FakeRecorder implements BreakRecorder {
   final controller = StreamController<double>.broadcast();
@@ -53,16 +53,20 @@ class StubbedEngine implements BreakLabEngine {
 
   @override
   EngineResult detect(EngineInput input) => EngineResult(
-        engineVersion: version,
-        grade: AccuracyGrade.unreliable,
-        detectedPairValid: false,
-      );
+    engineVersion: version,
+    grade: AccuracyGrade.unreliable,
+    detectedPairValid: false,
+  );
 }
 
 /// Drags from [from] by [by] in several steps, so the gesture arena resolves
 /// the way it does under a real thumb rather than in one teleporting jump.
-Future<void> slowDrag(WidgetTester tester, Offset from, Offset by,
-    {int steps = 5}) async {
+Future<void> slowDrag(
+  WidgetTester tester,
+  Offset from,
+  Offset by, {
+  int steps = 5,
+}) async {
   final gesture = await tester.startGesture(from);
   await tester.pump();
   for (var i = 0; i < steps; i++) {
@@ -84,14 +88,18 @@ void main() {
 
   group('mini table', () {
     testWidgets('is portrait, twice as long as it is wide', (tester) async {
-      await tester.pumpWidget(wrap(const Center(
-        child: MiniTable(
-          table: TableSize.sevenFoot,
-          position: BreakPosition.headStringCentre,
-          width: 40,
-          railWidth: 2,
+      await tester.pumpWidget(
+        wrap(
+          const Center(
+            child: MiniTable(
+              table: TableSize.sevenFoot,
+              position: BreakPosition.headStringCentre,
+              width: 40,
+              railWidth: 2,
+            ),
+          ),
         ),
-      )));
+      );
       expect(tester.takeException(), isNull);
 
       final size = tester.getSize(find.byType(MiniTable));
@@ -100,16 +108,21 @@ void main() {
       expect(size.height, closeTo(36 * 2 + 4, 0.5));
     });
 
-    testWidgets('puts the ball a quarter up from the bottom, centre width',
-        (tester) async {
-      await tester.pumpWidget(wrap(const Center(
-        child: MiniTable(
-          table: TableSize.sevenFoot,
-          position: BreakPosition.headStringCentre,
-          width: 60,
-          railWidth: 3,
+    testWidgets('puts the ball a quarter up from the bottom, centre width', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          const Center(
+            child: MiniTable(
+              table: TableSize.sevenFoot,
+              position: BreakPosition.headStringCentre,
+              width: 60,
+              railWidth: 3,
+            ),
+          ),
         ),
-      )));
+      );
 
       final table = tester.getRect(find.byType(MiniTable));
       final ball = tester.getRect(miniBall());
@@ -121,14 +134,18 @@ void main() {
     });
 
     testWidgets('a rail break sits at the side, not the end', (tester) async {
-      await tester.pumpWidget(wrap(const Center(
-        child: MiniTable(
-          table: TableSize.sevenFoot,
-          position: BreakPosition(x: 0.25, y: 0.0),
-          width: 60,
-          railWidth: 3,
+      await tester.pumpWidget(
+        wrap(
+          const Center(
+            child: MiniTable(
+              table: TableSize.sevenFoot,
+              position: BreakPosition(x: 0.25, y: 0.0),
+              width: 60,
+              railWidth: 3,
+            ),
+          ),
         ),
-      )));
+      );
       final table = tester.getRect(find.byType(MiniTable));
       final ball = tester.getRect(miniBall());
       // y 0 is the breaker's left, which is the left of the drawing.
@@ -137,17 +154,23 @@ void main() {
 
     testWidgets('shows no ball on a custom table', (tester) async {
       // No known dimensions, so a spot on it would be a fiction.
-      await tester.pumpWidget(wrap(const Center(
-        child: MiniTable(
-          table: TableSize.custom,
-          position: BreakPosition.headStringCentre,
-          width: 40,
+      await tester.pumpWidget(
+        wrap(
+          const Center(
+            child: MiniTable(
+              table: TableSize.custom,
+              position: BreakPosition.headStringCentre,
+              width: 40,
+            ),
+          ),
         ),
-      )));
+      );
       expect(tester.takeException(), isNull);
       expect(
         find.descendant(
-            of: find.byType(MiniTable), matching: find.byType(Container)),
+          of: find.byType(MiniTable),
+          matching: find.byType(Container),
+        ),
         findsOneWidget, // the rail frame, and nothing inside it
       );
     });
@@ -158,18 +181,20 @@ void main() {
       TableSize table = TableSize.sevenFoot,
       BreakPosition position = BreakPosition.headStringCentre,
       ValueChanged<BreakPosition>? onChanged,
-    }) =>
-        wrap(SizedBox(
-          height: 400,
-          child: BreakTableView(
-            table: table,
-            position: position,
-            onChanged: onChanged ?? (_) {},
-          ),
-        ));
+    }) => wrap(
+      SizedBox(
+        height: 400,
+        child: BreakTableView(
+          table: table,
+          position: position,
+          onChanged: onChanged ?? (_) {},
+        ),
+      ),
+    );
 
-    testWidgets('fills what it is given and draws without exploding',
-        (tester) async {
+    testWidgets('fills what it is given and draws without exploding', (
+      tester,
+    ) async {
       await tester.pumpWidget(view());
       expect(tester.takeException(), isNull);
       final size = tester.getSize(find.byType(BreakTableView));
@@ -177,37 +202,47 @@ void main() {
       expect(size.height, 400);
     });
 
-    testWidgets('clips its drawing so nothing bleeds onto what is below it',
-        (tester) async {
+    testWidgets('clips its drawing so nothing bleeds onto what is below it', (
+      tester,
+    ) async {
       // On the phone the apron and the wordmark were painted over the readout
       // row beneath the table: dark ink on near-black, unreadable. A
       // CustomPaint does not clip and the table is deliberately bigger than
       // the view it sits in.
-      await tester.pumpWidget(wrap(Column(
-        children: [
-          SizedBox(
-            height: 300,
-            child: BreakTableView(
-              table: TableSize.sevenFoot,
-              position: BreakPosition.headStringCentre,
-              onChanged: (_) {},
-            ),
+      await tester.pumpWidget(
+        wrap(
+          Column(
+            children: [
+              SizedBox(
+                height: 300,
+                child: BreakTableView(
+                  table: TableSize.sevenFoot,
+                  position: BreakPosition.headStringCentre,
+                  onChanged: (_) {},
+                ),
+              ),
+              const Text('under the table'),
+            ],
           ),
-          const Text('under the table'),
-        ],
-      )));
+        ),
+      );
 
       expect(
         find.descendant(
-            of: find.byType(BreakTableView), matching: find.byType(ClipRect)),
+          of: find.byType(BreakTableView),
+          matching: find.byType(ClipRect),
+        ),
         findsOneWidget,
         reason: 'nothing is stopping the painter drawing outside its box',
       );
 
       final view = tester.getRect(find.byType(BreakTableView));
       final below = tester.getRect(find.text('under the table'));
-      expect(below.top, greaterThanOrEqualTo(view.bottom - 0.5),
-          reason: 'the readout would be underneath the table drawing');
+      expect(
+        below.top,
+        greaterThanOrEqualTo(view.bottom - 0.5),
+        reason: 'the readout would be underneath the table drawing',
+      );
     });
 
     test('the wordmark is drawn whole or not at all', () {
@@ -231,42 +266,60 @@ void main() {
 
     testWidgets('dragging down moves the ball up the table', (tester) async {
       BreakPosition? moved;
-      await tester.pumpWidget(view(
-        position: const BreakPosition(x: 0.05, y: 0.5),
-        onChanged: (p) => moved = p,
-      ));
+      await tester.pumpWidget(
+        view(
+          position: const BreakPosition(x: 0.05, y: 0.5),
+          onChanged: (p) => moved = p,
+        ),
+      );
 
-      await slowDrag(tester, tester.getCenter(find.byType(BreakTableView)),
-          const Offset(0, 60));
+      await slowDrag(
+        tester,
+        tester.getCenter(find.byType(BreakTableView)),
+        const Offset(0, 60),
+      );
 
       expect(moved, isNotNull, reason: 'the drag never reached the table');
-      expect(moved!.x, greaterThan(0.05),
-          reason: 'dragging the table down moves the ball up the table');
+      expect(
+        moved!.x,
+        greaterThan(0.05),
+        reason: 'dragging the table down moves the ball up the table',
+      );
     });
 
-    testWidgets('dragging up moves the ball back toward the head rail',
-        (tester) async {
+    testWidgets('dragging up moves the ball back toward the head rail', (
+      tester,
+    ) async {
       BreakPosition? moved;
-      await tester.pumpWidget(view(
-        position: const BreakPosition(x: 0.2, y: 0.5),
-        onChanged: (p) => moved = p,
-      ));
+      await tester.pumpWidget(
+        view(
+          position: const BreakPosition(x: 0.2, y: 0.5),
+          onChanged: (p) => moved = p,
+        ),
+      );
 
-      await slowDrag(tester, tester.getCenter(find.byType(BreakTableView)),
-          const Offset(0, -50));
+      await slowDrag(
+        tester,
+        tester.getCenter(find.byType(BreakTableView)),
+        const Offset(0, -50),
+      );
 
       expect(moved!.x, lessThan(0.2));
       expect(moved!.isLegal, isTrue);
     });
 
-    testWidgets('dragging sideways moves the ball toward a rail',
-        (tester) async {
+    testWidgets('dragging sideways moves the ball toward a rail', (
+      tester,
+    ) async {
       BreakPosition? moved;
       await tester.pumpWidget(view(onChanged: (p) => moved = p));
 
       // Drag the table right; your viewpoint moves left across it.
-      await slowDrag(tester, tester.getCenter(find.byType(BreakTableView)),
-          const Offset(70, 0));
+      await slowDrag(
+        tester,
+        tester.getCenter(find.byType(BreakTableView)),
+        const Offset(70, 0),
+      );
 
       expect(moved, isNotNull);
       expect(moved!.y, lessThan(0.5));
@@ -275,14 +328,19 @@ void main() {
 
     testWidgets('the ball stops at the head string', (tester) async {
       BreakPosition? moved;
-      await tester.pumpWidget(view(
-        position: const BreakPosition(x: 0.24, y: 0.5),
-        onChanged: (p) => moved = p,
-      ));
+      await tester.pumpWidget(
+        view(
+          position: const BreakPosition(x: 0.24, y: 0.5),
+          onChanged: (p) => moved = p,
+        ),
+      );
 
       // Far more than enough to push past the line.
-      await slowDrag(tester, tester.getCenter(find.byType(BreakTableView)),
-          const Offset(0, 400));
+      await slowDrag(
+        tester,
+        tester.getCenter(find.byType(BreakTableView)),
+        const Offset(0, 400),
+      );
 
       expect(moved!.x, BreakPosition.kitchenLimitX);
       expect(moved!.isLegal, isTrue);
@@ -290,13 +348,18 @@ void main() {
 
     testWidgets('the ball cannot leave the cloth sideways', (tester) async {
       BreakPosition? moved;
-      await tester.pumpWidget(view(
-        position: const BreakPosition(x: 0.25, y: 0.05),
-        onChanged: (p) => moved = p,
-      ));
+      await tester.pumpWidget(
+        view(
+          position: const BreakPosition(x: 0.25, y: 0.05),
+          onChanged: (p) => moved = p,
+        ),
+      );
 
-      await slowDrag(tester, tester.getCenter(find.byType(BreakTableView)),
-          const Offset(600, 0));
+      await slowDrag(
+        tester,
+        tester.getCenter(find.byType(BreakTableView)),
+        const Offset(600, 0),
+      );
 
       expect(moved!.y, 0.0);
       expect(moved!.isLegal, isTrue);
@@ -307,13 +370,18 @@ void main() {
       // claims it — the case where reporting only that axis's delta would lose
       // the sideways half of the movement.
       BreakPosition? moved;
-      await tester.pumpWidget(view(
-        position: const BreakPosition(x: 0.05, y: 0.5),
-        onChanged: (p) => moved = p,
-      ));
+      await tester.pumpWidget(
+        view(
+          position: const BreakPosition(x: 0.05, y: 0.5),
+          onChanged: (p) => moved = p,
+        ),
+      );
 
-      await slowDrag(tester, tester.getCenter(find.byType(BreakTableView)),
-          const Offset(-25, 60));
+      await slowDrag(
+        tester,
+        tester.getCenter(find.byType(BreakTableView)),
+        const Offset(-25, 60),
+      );
 
       expect(moved!.x, greaterThan(0.05), reason: 'the vertical half was lost');
       expect(moved!.y, greaterThan(0.5), reason: 'the sideways half was lost');
@@ -325,32 +393,37 @@ void main() {
       final scroll = ScrollController();
       BreakPosition? moved;
 
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: Scaffold(
-          body: SizedBox(
-            width: 340,
-            child: ListView(
-              controller: scroll,
-              children: [
-                const SizedBox(height: 40),
-                SizedBox(
-                  height: 380,
-                  child: BreakTableView(
-                    table: TableSize.sevenFoot,
-                    position: const BreakPosition(x: 0.05, y: 0.5),
-                    onChanged: (p) => moved = p,
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: Scaffold(
+            body: SizedBox(
+              width: 340,
+              child: ListView(
+                controller: scroll,
+                children: [
+                  const SizedBox(height: 40),
+                  SizedBox(
+                    height: 380,
+                    child: BreakTableView(
+                      table: TableSize.sevenFoot,
+                      position: const BreakPosition(x: 0.05, y: 0.5),
+                      onChanged: (p) => moved = p,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 1200),
-              ],
+                  const SizedBox(height: 1200),
+                ],
+              ),
             ),
           ),
         ),
-      ));
+      );
 
-      await slowDrag(tester, tester.getCenter(find.byType(BreakTableView)),
-          const Offset(0, 55));
+      await slowDrag(
+        tester,
+        tester.getCenter(find.byType(BreakTableView)),
+        const Offset(0, 55),
+      );
 
       expect(moved, isNotNull, reason: 'the scroll swallowed the drag');
       expect(scroll.offset, 0, reason: 'the list scrolled instead');
@@ -369,14 +442,13 @@ void main() {
       CueEnglish english = CueEnglish.centre,
       double distance = 36.75,
       VoidCallback? onTap,
-    }) =>
-        SetupStrip(
-          table: table,
-          position: position,
-          english: english,
-          distanceInches: distance,
-          onTap: onTap ?? () {},
-        );
+    }) => SetupStrip(
+      table: table,
+      position: position,
+      english: english,
+      distanceInches: distance,
+      onTap: onTap ?? () {},
+    );
 
     testWidgets('says the table, the spot and the distance', (tester) async {
       await tester.pumpWidget(wrap(strip()));
@@ -385,26 +457,30 @@ void main() {
     });
 
     testWidgets('a rail break reads as a rail break', (tester) async {
-      await tester.pumpWidget(wrap(strip(
-        position: const BreakPosition(x: 0.25, y: 0.08),
-        distance: 40.1,
-      )));
+      await tester.pumpWidget(
+        wrap(
+          strip(
+            position: const BreakPosition(x: 0.25, y: 0.08),
+            distance: 40.1,
+          ),
+        ),
+      );
       expect(find.text('7ft Bar Box · Left rail · 40.1"'), findsOneWidget);
     });
 
     testWidgets('leads with the english it will record', (tester) async {
-      await tester.pumpWidget(wrap(strip(
-        english: const CueEnglish(x: 0, y: -0.45),
-      )));
+      await tester.pumpWidget(
+        wrap(strip(english: const CueEnglish(x: 0, y: -0.45))),
+      );
       expect(find.textContaining('Draw · tap to change'), findsOneWidget);
     });
 
-    testWidgets('a custom table drops the spot but keeps the distance',
-        (tester) async {
-      await tester.pumpWidget(wrap(strip(
-        table: TableSize.custom,
-        distance: 44,
-      )));
+    testWidgets('a custom table drops the spot but keeps the distance', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(strip(table: TableSize.custom, distance: 44)),
+      );
       expect(find.text('Custom distance · 44.0"'), findsOneWidget);
     });
 
@@ -429,8 +505,10 @@ void main() {
     late MeasureController controller;
 
     setUp(() async {
-      db = await BreakLabDatabase.open(inMemoryDatabasePath,
-          factory: databaseFactoryFfi);
+      db = await BreakLabDatabase.open(
+        inMemoryDatabasePath,
+        factory: databaseFactoryFfi,
+      );
       tempDir = await Directory.systemTemp.createTemp('breaklab_setup');
       controller = MeasureController(
         db: db,
@@ -446,20 +524,25 @@ void main() {
       await tempDir.delete(recursive: true);
     });
 
-    Future<void> pumpScreen(WidgetTester tester,
-        {Size size = const Size(1080, 2400)}) async {
+    Future<void> pumpScreen(
+      WidgetTester tester, {
+      Size size = const Size(1080, 2400),
+    }) async {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 3.0;
       addTearDown(tester.view.reset);
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: BreakSetupScreen(controller: controller),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: BreakSetupScreen(controller: controller),
+        ),
+      );
       await tester.pump();
     }
 
-    testWidgets('puts the table, the distance and the english in one place',
-        (tester) async {
+    testWidgets('puts the table, the distance and the english in one place', (
+      tester,
+    ) async {
       await pumpScreen(tester);
 
       expect(find.text('Set up your break'), findsOneWidget);
@@ -494,8 +577,9 @@ void main() {
       expect(find.text('47.8"'), findsOneWidget);
     });
 
-    testWidgets('a custom table trades the drawing for a distance',
-        (tester) async {
+    testWidgets('a custom table trades the drawing for a distance', (
+      tester,
+    ) async {
       await pumpScreen(tester);
       await tester.tap(find.text('Custom'));
       await tester.pump();
@@ -513,8 +597,9 @@ void main() {
       expect(controller.customDistanceInches, 39);
     });
 
-    testWidgets('the custom distance cannot run off either end',
-        (tester) async {
+    testWidgets('the custom distance cannot run off either end', (
+      tester,
+    ) async {
       await pumpScreen(tester);
       controller.setTableSize(TableSize.custom);
       controller.setCustomDistance(BreakSetupScreen.minCustomInches);
@@ -531,8 +616,9 @@ void main() {
       expect(controller.customDistanceInches, BreakSetupScreen.maxCustomInches);
     });
 
-    testWidgets('the english face writes back to the controller',
-        (tester) async {
+    testWidgets('the english face writes back to the controller', (
+      tester,
+    ) async {
       await pumpScreen(tester);
       final face = tester.getRect(paintOf<EnglishPicker>());
       // Below centre on the face is draw.
@@ -548,19 +634,21 @@ void main() {
       tester.view.devicePixelRatio = 3.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: Builder(
-          builder: (context) => Scaffold(
-            body: Center(
-              child: TextButton(
-                onPressed: () => openBreakSetup(context, controller),
-                child: const Text('open'),
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: TextButton(
+                  onPressed: () => openBreakSetup(context, controller),
+                  child: const Text('open'),
+                ),
               ),
             ),
           ),
         ),
-      ));
+      );
 
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
@@ -571,8 +659,9 @@ void main() {
       expect(find.byType(BreakSetupScreen), findsNothing);
     });
 
-    testWidgets('lays out on a short phone without overflowing',
-        (tester) async {
+    testWidgets('lays out on a short phone without overflowing', (
+      tester,
+    ) async {
       // The table gives up height to the controls rather than the column
       // overflowing — the failure mode that put a blank screen on the phone.
       await pumpScreen(tester, size: const Size(1080, 1600));

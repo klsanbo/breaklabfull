@@ -42,11 +42,11 @@ class HeatTable extends StatelessWidget {
   /// Tint for a speed band. Deeper blue is faster; blue because speed is the
   /// action colour and this is a map of speed.
   static Color tintFor(SpeedBand band) => switch (band) {
-        SpeedBand.hard => BreakLabColors.breakBlue,
-        SpeedBand.strong => BreakLabColors.breakBlueLight,
-        SpeedBand.solid => const Color(0xFF7FB2EC),
-        SpeedBand.controlled => const Color(0xFFC3D9F2),
-      };
+    SpeedBand.hard => BreakLabColors.breakBlue,
+    SpeedBand.strong => BreakLabColors.breakBlueLight,
+    SpeedBand.solid => const Color(0xFF7FB2EC),
+    SpeedBand.controlled => const Color(0xFFC3D9F2),
+  };
 
   @override
   Widget build(BuildContext context) {

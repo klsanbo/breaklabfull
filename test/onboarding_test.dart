@@ -52,8 +52,10 @@ void main() {
   late MeasureController controller;
 
   setUp(() async {
-    db = await BreakLabDatabase.open(inMemoryDatabasePath,
-        factory: databaseFactoryFfi);
+    db = await BreakLabDatabase.open(
+      inMemoryDatabasePath,
+      factory: databaseFactoryFfi,
+    );
     tempDir = await Directory.systemTemp.createTemp('breaklab_onboarding');
     controller = MeasureController(
       db: db,
@@ -77,31 +79,45 @@ void main() {
 
   Future<void> pumpRoot(WidgetTester tester, EntitlementStore store) async {
     sizePhone(tester);
-    await tester.pumpWidget(MaterialApp(
-      theme: breakLabTheme(),
-      home: BreakLabRoot(controller: controller, store: store),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: breakLabTheme(),
+        home: BreakLabRoot(controller: controller, store: store),
+      ),
+    );
     await tester.pump(); // the store read resolves
     await tester.pump(const Duration(milliseconds: 50));
   }
 
+  Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+    await tester.ensureVisible(finder);
+    await tester.pump();
+    await tester.tap(finder);
+  }
+
   group('BL-002 Welcome', () {
     testWidgets('asks for nothing and explains the microphone before using it',
-        (tester) async {
+        (
+      tester,
+    ) async {
       sizePhone(tester);
       var continued = 0;
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: WelcomeScreen(onContinue: () => continued++),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: WelcomeScreen(onContinue: () => continued++),
+        ),
+      );
 
       expect(find.text('BREAK LAB'), findsOneWidget);
       expect(find.text('PRACTICE. MEASURE. IMPROVE.'), findsOneWidget);
       expect(find.text('ABOUT THE MICROPHONE'), findsOneWidget);
       expect(find.textContaining('never uploaded'), findsOneWidget);
       expect(find.textContaining(r'$9.99'), findsOneWidget);
-      expect(find.textContaining('7 days from your first break'),
-          findsOneWidget);
+      expect(
+        find.textContaining('7 days from your first break'),
+        findsOneWidget,
+      );
 
       // No account, no email, no permission dialog on arrival. If any of these
       // ever appear here, someone has quietly added a signup to the first
@@ -110,24 +126,27 @@ void main() {
       expect(find.textContaining('Sign in'), findsNothing);
       expect(find.textContaining('email'), findsNothing);
 
-      await tester.tap(find.text('GET STARTED'));
+      await tapVisible(tester, find.text('GET STARTED'));
       await tester.pump();
       expect(continued, 1);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('survives a large system font instead of overflowing',
-        (tester) async {
+    testWidgets('survives a large system font instead of overflowing', (
+      tester,
+    ) async {
       // The masthead on home overflowed by 98 pixels the moment the type got
       // wider. This screen is longer and gets the same check.
       tester.platformDispatcher.textScaleFactorTestValue = 1.6;
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       sizePhone(tester);
 
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: WelcomeScreen(onContinue: () {}),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: WelcomeScreen(onContinue: () {}),
+        ),
+      );
 
       expect(tester.takeException(), isNull);
       expect(find.text('BREAK LAB'), findsOneWidget);
@@ -135,14 +154,17 @@ void main() {
   });
 
   group('BL-006 Phone placement', () {
-    testWidgets('shows the table, three rules and the one that is not',
-        (tester) async {
+    testWidgets('shows the table, three rules and the one that is not', (
+      tester,
+    ) async {
       sizePhone(tester);
       var done = 0;
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: PhonePlacementScreen(onDone: () => done++),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: PhonePlacementScreen(onDone: () => done++),
+        ),
+      );
 
       expect(find.byType(PlacementDiagram), findsOneWidget);
       expect(find.text('PHONE HERE'), findsOneWidget);
@@ -150,43 +172,50 @@ void main() {
 
       expect(find.text('On the rail at the head of the table'), findsOneWidget);
       expect(find.text('Screen up, mic uncovered'), findsOneWidget);
-      expect(
-          find.text('Leave it there for the whole session'), findsOneWidget);
+      expect(find.text('Leave it there for the whole session'), findsOneWidget);
       expect(find.text('Not on the far rail or in your hand'), findsOneWidget);
 
       // The room warning is on the screen before the first break, not after a
       // failed one — by then it is an excuse rather than advice.
       expect(find.text('ONE HONEST WARNING'), findsOneWidget);
 
-      await tester.tap(find.text('IT IS IN PLACE'));
+      await tapVisible(tester, find.text('IT IS IN PLACE'));
       await tester.pump();
       expect(done, 1);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('skip only exists when someone is being walked through it',
-        (tester) async {
+    testWidgets('skip only exists when someone is being walked through it', (
+      tester,
+    ) async {
       sizePhone(tester);
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: PhonePlacementScreen(onDone: () {}),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: PhonePlacementScreen(onDone: () {}),
+        ),
+      );
       expect(find.text('Skip'), findsNothing);
 
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: PhonePlacementScreen(onDone: () {}, onSkip: () {}),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: PhonePlacementScreen(onDone: () {}, onSkip: () {}),
+        ),
+      );
       expect(find.text('Skip'), findsOneWidget);
     });
 
-    testWidgets('lays out on a short phone without overflowing',
-        (tester) async {
+    testWidgets('lays out on a short phone without overflowing', (
+      tester,
+    ) async {
       sizePhone(tester, size: const Size(1080, 1920));
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: PhonePlacementScreen(onDone: () {}),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: PhonePlacementScreen(onDone: () {}),
+        ),
+      );
       expect(tester.takeException(), isNull);
     });
   });
@@ -204,34 +233,40 @@ void main() {
       final store = InMemoryEntitlementStore();
       await pumpRoot(tester, store);
 
-      await tester.tap(find.text('GET STARTED'));
+      await tapVisible(tester, find.text('GET STARTED'));
       await tester.pumpAndSettle();
       expect(find.byType(PhonePlacementScreen), findsOneWidget);
 
-      await tester.tap(find.text('IT IS IN PLACE'));
+      await tapVisible(tester, find.text('IT IS IN PLACE'));
+      await tester.runAsync(() async {
+        await Future<void>.delayed(Duration.zero);
+      });
       await tester.pumpAndSettle();
 
       expect(await store.hasSeenWelcome(), isTrue);
-      expect(find.byType(BreakSetupScreen), findsOneWidget,
-          reason: 'the welcome screen promised they would set the table up');
+      expect(
+        find.byType(BreakSetupScreen),
+        findsOneWidget,
+        reason: 'the welcome screen promised they would set the table up',
+      );
     });
 
-    testWidgets('skipping placement still finishes onboarding',
-        (tester) async {
+    testWidgets('skipping placement still finishes onboarding', (tester) async {
       final store = InMemoryEntitlementStore();
       await pumpRoot(tester, store);
 
-      await tester.tap(find.text('GET STARTED'));
+      await tapVisible(tester, find.text('GET STARTED'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Skip'));
+      await tapVisible(tester, find.text('Skip'));
       await tester.pumpAndSettle();
 
       expect(await store.hasSeenWelcome(), isTrue);
       expect(find.byType(PhonePlacementScreen), findsNothing);
     });
 
-    testWidgets('someone who read it and never measured is not asked twice',
-        (tester) async {
+    testWidgets('someone who read it and never measured is not asked twice', (
+      tester,
+    ) async {
       // The flag is stored, not inferred from whether any breaks exist. An app
       // that greets you again the next night is an app that was not paying
       // attention.
@@ -239,8 +274,11 @@ void main() {
 
       expect(find.byType(WelcomeScreen), findsNothing);
       expect(find.byType(HomeScreen), findsOneWidget);
-      expect(find.byType(BreakSetupScreen), findsNothing,
-          reason: 'setup opens itself once, coming off welcome, and no more');
+      expect(
+        find.byType(BreakSetupScreen),
+        findsNothing,
+        reason: 'setup opens itself once, coming off welcome, and no more',
+      );
       expect(find.text('BREAK'), findsOneWidget);
     });
   });

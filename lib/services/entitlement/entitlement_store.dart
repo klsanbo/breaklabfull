@@ -33,8 +33,9 @@ class PrefsEntitlementStore implements EntitlementStore {
     final prefs = await SharedPreferences.getInstance();
     final millis = prefs.getInt(trialKey);
     return Entitlement(
-      trialStartedAt:
-          millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis),
+      trialStartedAt: millis == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(millis),
       purchased: prefs.getBool(purchasedKey) ?? false,
     );
   }
@@ -70,8 +71,8 @@ class InMemoryEntitlementStore implements EntitlementStore {
   InMemoryEntitlementStore({
     Entitlement entitlement = Entitlement.fresh,
     bool seenWelcome = false,
-  })  : _entitlement = entitlement,
-        _seenWelcome = seenWelcome;
+  }) : _entitlement = entitlement,
+       _seenWelcome = seenWelcome;
 
   Entitlement _entitlement;
   bool _seenWelcome;

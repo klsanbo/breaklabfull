@@ -106,9 +106,11 @@ class _Item extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(5),
             ),
-            child: Icon(destination.icon,
-                size: 14,
-                color: selected ? BreakLabColors.ink : BreakLabColors.inkSoft),
+            child: Icon(
+              destination.icon,
+              size: 14,
+              color: selected ? BreakLabColors.ink : BreakLabColors.inkSoft,
+            ),
           ),
           const SizedBox(height: 4),
           Text(

@@ -59,10 +59,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     c.addListener(_onChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await c.refreshStats();
       if (widget.openSetupOnStart && mounted) {
         await _editSetup();
       }
+      await c.refreshStats();
     });
   }
 
@@ -127,21 +127,29 @@ class _HomeScreenState extends State<HomeScreen> {
       case NavDestination.home:
         return;
       case NavDestination.breakMap:
-        Navigator.of(context).push(MaterialPageRoute<void>(
-          builder: (_) => BreakMapScreen(controller: c, onBreak: _break),
-        ));
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => BreakMapScreen(controller: c, onBreak: _break),
+          ),
+        );
         return;
       case NavDestination.sessions:
-        _open('Sessions',
-            'Every night at the table, with its own averages, best break and Break Score, and every break inside it.');
+        _open(
+          'Sessions',
+          'Every night at the table, with its own averages, best break and Break Score, and every break inside it.',
+        );
         return;
       case NavDestination.trends:
-        _open('Trends',
-            'Whether speed, control and consistency are moving the right way across your last twenty sessions.');
+        _open(
+          'Trends',
+          'Whether speed, control and consistency are moving the right way across your last twenty sessions.',
+        );
         return;
       case NavDestination.records:
-        _open('Records',
-            'Fastest break, highest Break Score, best session average, and the milestones you are closing in on.');
+        _open(
+          'Records',
+          'Fastest break, highest Break Score, best session average, and the milestones you are closing in on.',
+        );
         return;
     }
   }
@@ -161,8 +169,10 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               HomeHeader(
-                onSettings: () => _open('Settings',
-                    'Units, sensitivity, and what BreakLab keeps on your phone. Nothing leaves the device.'),
+                onSettings: () => _open(
+                  'Settings',
+                  'Units, sensitivity, and what BreakLab keeps on your phone. Nothing leaves the device.',
+                ),
               ),
               const SizedBox(height: 14),
               if (result == null) ...[

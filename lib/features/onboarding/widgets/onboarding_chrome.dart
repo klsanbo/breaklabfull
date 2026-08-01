@@ -41,31 +41,31 @@ class NoteCard extends StatelessWidget {
   static const _badInk = Color(0xFF7A1C16);
 
   Color get _background => switch (tone) {
-        NoteTone.warn => _warnBg,
-        NoteTone.bad => _badBg,
-        NoteTone.plain || NoteTone.soft => Colors.white,
-      };
+    NoteTone.warn => _warnBg,
+    NoteTone.bad => _badBg,
+    NoteTone.plain || NoteTone.soft => Colors.white,
+  };
 
   Color get _border => switch (tone) {
-        NoteTone.warn => _warnBorder,
-        NoteTone.bad => _badBorder,
-        NoteTone.plain => BreakLabColors.ink,
-        NoteTone.soft => BreakLabColors.hairline,
-      };
+    NoteTone.warn => _warnBorder,
+    NoteTone.bad => _badBorder,
+    NoteTone.plain => BreakLabColors.ink,
+    NoteTone.soft => BreakLabColors.hairline,
+  };
 
   double get _borderWidth => tone == NoteTone.soft ? 1.0 : 1.5;
 
   Color get _titleInk => switch (tone) {
-        NoteTone.warn => _warnInk,
-        NoteTone.bad => _badInk,
-        NoteTone.plain || NoteTone.soft => BreakLabColors.ink,
-      };
+    NoteTone.warn => _warnInk,
+    NoteTone.bad => _badInk,
+    NoteTone.plain || NoteTone.soft => BreakLabColors.ink,
+  };
 
   Color get _bodyInk => switch (tone) {
-        NoteTone.warn => _warnInk,
-        NoteTone.bad => _badInk,
-        NoteTone.plain || NoteTone.soft => BreakLabColors.inkSoft,
-      };
+    NoteTone.warn => _warnInk,
+    NoteTone.bad => _badInk,
+    NoteTone.plain || NoteTone.soft => BreakLabColors.inkSoft,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -133,8 +133,9 @@ class PrimaryButton extends StatelessWidget {
             boxShadow: enabled
                 ? [
                     BoxShadow(
-                      color:
-                          BreakLabColors.breakBlueDark.withValues(alpha: 0.32),
+                      color: BreakLabColors.breakBlueDark.withValues(
+                        alpha: 0.32,
+                      ),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
                     ),
@@ -160,11 +161,7 @@ class PrimaryButton extends StatelessWidget {
 /// The second thing to do on a screen, when there is one. Outlined rather than
 /// filled so it never competes with the blue.
 class GhostButton extends StatelessWidget {
-  const GhostButton({
-    super.key,
-    required this.label,
-    required this.onPressed,
-  });
+  const GhostButton({super.key, required this.label, required this.onPressed});
 
   final String label;
   final VoidCallback? onPressed;

@@ -64,10 +64,7 @@ class _OutcomeCardState extends State<OutcomeCard> {
               SizedBox(width: 6),
               Text(
                 '(optional)',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: BreakLabColors.inkFaint,
-                ),
+                style: TextStyle(fontSize: 11, color: BreakLabColors.inkFaint),
               ),
             ],
           ),
@@ -122,17 +119,23 @@ class _OutcomeCardState extends State<OutcomeCard> {
               FilledButton(
                 style: FilledButton.styleFrom(
                   backgroundColor: BreakLabColors.labGreenDark,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22,
+                    vertical: 12,
+                  ),
                 ),
-                onPressed: () => widget.onSaved(BreakOutcome(
-                  ballsMade: _balls,
-                  scratched: _scratched,
-                  spread: _spread,
-                  cueBallAfter: _after,
-                )),
-                child: const Text('Save outcome',
-                    style: TextStyle(fontWeight: FontWeight.w800)),
+                onPressed: () => widget.onSaved(
+                  BreakOutcome(
+                    ballsMade: _balls,
+                    scratched: _scratched,
+                    spread: _spread,
+                    cueBallAfter: _after,
+                  ),
+                ),
+                child: const Text(
+                  'Save outcome',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
               ),
             ],
           ),
@@ -149,17 +152,17 @@ class _Label extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: 10, bottom: 5),
-        child: Text(
-          text.toUpperCase(),
-          style: const TextStyle(
-            fontSize: 10.5,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1,
-            color: BreakLabColors.inkFaint,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(top: 10, bottom: 5),
+    child: Text(
+      text.toUpperCase(),
+      style: const TextStyle(
+        fontSize: 10.5,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 1,
+        color: BreakLabColors.inkFaint,
+      ),
+    ),
+  );
 }
 
 class _BallChip extends StatelessWidget {
@@ -239,8 +242,9 @@ class _Toggle extends StatelessWidget {
                   options[i],
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight:
-                        selectedIndex == i ? FontWeight.w800 : FontWeight.w600,
+                    fontWeight: selectedIndex == i
+                        ? FontWeight.w800
+                        : FontWeight.w600,
                     color: _fg(i),
                   ),
                 ),

@@ -44,10 +44,10 @@ class StubbedEngine implements BreakLabEngine {
 
   @override
   EngineResult detect(EngineInput input) => EngineResult(
-        engineVersion: version,
-        grade: AccuracyGrade.unreliable,
-        detectedPairValid: false,
-      );
+    engineVersion: version,
+    grade: AccuracyGrade.unreliable,
+    detectedPairValid: false,
+  );
 }
 
 void main() {
@@ -59,8 +59,10 @@ void main() {
   late FakeRecorder recorder;
 
   setUp(() async {
-    db = await BreakLabDatabase.open(inMemoryDatabasePath,
-        factory: databaseFactoryFfi);
+    db = await BreakLabDatabase.open(
+      inMemoryDatabasePath,
+      factory: databaseFactoryFfi,
+    );
     tempDir = await Directory.systemTemp.createTemp('breaklab_home');
     recorder = FakeRecorder();
     controller = MeasureController(
@@ -77,15 +79,19 @@ void main() {
     await tempDir.delete(recursive: true);
   });
 
-  Future<void> pumpHome(WidgetTester tester,
-      {Size size = const Size(1080, 2400)}) async {
+  Future<void> pumpHome(
+    WidgetTester tester, {
+    Size size = const Size(1080, 2400),
+  }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(MaterialApp(
-      theme: breakLabTheme(),
-      home: HomeScreen(controller: controller),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: breakLabTheme(),
+        home: HomeScreen(controller: controller),
+      ),
+    );
     await tester.pump(); // let the post-frame stats load settle
     await tester.pump(const Duration(milliseconds: 50));
   }
@@ -113,8 +119,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('the score bars name the components but not the weights',
-      (tester) async {
+  testWidgets('the score bars name the components but not the weights', (
+    tester,
+  ) async {
     // The weights live on the Score screen. Five bars in weight order here,
     // heaviest first, and no percentages competing with the number.
     await pumpHome(tester);
@@ -133,8 +140,9 @@ void main() {
     }
   });
 
-  testWidgets('no number appears twice with two different labels',
-      (tester) async {
+  testWidgets('no number appears twice with two different labels', (
+    tester,
+  ) async {
     // Consistency and clean breaks are bars on the score card. Printing them
     // again as totals underneath would leave a player deciding which one to
     // believe.
@@ -146,18 +154,23 @@ void main() {
     // means rather than the test asserting a magic count.
     expect(
       find.descendant(
-          of: find.byType(StatStrip), matching: find.text('SESSIONS')),
+        of: find.byType(StatStrip),
+        matching: find.text('SESSIONS'),
+      ),
       findsOneWidget,
     );
     expect(
       find.descendant(
-          of: find.byType(BreakLabNav), matching: find.text('SESSIONS')),
+        of: find.byType(BreakLabNav),
+        matching: find.text('SESSIONS'),
+      ),
       findsOneWidget,
     );
   });
 
-  testWidgets('the masthead gives instead of overflowing at large text',
-      (tester) async {
+  testWidgets('the masthead gives instead of overflowing at large text', (
+    tester,
+  ) async {
     // It overflowed by 98 pixels the moment the type got wider: two Spacers
     // around a rigid Column left it no way to give. Anyone running a large
     // system font would have seen the name run off the edge.
@@ -181,19 +194,18 @@ void main() {
     expect(find.text('NO SCORE YET'), findsOneWidget);
   });
 
-  testWidgets('shows dashes rather than invented numbers when empty',
-      (tester) async {
+  testWidgets('shows dashes rather than invented numbers when empty', (
+    tester,
+  ) async {
     await pumpHome(tester);
     // Nothing measured: no zeros pretending to be measurements.
     expect(find.text('—'), findsWidgets);
-    expect(
-      find.textContaining('No breaks measured yet'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('No breaks measured yet'), findsOneWidget);
   });
 
-  testWidgets('the totals are the four V006 asked for, with real sources',
-      (tester) async {
+  testWidgets('the totals are the four V006 asked for, with real sources', (
+    tester,
+  ) async {
     // I claimed these needed queries that did not exist. personalRecords() had
     // been in the database the whole time; home simply was not loading it.
     await pumpHome(tester);
@@ -240,8 +252,9 @@ void main() {
     expect(find.byType(BreakSetupScreen), findsOneWidget);
   });
 
-  testWidgets('the bottom bar has five destinations with HOME in the middle',
-      (tester) async {
+  testWidgets('the bottom bar has five destinations with HOME in the middle', (
+    tester,
+  ) async {
     await pumpHome(tester);
     expect(find.byType(BreakLabNav), findsOneWidget);
     expect(NavDestination.values.length, 5);
@@ -251,7 +264,9 @@ void main() {
       // finder here is the same mistake twice in one file.
       expect(
         find.descendant(
-            of: find.byType(BreakLabNav), matching: find.text(d.label)),
+          of: find.byType(BreakLabNav),
+          matching: find.text(d.label),
+        ),
         findsOneWidget,
         reason: '${d.label} is missing from the bar',
       );
@@ -266,8 +281,9 @@ void main() {
     expect(find.byType(ComingNextScreen), findsOneWidget);
   });
 
-  testWidgets('BREAK MAP opens the real screen, not a placeholder',
-      (tester) async {
+  testWidgets('BREAK MAP opens the real screen, not a placeholder', (
+    tester,
+  ) async {
     await pumpHome(tester);
 
     await tester.tap(find.text('BREAK MAP'));
@@ -277,8 +293,9 @@ void main() {
     expect(find.byType(ComingNextScreen), findsNothing);
   });
 
-  testWidgets('HOME goes nowhere, because you are already there',
-      (tester) async {
+  testWidgets('HOME goes nowhere, because you are already there', (
+    tester,
+  ) async {
     await pumpHome(tester);
     await tester.tap(find.text('HOME'));
     await tester.pumpAndSettle();
@@ -286,8 +303,9 @@ void main() {
     expect(find.text('BREAK'), findsOneWidget);
   });
 
-  testWidgets('tapping BREAK arms the listener and the pill follows',
-      (tester) async {
+  testWidgets('tapping BREAK arms the listener and the pill follows', (
+    tester,
+  ) async {
     await pumpHome(tester);
     expect(find.text('READY'), findsOneWidget);
 
@@ -318,25 +336,33 @@ void main() {
     expect(find.byType(BreakLabNav), findsOneWidget);
   });
 
-  testWidgets('lays out without overflow on a tall narrow phone',
-      (tester) async {
+  testWidgets('lays out without overflow on a tall narrow phone', (
+    tester,
+  ) async {
     await pumpHome(tester, size: const Size(1080, 2400));
     expect(tester.takeException(), isNull);
     expect(find.text('READY'), findsOneWidget);
   });
 
-  testWidgets('the status pill shows its whole label, never clipped',
-      (tester) async {
+  testWidgets('the status pill shows its whole label, never clipped', (
+    tester,
+  ) async {
     // It read "LI..." on the phone: the pill was flexible and lost the contest
     // for space against the rules beside it.
     await pumpHome(tester, size: const Size(1080, 1920));
 
     final pill = tester.widget<Text>(find.text('READY'));
-    expect(pill.overflow, isNot(TextOverflow.ellipsis),
-        reason: 'a status label that can ellipsis will eventually ellipsis');
+    expect(
+      pill.overflow,
+      isNot(TextOverflow.ellipsis),
+      reason: 'a status label that can ellipsis will eventually ellipsis',
+    );
 
     final painted = tester.renderObject<RenderBox>(find.text('READY'));
-    expect(painted.size.width, greaterThan(40),
-        reason: 'READY rendered narrower than its own text');
+    expect(
+      painted.size.width,
+      greaterThan(40),
+      reason: 'READY rendered narrower than its own text',
+    );
   });
 }

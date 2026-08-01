@@ -75,7 +75,7 @@ class BreakLabScore {
     if (mean <= 0) return null;
     final variance =
         speeds.map((s) => (s - mean) * (s - mean)).reduce((a, b) => a + b) /
-            speeds.length;
+        speeds.length;
     final spread = math.sqrt(variance) / mean;
     return math.min(100.0, math.max(0.0, 100 * (1 - spread * 5)));
   }
@@ -83,7 +83,8 @@ class BreakLabScore {
   /// [sessionsNewestFirst] is every session's breaks, newest session first.
   /// Only the most recent [sessionWindow] sessions are considered.
   factory BreakLabScore.fromSessions(
-      List<List<BreakResult>> sessionsNewestFirst) {
+    List<List<BreakResult>> sessionsNewestFirst,
+  ) {
     final window = sessionsNewestFirst.take(sessionWindow).toList();
 
     final scored = <BreakResult>[];
@@ -102,21 +103,25 @@ class BreakLabScore {
     double mean(Iterable<double> xs) =>
         xs.isEmpty ? 0 : xs.reduce((a, b) => a + b) / xs.length;
 
-    final control =
-        mean(scored.map((b) => b.outcome!.cueBallAfter.points.toDouble()));
+    final control = mean(
+      scored.map((b) => b.outcome!.cueBallAfter.points.toDouble()),
+    );
     final consistency = mean(consistencies);
     final clean = scored.isEmpty
         ? 0.0
         : 100 *
-            scored
-                .where((b) =>
-                    !b.outcome!.scratched &&
-                    b.grade != AccuracyGrade.unreliable)
-                .length /
-            scored.length;
+              scored
+                  .where(
+                    (b) =>
+                        !b.outcome!.scratched &&
+                        b.grade != AccuracyGrade.unreliable,
+                  )
+                  .length /
+              scored.length;
     final balls = mean(scored.map((b) => b.outcome!.ballPoints.toDouble()));
-    final speed =
-        mean(withSpeed.map((b) => BreakScore.speedPoints(b.speedMph!)));
+    final speed = mean(
+      withSpeed.map((b) => BreakScore.speedPoints(b.speedMph!)),
+    );
 
     final enoughSessions = window.length >= minSessions;
     final enoughBreaks = scored.length >= minScoredBreaks;
@@ -145,7 +150,8 @@ class BreakLabScore {
       );
     }
 
-    final total = control * controlWeight +
+    final total =
+        control * controlWeight +
         consistency * consistencyWeight +
         clean * cleanWeight +
         balls * ballsWeight +

@@ -49,11 +49,11 @@ class ZoneStats {
   });
 
   const ZoneStats.empty(this.zone)
-      : breakCount = 0,
-        reliableCount = 0,
-        bestMph = null,
-        averageMph = null,
-        averageBreakScore = null;
+    : breakCount = 0,
+      reliableCount = 0,
+      bestMph = null,
+      averageMph = null,
+      averageBreakScore = null;
 
   final BreakZone zone;
 

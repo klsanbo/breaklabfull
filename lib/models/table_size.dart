@@ -38,15 +38,15 @@ enum TableSize {
   /// Chip-length name. [label] is the full descriptive one ("7ft Bar Box");
   /// this is what fits five-across in the setup sheet.
   String get shortLabel => switch (this) {
-        TableSize.sevenFoot => '7ft',
-        TableSize.eightFoot => '8ft',
-        TableSize.proEight => 'Pro 8',
-        TableSize.nineFoot => '9ft',
-        TableSize.custom => 'Custom',
-      };
+    TableSize.sevenFoot => '7ft',
+    TableSize.eightFoot => '8ft',
+    TableSize.proEight => 'Pro 8',
+    TableSize.nineFoot => '9ft',
+    TableSize.custom => 'Custom',
+  };
 
   static TableSize fromId(String id) => TableSize.values.firstWhere(
-        (t) => t.id == id,
-        orElse: () => TableSize.custom,
-      );
+    (t) => t.id == id,
+    orElse: () => TableSize.custom,
+  );
 }

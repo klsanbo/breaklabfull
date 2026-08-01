@@ -63,44 +63,44 @@ class UnreadableBreakCard extends StatelessWidget {
   }
 
   static String headlineFor(UnreadableReason reason) => switch (reason) {
-        UnreadableReason.heardNothing => 'WE DID NOT HEAR THE BREAK',
-        UnreadableReason.heardOneImpact => 'WE HEARD ONE IMPACT, NOT TWO',
-        UnreadableReason.wrongPair => 'THE TWO SOUNDS DID NOT ADD UP',
-      };
+    UnreadableReason.heardNothing => 'WE DID NOT HEAR THE BREAK',
+    UnreadableReason.heardOneImpact => 'WE HEARD ONE IMPACT, NOT TWO',
+    UnreadableReason.wrongPair => 'THE TWO SOUNDS DID NOT ADD UP',
+  };
 
   static String bodyFor(UnreadableReason reason) => switch (reason) {
-        UnreadableReason.heardNothing =>
-          'Neither the tip hitting the cue ball nor the cue ball hitting the '
-              'rack came through. Nine times out of ten the phone is too far '
-              'from the head of the table.',
-        UnreadableReason.heardOneImpact =>
-          'One of the two hits came through clearly and the other did not. '
-              'Without both sounds there is no time to measure, and a made-up '
-              'number is worse than none.',
-        UnreadableReason.wrongPair =>
-          'Two sounds were found but not a pair we will stand behind — often '
-              'two balls off the rack read as the strike and the rack. Timing '
-              'those would give a speed that looks fine and is wrong.',
-      };
+    UnreadableReason.heardNothing =>
+      'Neither the tip hitting the cue ball nor the cue ball hitting the '
+          'rack came through. Nine times out of ten the phone is too far '
+          'from the head of the table.',
+    UnreadableReason.heardOneImpact =>
+      'One of the two hits came through clearly and the other did not. '
+          'Without both sounds there is no time to measure, and a made-up '
+          'number is worse than none.',
+    UnreadableReason.wrongPair =>
+      'Two sounds were found but not a pair we will stand behind — often '
+          'two balls off the rack read as the strike and the rack. Timing '
+          'those would give a speed that looks fine and is wrong.',
+  };
 
   static String fixFor(UnreadableReason reason) => switch (reason) {
-        UnreadableReason.heardNothing =>
-          'Move the phone onto the rail at the head of the table, screen up, '
-              'and break normally.',
-        UnreadableReason.heardOneImpact =>
-          'Move the phone closer to the head of the table, screen up, and take '
-              'the next one. If the room is loud, that is usually the whole '
-              'story.',
-        UnreadableReason.wrongPair =>
-          'Nothing you did wrong. Take another one — this is the reading the '
-              'engine is least sure of and it will not guess to fill the gap.',
-      };
+    UnreadableReason.heardNothing =>
+      'Move the phone onto the rail at the head of the table, screen up, '
+          'and break normally.',
+    UnreadableReason.heardOneImpact =>
+      'Move the phone closer to the head of the table, screen up, and take '
+          'the next one. If the room is loud, that is usually the whole '
+          'story.',
+    UnreadableReason.wrongPair =>
+      'Nothing you did wrong. Take another one — this is the reading the '
+          'engine is least sure of and it will not guess to fill the gap.',
+  };
 
   static String impactsFor(UnreadableReason reason) => switch (reason) {
-        UnreadableReason.heardNothing => '0 of 2',
-        UnreadableReason.heardOneImpact => '1 of 2',
-        UnreadableReason.wrongPair => '2, unusable',
-      };
+    UnreadableReason.heardNothing => '0 of 2',
+    UnreadableReason.heardOneImpact => '1 of 2',
+    UnreadableReason.wrongPair => '2, unusable',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +174,7 @@ class _Row extends StatelessWidget {
           ),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
           ),
         ],
       ),

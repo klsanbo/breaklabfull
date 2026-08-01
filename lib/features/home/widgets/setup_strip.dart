@@ -72,9 +72,9 @@ class SetupStrip extends StatelessWidget {
                   Text(
                     table.hasGeometry
                         ? '${table.label} · ${position.label} · '
-                            '${distanceInches.toStringAsFixed(1)}"'
+                              '${distanceInches.toStringAsFixed(1)}"'
                         : '${table.label} · '
-                            '${distanceInches.toStringAsFixed(1)}"',
+                              '${distanceInches.toStringAsFixed(1)}"',
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
@@ -94,8 +94,11 @@ class SetupStrip extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right,
-                size: 20, color: BreakLabColors.inkFaint),
+            const Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: BreakLabColors.inkFaint,
+            ),
           ],
         ),
       ),

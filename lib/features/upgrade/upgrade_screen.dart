@@ -22,12 +22,12 @@ class TrialTally {
   });
 
   factory TrialTally.of(MeasureController c) => TrialTally(
-        breaks: c.breaksAllTime,
-        sessions: c.sessionCount,
-        bestMph: c.records?.fastestBreak?.speedMph,
-        zonesRated: c.zones.where((z) => z.isRated).length,
-        zonesTotal: c.zones.length,
-      );
+    breaks: c.breaksAllTime,
+    sessions: c.sessionCount,
+    bestMph: c.records?.fastestBreak?.speedMph,
+    zonesRated: c.zones.where((z) => z.isRated).length,
+    zonesTotal: c.zones.length,
+  );
 
   final int breaks;
   final int sessions;
@@ -193,7 +193,8 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
               if (locked)
                 const NoteCard(
                   title: 'NOTHING IS LOCKED BUT THE BREAK BUTTON',
-                  body: 'Your sessions, your Break Map, your records — all '
+                  body:
+                      'Your sessions, your Break Map, your records — all '
                       'still there, all still work. The one thing '
                       '${Entitlement.priceLabel} buys back is measuring the '
                       'next one.',
@@ -221,14 +222,14 @@ class _UpgradeScreenState extends State<UpgradeScreen> {
                 onPressed: _busy
                     ? null
                     : locked
-                        ? () => _run(widget.gateway.restore)
-                        : () => Navigator.of(context).maybePop(),
+                    ? () => _run(widget.gateway.restore)
+                    : () => Navigator.of(context).maybePop(),
               ),
               const SizedBox(height: 6),
               FinePrint(
                 locked
                     ? 'Bought this already, or on a new phone? Restore brings '
-                        'it back.'
+                          'it back.'
                     : 'No account. Your breaks stay on this phone.',
               ),
             ],
@@ -322,8 +323,11 @@ class _Tally extends StatelessWidget {
     final cells = <(String, String, String)>[
       ('${tally.breaks}', '', 'BREAKS MEASURED'),
       ('${tally.sessions}', '', 'SESSIONS'),
-      (best == null ? '—' : best.toStringAsFixed(1), best == null ? '' : ' MPH',
-          'YOUR BEST'),
+      (
+        best == null ? '—' : best.toStringAsFixed(1),
+        best == null ? '' : ' MPH',
+        'YOUR BEST',
+      ),
       ('${tally.zonesRated}', ' of ${tally.zonesTotal}', 'ZONES RATED'),
     ];
 
@@ -467,10 +471,7 @@ class _UnlockList extends StatelessWidget {
       ),
       ('Break Map', 'which spot on the cloth actually works for you.'),
       ('Trends and records', 'speed over weeks, not just tonight.'),
-      (
-        'The BreakLab Score',
-        'all five components, and what moves them.',
-      ),
+      ('The BreakLab Score', 'all five components, and what moves them.'),
     ];
 
     return Column(
@@ -498,22 +499,20 @@ class _UnlockList extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: BreakLabColors.breakBlue,
                   ),
-                  child: const Icon(
-                    Icons.check,
-                    size: 11,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.check, size: 11, color: Colors.white),
                 ),
                 const SizedBox(width: 9),
                 Expanded(
                   child: Text.rich(
-                    TextSpan(children: [
-                      TextSpan(
-                        text: rows[i].$1,
-                        style: const TextStyle(fontWeight: FontWeight.w800),
-                      ),
-                      TextSpan(text: ' — ${rows[i].$2}'),
-                    ]),
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: rows[i].$1,
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                        TextSpan(text: ' — ${rows[i].$2}'),
+                      ],
+                    ),
                     style: const TextStyle(
                       fontSize: 12,
                       height: 1.4,
@@ -596,7 +595,9 @@ Future<void> openUpgrade(
   MeasureController controller, {
   PurchaseGateway gateway = const UnwiredPurchaseGateway(),
 }) {
-  return Navigator.of(context).push(MaterialPageRoute<void>(
-    builder: (_) => UpgradeScreen(controller: controller, gateway: gateway),
-  ));
+  return Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => UpgradeScreen(controller: controller, gateway: gateway),
+    ),
+  );
 }

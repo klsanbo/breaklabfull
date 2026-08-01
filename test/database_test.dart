@@ -14,28 +14,31 @@ void main() {
   late BreakLabDatabase db;
 
   setUp(() async {
-    db = await BreakLabDatabase.open(inMemoryDatabasePath,
-        factory: databaseFactoryFfi);
+    db = await BreakLabDatabase.open(
+      inMemoryDatabasePath,
+      factory: databaseFactoryFfi,
+    );
   });
 
   tearDown(() => db.close());
 
-  BreakResult sampleBreak(int sessionId,
-          {double? mph,
-          AccuracyGrade grade = AccuracyGrade.target,
-          DateTime? at}) =>
-      BreakResult(
-        sessionId: sessionId,
-        recordedAt: at ?? DateTime(2026, 7, 28, 19),
-        tableSize: TableSize.sevenFoot,
-        travelDistanceInches: TableSize.sevenFoot.travelDistanceInches,
-        preset: SensitivityPreset.normal,
-        engineVersion: '0.1.0',
-        grade: grade,
-        detectedPairValid: grade != AccuracyGrade.unreliable,
-        gapMs: mph == null ? null : 500,
-        speedMph: mph,
-      );
+  BreakResult sampleBreak(
+    int sessionId, {
+    double? mph,
+    AccuracyGrade grade = AccuracyGrade.target,
+    DateTime? at,
+  }) => BreakResult(
+    sessionId: sessionId,
+    recordedAt: at ?? DateTime(2026, 7, 28, 19),
+    tableSize: TableSize.sevenFoot,
+    travelDistanceInches: TableSize.sevenFoot.travelDistanceInches,
+    preset: SensitivityPreset.normal,
+    engineVersion: '0.1.0',
+    grade: grade,
+    detectedPairValid: grade != AccuracyGrade.unreliable,
+    gapMs: mph == null ? null : 500,
+    speedMph: mph,
+  );
 
   test('speed math: 36.75 inches in 500 ms is ~4.18 mph', () {
     final mph = speedMph(travelDistanceInches: 36.75, gapMs: 500);
@@ -52,8 +55,12 @@ void main() {
   });
 
   test('session lifecycle: open, insert breaks, stats, end', () async {
-    final s = await db.insertSession(Session(
-        startedAt: DateTime(2026, 7, 28, 19), tableSize: TableSize.sevenFoot));
+    final s = await db.insertSession(
+      Session(
+        startedAt: DateTime(2026, 7, 28, 19),
+        tableSize: TableSize.sevenFoot,
+      ),
+    );
     expect(s.id, isNotNull);
     expect((await db.openSession())!.id, s.id);
 
@@ -72,8 +79,9 @@ void main() {
   });
 
   test('break round-trips through the database unchanged', () async {
-    final s = await db.insertSession(Session(
-        startedAt: DateTime(2026, 7, 28), tableSize: TableSize.nineFoot));
+    final s = await db.insertSession(
+      Session(startedAt: DateTime(2026, 7, 28), tableSize: TableSize.nineFoot),
+    );
     final saved = await db.insertBreak(sampleBreak(s.id!, mph: 19.75));
     final loaded = (await db.breaksForSession(s.id!)).single;
     expect(loaded.id, saved.id);
@@ -85,8 +93,9 @@ void main() {
   });
 
   test('unreliable breaks never count toward records', () async {
-    final s = await db.insertSession(Session(
-        startedAt: DateTime(2026, 7, 28), tableSize: TableSize.sevenFoot));
+    final s = await db.insertSession(
+      Session(startedAt: DateTime(2026, 7, 28), tableSize: TableSize.sevenFoot),
+    );
     await db.insertBreak(sampleBreak(s.id!, mph: 17.0));
     await db.insertBreak(sampleBreak(s.id!, mph: 22.3));
     await db.insertBreak(sampleBreak(s.id!, grade: AccuracyGrade.unreliable));
@@ -102,24 +111,29 @@ void main() {
   });
 
   test('stub engine always reports unreliable and never a speed', () {
-    final result = StubEngine().detect(const EngineInput(
-      samples: [0, 1, 2],
-      sampleRateHz: 48000,
-      travelDistanceInches: 36.75,
-    ));
+    final result = StubEngine().detect(
+      const EngineInput(
+        samples: [0, 1, 2],
+        sampleRateHz: 48000,
+        travelDistanceInches: 36.75,
+      ),
+    );
     expect(result.grade, AccuracyGrade.unreliable);
     expect(result.speedMph, isNull);
     expect(result.engineVersion, '0.0.0-stub');
   });
 
   test('fromEngine maps a failed detection to a saveable break', () async {
-    final s = await db.insertSession(Session(
-        startedAt: DateTime(2026, 7, 28), tableSize: TableSize.sevenFoot));
-    final result = StubEngine().detect(const EngineInput(
-      samples: [],
-      sampleRateHz: 48000,
-      travelDistanceInches: 36.75,
-    ));
+    final s = await db.insertSession(
+      Session(startedAt: DateTime(2026, 7, 28), tableSize: TableSize.sevenFoot),
+    );
+    final result = StubEngine().detect(
+      const EngineInput(
+        samples: [],
+        sampleRateHz: 48000,
+        travelDistanceInches: 36.75,
+      ),
+    );
     final b = BreakResult.fromEngine(
       sessionId: s.id!,
       recordedAt: DateTime(2026, 7, 28),
@@ -134,8 +148,12 @@ void main() {
   });
 
   test('total breaks counts attempts, including unreadable ones', () async {
-    final s = await db.insertSession(Session(
-        startedAt: DateTime(2026, 7, 28, 19), tableSize: TableSize.sevenFoot));
+    final s = await db.insertSession(
+      Session(
+        startedAt: DateTime(2026, 7, 28, 19),
+        tableSize: TableSize.sevenFoot,
+      ),
+    );
     await db.insertBreak(sampleBreak(s.id!, mph: 18.2));
     await db.insertBreak(sampleBreak(s.id!, mph: 21.4));
     // No speed and unreliable — still an attempt.
@@ -145,8 +163,12 @@ void main() {
   });
 
   test('scratch rate is unknown until an outcome is recorded', () async {
-    final s = await db.insertSession(Session(
-        startedAt: DateTime(2026, 7, 28, 19), tableSize: TableSize.sevenFoot));
+    final s = await db.insertSession(
+      Session(
+        startedAt: DateTime(2026, 7, 28, 19),
+        tableSize: TableSize.sevenFoot,
+      ),
+    );
     await db.insertBreak(sampleBreak(s.id!, mph: 18.2));
     await db.insertBreak(sampleBreak(s.id!, mph: 21.4));
 
@@ -155,8 +177,12 @@ void main() {
   });
 
   test('scratch rate counts only breaks with an outcome', () async {
-    final s = await db.insertSession(Session(
-        startedAt: DateTime(2026, 7, 28, 19), tableSize: TableSize.sevenFoot));
+    final s = await db.insertSession(
+      Session(
+        startedAt: DateTime(2026, 7, 28, 19),
+        tableSize: TableSize.sevenFoot,
+      ),
+    );
 
     final clean = await db.insertBreak(sampleBreak(s.id!, mph: 20.0));
     final dirty = await db.insertBreak(sampleBreak(s.id!, mph: 21.0));
@@ -164,22 +190,26 @@ void main() {
     // counting as clean.
     await db.insertBreak(sampleBreak(s.id!, mph: 19.0));
 
-    await db.updateOutcome(clean.copyWith(
-      outcome: const BreakOutcome(
-        ballsMade: 1,
-        scratched: false,
-        spread: SpreadQuality.good,
-        cueBallAfter: CueBallAfter.stayedCenter,
+    await db.updateOutcome(
+      clean.copyWith(
+        outcome: const BreakOutcome(
+          ballsMade: 1,
+          scratched: false,
+          spread: SpreadQuality.good,
+          cueBallAfter: CueBallAfter.stayedCenter,
+        ),
       ),
-    ));
-    await db.updateOutcome(dirty.copyWith(
-      outcome: const BreakOutcome(
-        ballsMade: 0,
-        scratched: true,
-        spread: SpreadQuality.poor,
-        cueBallAfter: CueBallAfter.wild,
+    );
+    await db.updateOutcome(
+      dirty.copyWith(
+        outcome: const BreakOutcome(
+          ballsMade: 0,
+          scratched: true,
+          spread: SpreadQuality.poor,
+          cueBallAfter: CueBallAfter.wild,
+        ),
       ),
-    ));
+    );
 
     // One scratch out of the two that were answered for: 50%, not 33%.
     expect(await db.scratchRate(), closeTo(50.0, 0.001));

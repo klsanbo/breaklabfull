@@ -31,23 +31,20 @@ class BreakLabColors {
 
   /// Grade pill colours — background then foreground.
   static (Color, Color) forGrade(AccuracyGrade grade) => switch (grade) {
-        AccuracyGrade.excellent => (
-            const Color(0xFFEAF3DE),
-            const Color(0xFF3B6D11)
-          ),
-        AccuracyGrade.target => (
-            const Color(0xFFE6F1FB),
-            const Color(0xFF185FA5)
-          ),
-        AccuracyGrade.fallback => (
-            const Color(0xFFFAEEDA),
-            const Color(0xFF854F0B)
-          ),
-        AccuracyGrade.unreliable => (
-            const Color(0xFFFCEBEB),
-            const Color(0xFFA32D2D)
-          ),
-      };
+    AccuracyGrade.excellent => (
+      const Color(0xFFEAF3DE),
+      const Color(0xFF3B6D11),
+    ),
+    AccuracyGrade.target => (const Color(0xFFE6F1FB), const Color(0xFF185FA5)),
+    AccuracyGrade.fallback => (
+      const Color(0xFFFAEEDA),
+      const Color(0xFF854F0B),
+    ),
+    AccuracyGrade.unreliable => (
+      const Color(0xFFFCEBEB),
+      const Color(0xFFA32D2D),
+    ),
+  };
 }
 
 ThemeData breakLabTheme() {

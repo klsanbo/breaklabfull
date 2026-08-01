@@ -114,9 +114,15 @@ class _BallFacePainter extends CustomPainter {
       ..color = BreakLabColors.inkFaint.withValues(alpha: 0.35)
       ..strokeWidth = 0.8;
     canvas.drawLine(
-        Offset(r * 0.35, r), Offset(size.width - r * 0.35, r), guide);
+      Offset(r * 0.35, r),
+      Offset(size.width - r * 0.35, r),
+      guide,
+    );
     canvas.drawLine(
-        Offset(r, r * 0.35), Offset(r, size.height - r * 0.35), guide);
+      Offset(r, r * 0.35),
+      Offset(r, size.height - r * 0.35),
+      guide,
+    );
     canvas.drawCircle(
       centre,
       r * CueEnglish.miscueLimit,

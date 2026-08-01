@@ -21,8 +21,9 @@ class ScoreCard extends StatelessWidget {
     final ready = s != null && s.isReady;
     // Dart promotes s through `ready`, so no ! is needed or wanted here.
     final bigNumber = ready ? '${s.score}' : '—';
-    final gradeLine =
-        ready ? '${s.grade.toUpperCase()} BREAKER' : 'NO SCORE YET';
+    final gradeLine = ready
+        ? '${s.grade.toUpperCase()} BREAKER'
+        : 'NO SCORE YET';
 
     return GestureDetector(
       onTap: onTap,
@@ -185,10 +186,7 @@ class _Bar extends StatelessWidget {
             child: Text(
               v == null ? '—' : v.round().toString(),
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-              ),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
             ),
           ),
         ],

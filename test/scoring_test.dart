@@ -14,21 +14,20 @@ BreakResult mk({
   BreakOutcome? outcome,
   AccuracyGrade grade = AccuracyGrade.excellent,
   int sessionId = 1,
-}) =>
-    BreakResult(
-      sessionId: sessionId,
-      recordedAt: DateTime(2026, 7, 28, 20),
-      tableSize: TableSize.sevenFoot,
-      travelDistanceInches: 36.75,
-      preset: SensitivityPreset.normal,
-      engineVersion: '1.0.0',
-      grade: grade,
-      detectedPairValid: grade != AccuracyGrade.unreliable,
-      position: BreakPosition.headStringCentre,
-      english: CueEnglish.centre,
-      outcome: outcome,
-      speedMph: mph,
-    );
+}) => BreakResult(
+  sessionId: sessionId,
+  recordedAt: DateTime(2026, 7, 28, 20),
+  tableSize: TableSize.sevenFoot,
+  travelDistanceInches: 36.75,
+  preset: SensitivityPreset.normal,
+  engineVersion: '1.0.0',
+  grade: grade,
+  detectedPairValid: grade != AccuracyGrade.unreliable,
+  position: BreakPosition.headStringCentre,
+  english: CueEnglish.centre,
+  outcome: outcome,
+  speedMph: mph,
+);
 
 const goodOutcome = BreakOutcome(
   ballsMade: 1,
@@ -42,9 +41,13 @@ void main() {
     test('centre of the head string reproduces every locked preset', () {
       const p = BreakPosition.headStringCentre;
       expect(
-          p.travelDistanceInches(TableSize.sevenFoot), closeTo(36.75, 0.001));
+        p.travelDistanceInches(TableSize.sevenFoot),
+        closeTo(36.75, 0.001),
+      );
       expect(
-          p.travelDistanceInches(TableSize.eightFoot), closeTo(41.75, 0.001));
+        p.travelDistanceInches(TableSize.eightFoot),
+        closeTo(41.75, 0.001),
+      );
       expect(p.travelDistanceInches(TableSize.proEight), closeTo(43.75, 0.001));
       expect(p.travelDistanceInches(TableSize.nineFoot), closeTo(47.75, 0.001));
     });
@@ -77,9 +80,11 @@ void main() {
     test('a custom table has no geometry to measure from', () {
       expect(TableSize.custom.hasGeometry, isFalse);
       expect(
-          () => BreakPosition.headStringCentre
-              .travelDistanceInches(TableSize.custom),
-          throwsArgumentError);
+        () => BreakPosition.headStringCentre.travelDistanceInches(
+          TableSize.custom,
+        ),
+        throwsArgumentError,
+      );
     });
   });
 
@@ -102,10 +107,16 @@ void main() {
       expect(SpeedBand.forMph(12).label, 'Controlled');
       expect(SpeedBand.forMph(15.9).label, 'Controlled');
       expect(SpeedBand.forMph(16).label, 'Solid');
-      expect(SpeedBand.forMph(18).label, 'Solid',
-          reason: '18 MPH is not a soft break');
-      expect(SpeedBand.forMph(19).label, 'Solid',
-          reason: 'the average break must not read as a shortfall');
+      expect(
+        SpeedBand.forMph(18).label,
+        'Solid',
+        reason: '18 MPH is not a soft break',
+      );
+      expect(
+        SpeedBand.forMph(19).label,
+        'Solid',
+        reason: 'the average break must not read as a shortfall',
+      );
       expect(SpeedBand.forMph(19.9).label, 'Solid');
       expect(SpeedBand.forMph(20).label, 'Strong');
       expect(SpeedBand.forMph(21).label, 'Strong');
@@ -182,13 +193,17 @@ void main() {
         cueBallAfter: CueBallAfter.wild,
       );
       final wild = BreakScore.forBreak(mk(mph: 28.0, outcome: outcome))!;
-      final controlled = BreakScore.forBreak(mk(
+      final controlled = BreakScore.forBreak(
+        mk(
           mph: 24.7,
           outcome: const BreakOutcome(
-              ballsMade: 2,
-              scratched: false,
-              spread: SpreadQuality.excellent,
-              cueBallAfter: CueBallAfter.stayedCenter)))!;
+            ballsMade: 2,
+            scratched: false,
+            spread: SpreadQuality.excellent,
+            cueBallAfter: CueBallAfter.stayedCenter,
+          ),
+        ),
+      )!;
       expect(wild, 24);
       expect(controlled, greaterThan(wild));
     });
@@ -208,8 +223,11 @@ void main() {
     });
 
     test('an unreliable reading never produces a score', () {
-      final b =
-          mk(mph: null, grade: AccuracyGrade.unreliable, outcome: goodOutcome);
+      final b = mk(
+        mph: null,
+        grade: AccuracyGrade.unreliable,
+        outcome: goodOutcome,
+      );
       expect(BreakScore.forBreak(b), isNull);
     });
   });
@@ -217,7 +235,9 @@ void main() {
   group('breaklab score', () {
     List<BreakResult> session(int id, {int count = 7, double mph = 21.4}) =>
         List.generate(
-            count, (_) => mk(mph: mph, outcome: goodOutcome, sessionId: id));
+          count,
+          (_) => mk(mph: mph, outcome: goodOutcome, sessionId: id),
+        );
 
     test('needs three sessions and twenty scored breaks', () {
       final short = BreakLabScore.fromSessions([session(1), session(2)]);
@@ -227,8 +247,11 @@ void main() {
     });
 
     test('computes from the locked weights once there is enough data', () {
-      final s =
-          BreakLabScore.fromSessions([session(1), session(2), session(3)]);
+      final s = BreakLabScore.fromSessions([
+        session(1),
+        session(2),
+        session(3),
+      ]);
       expect(s.isReady, isTrue);
       expect(s.scoredBreaks, 21);
       expect(s.sessionsCounted, 3);
@@ -245,9 +268,11 @@ void main() {
 
     test('a tight session scores far higher consistency than a loose one', () {
       final tight = BreakLabScore.sessionConsistency(
-          [21.4, 20.9, 21.8, 21.1, 21.5].map((m) => mk(mph: m)).toList())!;
+        [21.4, 20.9, 21.8, 21.1, 21.5].map((m) => mk(mph: m)).toList(),
+      )!;
       final loose = BreakLabScore.sessionConsistency(
-          [18.0, 24.0, 20.0, 26.0, 19.0].map((m) => mk(mph: m)).toList())!;
+        [18.0, 24.0, 20.0, 26.0, 19.0].map((m) => mk(mph: m)).toList(),
+      )!;
       expect(tight, closeTo(92.65, 0.1));
       expect(loose, closeTo(28.2, 0.5));
       expect(tight, greaterThan(loose));
@@ -271,9 +296,10 @@ void main() {
 
     test('skipped-outcome breaks still feed speed and consistency', () {
       final mixed = List.generate(
-          21,
-          (i) => mk(
-              mph: 21.4, outcome: i.isEven ? goodOutcome : null, sessionId: 1));
+        21,
+        (i) =>
+            mk(mph: 21.4, outcome: i.isEven ? goodOutcome : null, sessionId: 1),
+      );
       final s = BreakLabScore.fromSessions([mixed, mixed, mixed]);
       // 11 scored per session x3 = 33 scored, all 63 feed speed.
       expect(s.scoredBreaks, 33);

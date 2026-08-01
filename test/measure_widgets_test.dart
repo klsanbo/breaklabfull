@@ -9,18 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget wrap(Widget child, {double width = 320}) => MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: SizedBox(width: width, child: child),
-        ),
-      ),
-    );
+  home: Scaffold(
+    body: Center(
+      child: SizedBox(width: width, child: child),
+    ),
+  ),
+);
 
 /// The painted surface belonging to [T] — never Material's own chrome.
-Finder _paintOf<T extends Widget>() => find.descendant(
-      of: find.byType(T),
-      matching: find.byType(CustomPaint),
-    );
+Finder _paintOf<T extends Widget>() =>
+    find.descendant(of: find.byType(T), matching: find.byType(CustomPaint));
 
 void main() {
   group('break button', () {
@@ -30,14 +28,16 @@ void main() {
       await tester.pumpWidget(wrap(BreakButton(onPressed: () {})));
       expect(find.text('BREAK'), findsOneWidget);
 
-      await tester
-          .pumpWidget(wrap(BreakButton(onPressed: () {}, listening: true)));
+      await tester.pumpWidget(
+        wrap(BreakButton(onPressed: () {}, listening: true)),
+      );
       await tester.pump();
       expect(find.text('BREAK'), findsOneWidget);
       expect(find.text('LISTENING'), findsNothing);
 
       await tester.pumpWidget(
-          wrap(BreakButton(onPressed: () {}, listening: true, heard: true)));
+        wrap(BreakButton(onPressed: () {}, listening: true, heard: true)),
+      );
       await tester.pump();
       expect(find.text('BREAK'), findsOneWidget);
       expect(find.text('GOT IT'), findsNothing);
@@ -54,10 +54,15 @@ void main() {
   group('english picker', () {
     testWidgets('starts at centre and names where you hit it', (tester) async {
       CueEnglish? picked;
-      await tester.pumpWidget(wrap(
-        EnglishPicker(english: CueEnglish.centre, onChanged: (e) => picked = e),
-        width: 120,
-      ));
+      await tester.pumpWidget(
+        wrap(
+          EnglishPicker(
+            english: CueEnglish.centre,
+            onChanged: (e) => picked = e,
+          ),
+          width: 120,
+        ),
+      );
       expect(find.text('Center'), findsOneWidget);
 
       final topLeft = tester.getTopLeft(_paintOf<EnglishPicker>());
@@ -72,10 +77,15 @@ void main() {
 
     testWidgets('a tap below centre is draw, not follow', (tester) async {
       CueEnglish? picked;
-      await tester.pumpWidget(wrap(
-        EnglishPicker(english: CueEnglish.centre, onChanged: (e) => picked = e),
-        width: 120,
-      ));
+      await tester.pumpWidget(
+        wrap(
+          EnglishPicker(
+            english: CueEnglish.centre,
+            onChanged: (e) => picked = e,
+          ),
+          width: 120,
+        ),
+      );
       final topLeft = tester.getTopLeft(_paintOf<EnglishPicker>());
       await tester.tapAt(topLeft + const Offset(37, 66));
       await tester.pump();
@@ -88,10 +98,12 @@ void main() {
   group('outcome card', () {
     testWidgets('saves exactly what was tapped', (tester) async {
       BreakOutcome? saved;
-      await tester.pumpWidget(wrap(
-        OutcomeCard(onSaved: (o) => saved = o, onSkipped: () {}),
-        width: 340,
-      ));
+      await tester.pumpWidget(
+        wrap(
+          OutcomeCard(onSaved: (o) => saved = o, onSkipped: () {}),
+          width: 340,
+        ),
+      );
 
       await tester.tap(find.text('2'));
       await tester.tap(find.text('Scratched'));
@@ -110,31 +122,39 @@ void main() {
     testWidgets('skip is always available and saves nothing', (tester) async {
       var skipped = false;
       BreakOutcome? saved;
-      await tester.pumpWidget(wrap(
-        OutcomeCard(onSaved: (o) => saved = o, onSkipped: () => skipped = true),
-        width: 340,
-      ));
+      await tester.pumpWidget(
+        wrap(
+          OutcomeCard(
+            onSaved: (o) => saved = o,
+            onSkipped: () => skipped = true,
+          ),
+          width: 340,
+        ),
+      );
       await tester.tap(find.text('Skip'));
       expect(skipped, isTrue);
       expect(saved, isNull);
     });
 
-    testWidgets('starts from the previous break so most breaks are one tap',
-        (tester) async {
+    testWidgets('starts from the previous break so most breaks are one tap', (
+      tester,
+    ) async {
       BreakOutcome? saved;
-      await tester.pumpWidget(wrap(
-        OutcomeCard(
-          initial: const BreakOutcome(
-            ballsMade: 3,
-            scratched: false,
-            spread: SpreadQuality.excellent,
-            cueBallAfter: CueBallAfter.drifted,
+      await tester.pumpWidget(
+        wrap(
+          OutcomeCard(
+            initial: const BreakOutcome(
+              ballsMade: 3,
+              scratched: false,
+              spread: SpreadQuality.excellent,
+              cueBallAfter: CueBallAfter.drifted,
+            ),
+            onSaved: (o) => saved = o,
+            onSkipped: () {},
           ),
-          onSaved: (o) => saved = o,
-          onSkipped: () {},
+          width: 340,
         ),
-        width: 340,
-      ));
+      );
       await tester.tap(find.text('Save outcome'));
       expect(saved!.ballsMade, 3);
       expect(saved!.spread, SpreadQuality.excellent);
@@ -147,8 +167,11 @@ void main() {
       final backgrounds = <Color>[];
       for (final g in AccuracyGrade.values) {
         final (bg, fg) = BreakLabColors.forGrade(g);
-        expect(backgrounds.contains(bg), isFalse,
-            reason: '\${g.label} reuses another grade colour');
+        expect(
+          backgrounds.contains(bg),
+          isFalse,
+          reason: '\${g.label} reuses another grade colour',
+        );
         expect(bg, isNot(fg));
         backgrounds.add(bg);
       }

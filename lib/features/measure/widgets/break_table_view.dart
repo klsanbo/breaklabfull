@@ -50,8 +50,7 @@ class BreakTableView extends StatefulWidget {
     required double viewHeight,
     required double top,
     required double bottom,
-  }) =>
-      top >= 0 && bottom <= viewHeight;
+  }) => top >= 0 && bottom <= viewHeight;
 
   @override
   State<BreakTableView> createState() => _BreakTableViewState();
@@ -74,10 +73,12 @@ class _BreakTableViewState extends State<BreakTableView> {
 
     // Drag the table right and your viewpoint moves left across it, the way a
     // map works. Drag it down and the ball ends up further up the table.
-    widget.onChanged(BreakPosition(
-      x: widget.position.x + delta.dy / clothHeight,
-      y: widget.position.y - delta.dx / clothWidth,
-    ).clampedToKitchen());
+    widget.onChanged(
+      BreakPosition(
+        x: widget.position.x + delta.dy / clothHeight,
+        y: widget.position.y - delta.dx / clothWidth,
+      ).clampedToKitchen(),
+    );
   }
 
   @override
@@ -92,7 +93,8 @@ class _BreakTableViewState extends State<BreakTableView> {
             : viewWidth * 1.16;
 
         final clothWidth = viewWidth * BreakTableView.clothFraction;
-        final clothHeight = clothWidth *
+        final clothHeight =
+            clothWidth *
             (widget.table.playingLengthInches /
                 widget.table.playingWidthInches);
 
@@ -193,18 +195,26 @@ class _RoomPainter extends CustomPainter {
         Radius.circular(rail * 1.4),
       ),
       Paint()
-        ..shader = const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [BreakLabColors.rail, Color(0xFF3E2A18)],
-        ).createShader(Rect.fromLTWH(
-            clothLeft - rail, clothTop - rail, clothWidth, clothHeight)),
+        ..shader =
+            const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [BreakLabColors.rail, Color(0xFF3E2A18)],
+            ).createShader(
+              Rect.fromLTWH(
+                clothLeft - rail,
+                clothTop - rail,
+                clothWidth,
+                clothHeight,
+              ),
+            ),
     );
 
     // The cloth, drawn by the same painter every other table in the app uses.
     canvas.save();
-    canvas
-        .clipRect(Rect.fromLTWH(clothLeft, clothTop, clothWidth, clothHeight));
+    canvas.clipRect(
+      Rect.fromLTWH(clothLeft, clothTop, clothWidth, clothHeight),
+    );
     canvas.translate(clothLeft, clothTop);
     const TableClothPainter(
       diamondRadius: 2.4,
@@ -296,8 +306,10 @@ class _RoomPainter extends CustomPainter {
 
   void _paintBall(Canvas canvas, Offset pin) {
     final pxPerInch = clothHeight / table.playingLengthInches;
-    final radius =
-        math.max(4.0, BreakPosition.ballDiameterInches * pxPerInch / 2);
+    final radius = math.max(
+      4.0,
+      BreakPosition.ballDiameterInches * pxPerInch / 2,
+    );
 
     final guide = Paint()
       ..color = Colors.white.withValues(alpha: 0.45)

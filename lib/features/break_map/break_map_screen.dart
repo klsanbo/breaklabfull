@@ -99,8 +99,9 @@ class BreakMapScreen extends StatelessWidget {
     // No outcome cards filled in anywhere: fall back to the fastest, and the
     // copy says so rather than claiming a best.
     if (best == null && rated.isNotEmpty) {
-      best = rated
-          .reduce((a, b) => (b.averageMph ?? 0) > (a.averageMph ?? 0) ? b : a);
+      best = rated.reduce(
+        (a, b) => (b.averageMph ?? 0) > (a.averageMph ?? 0) ? b : a,
+      );
     }
     return best;
   }
@@ -202,7 +203,7 @@ class _BestZone extends StatelessWidget {
                   score == null
                       ? best.zone.label.toUpperCase()
                       : '${best.zone.label.toUpperCase()} · SCORE '
-                          '${score.round()}',
+                            '${score.round()}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -228,7 +229,8 @@ class _BestZone extends StatelessWidget {
 
   String _blurb(double? mph, SpeedBand? band, double? score) {
     if (mph == null) return 'Not enough readable breaks here yet.';
-    final speed = '${mph.toStringAsFixed(1)} MPH — '
+    final speed =
+        '${mph.toStringAsFixed(1)} MPH — '
         '${band!.label.toLowerCase()}';
     if (score == null) {
       return 'Averages $speed. Fill in an outcome card and this becomes your '
@@ -246,8 +248,9 @@ class _NotYet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final closest =
-        zones.reduce((a, b) => b.reliableCount > a.reliableCount ? b : a);
+    final closest = zones.reduce(
+      (a, b) => b.reliableCount > a.reliableCount ? b : a,
+    );
 
     return Container(
       padding: const EdgeInsets.fromLTRB(13, 13, 13, 14),
@@ -388,11 +391,11 @@ class _ZoneRows extends StatelessWidget {
           for (var i = 0; i < zones.length; i++) ...[
             if (i > 0)
               const Divider(
-                  height: 1, thickness: 1, color: BreakLabColors.hairline),
-            _ZoneRow(
-              stats: zones[i],
-              isBest: zones[i].zone == bestScoring,
-            ),
+                height: 1,
+                thickness: 1,
+                color: BreakLabColors.hairline,
+              ),
+            _ZoneRow(stats: zones[i], isBest: zones[i].zone == bestScoring),
           ],
         ],
       ),

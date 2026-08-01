@@ -36,9 +36,9 @@ class BreakPosition {
   bool get isLegal => x >= 0 && x <= kitchenLimitX && y >= 0 && y <= 1;
 
   BreakPosition clampedToKitchen() => BreakPosition(
-        x: math.min(kitchenLimitX, math.max(0.0, x)),
-        y: math.min(1.0, math.max(0.0, y)),
-      );
+    x: math.min(kitchenLimitX, math.max(0.0, x)),
+    y: math.min(1.0, math.max(0.0, y)),
+  );
 
   /// Cue-ball travel distance to the rack apex, in inches, for [table].
   ///
@@ -47,7 +47,10 @@ class BreakPosition {
   double travelDistanceInches(TableSize table) {
     if (!table.hasGeometry) {
       throw ArgumentError.value(
-          table, 'table', 'has no dimensions; use a manual distance');
+        table,
+        'table',
+        'has no dimensions; use a manual distance',
+      );
     }
     final dx = (footSpotX - x) * table.playingLengthInches;
     final dy = (footSpotY - y) * table.playingWidthInches;

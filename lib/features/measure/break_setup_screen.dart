@@ -93,9 +93,11 @@ Future<void> openBreakSetup(
   BuildContext context,
   MeasureController controller,
 ) {
-  return Navigator.of(context).push(MaterialPageRoute<void>(
-    builder: (_) => BreakSetupScreen(controller: controller),
-  ));
+  return Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => BreakSetupScreen(controller: controller),
+    ),
+  );
 }
 
 /// Where you're breaking from on the left, how far the ball travels on the

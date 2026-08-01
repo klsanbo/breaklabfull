@@ -177,9 +177,9 @@ class PlacementDiagram extends StatelessWidget {
               return Stack(
                 fit: StackFit.expand,
                 children: [
-                  Positioned.fill(
+                  const Positioned.fill(
                     child: CustomPaint(
-                      painter: const _LandscapeClothPainter(),
+                      painter: _LandscapeClothPainter(),
                       isComplex: true,
                     ),
                   ),
@@ -318,8 +318,9 @@ class _Rule extends StatelessWidget {
       decoration: last
           ? null
           : const BoxDecoration(
-              border:
-                  Border(bottom: BorderSide(color: BreakLabColors.hairline)),
+              border: Border(
+                bottom: BorderSide(color: BreakLabColors.hairline),
+              ),
             ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,9 +331,7 @@ class _Rule extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: good
-                  ? BreakLabColors.labGreen
-                  : const Color(0xFFB3261E),
+              color: good ? BreakLabColors.labGreen : const Color(0xFFB3261E),
             ),
             child: Icon(
               good ? Icons.check : Icons.close,
@@ -373,9 +372,11 @@ class _Rule extends StatelessWidget {
 
 /// Opens BL-006 as its own screen and returns when the player dismisses it.
 Future<void> openPhonePlacement(BuildContext context) {
-  return Navigator.of(context).push(MaterialPageRoute<void>(
-    builder: (routeContext) => PhonePlacementScreen(
-      onDone: () => Navigator.of(routeContext).maybePop(),
+  return Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (routeContext) => PhonePlacementScreen(
+        onDone: () => Navigator.of(routeContext).maybePop(),
+      ),
     ),
-  ));
+  );
 }

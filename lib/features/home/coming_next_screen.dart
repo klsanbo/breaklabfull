@@ -8,11 +8,7 @@ import '../../theme/breaklab_theme.dart';
 /// navigation is real, and this says plainly what is coming instead of
 /// showing invented data.
 class ComingNextScreen extends StatelessWidget {
-  const ComingNextScreen({
-    super.key,
-    required this.title,
-    required this.blurb,
-  });
+  const ComingNextScreen({super.key, required this.title, required this.blurb});
 
   final String title;
   final String blurb;

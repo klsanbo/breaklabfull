@@ -35,13 +35,13 @@ class CueEnglish {
     final vertical = y > 0.3
         ? 'Follow'
         : y < -0.3
-            ? 'Draw'
-            : '';
+        ? 'Draw'
+        : '';
     final horizontal = x > 0.3
         ? 'right'
         : x < -0.3
-            ? 'left'
-            : '';
+        ? 'left'
+        : '';
     if (vertical.isEmpty && horizontal.isEmpty) return 'Center';
     if (vertical.isEmpty) {
       return horizontal[0].toUpperCase() + horizontal.substring(1);

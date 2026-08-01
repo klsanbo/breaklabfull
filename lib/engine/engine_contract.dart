@@ -22,8 +22,10 @@ enum AccuracyGrade {
   final String label;
 
   static AccuracyGrade fromLabel(String label) =>
-      AccuracyGrade.values.firstWhere((g) => g.label == label,
-          orElse: () => AccuracyGrade.unreliable);
+      AccuracyGrade.values.firstWhere(
+        (g) => g.label == label,
+        orElse: () => AccuracyGrade.unreliable,
+      );
 }
 
 enum SensitivityPreset {
@@ -35,8 +37,10 @@ enum SensitivityPreset {
   final String label;
 
   static SensitivityPreset fromLabel(String label) =>
-      SensitivityPreset.values.firstWhere((p) => p.label == label,
-          orElse: () => SensitivityPreset.normal);
+      SensitivityPreset.values.firstWhere(
+        (p) => p.label == label,
+        orElse: () => SensitivityPreset.normal,
+      );
 }
 
 /// Input to a detection run.

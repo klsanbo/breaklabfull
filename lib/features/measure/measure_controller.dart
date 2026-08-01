@@ -50,9 +50,9 @@ class MeasureController extends ChangeNotifier {
     this.tailAfterTrigger = const Duration(milliseconds: 1500),
     this.silenceTimeout = const Duration(seconds: 30),
     this.triggerLevel = 0.55,
-  })  : entitlementStore = entitlements ?? InMemoryEntitlementStore(),
-        _reader = reader,
-        _clock = clock ?? DateTime.now;
+  }) : entitlementStore = entitlements ?? InMemoryEntitlementStore(),
+       _reader = reader,
+       _clock = clock ?? DateTime.now;
 
   final BreakLabDatabase db;
   final BreakLabEngine engine;
@@ -304,23 +304,27 @@ class MeasureController extends ChangeNotifier {
     try {
       wavPath = await recorder.stop();
       final audio = await _reader.read(wavPath);
-      final result = engine.detect(EngineInput(
-        samples: audio.samples,
-        sampleRateHz: audio.info.sampleRateHz,
-        travelDistanceInches: activeDistanceInches,
-        preset: preset,
-      ));
+      final result = engine.detect(
+        EngineInput(
+          samples: audio.samples,
+          sampleRateHz: audio.info.sampleRateHz,
+          travelDistanceInches: activeDistanceInches,
+          preset: preset,
+        ),
+      );
       final session = await _ensureOpenSession();
-      final saved = await db.insertBreak(BreakResult.fromEngine(
-        sessionId: session.id!,
-        recordedAt: _clock(),
-        tableSize: tableSize,
-        travelDistanceInches: activeDistanceInches,
-        preset: preset,
-        result: result,
-        position: tableSize.hasGeometry ? position : null,
-        english: english,
-      ));
+      final saved = await db.insertBreak(
+        BreakResult.fromEngine(
+          sessionId: session.id!,
+          recordedAt: _clock(),
+          tableSize: tableSize,
+          travelDistanceInches: activeDistanceInches,
+          preset: preset,
+          result: result,
+          position: tableSize.hasGeometry ? position : null,
+          english: english,
+        ),
+      );
       lastBreak = saved;
       await _startTrialIfNeeded(saved);
       await refreshStats();
@@ -356,7 +360,8 @@ class MeasureController extends ChangeNotifier {
     final open = await db.openSession();
     if (open != null) return open;
     return db.insertSession(
-        Session(startedAt: _clock(), tableSize: tableSize, gameType: gameType));
+      Session(startedAt: _clock(), tableSize: tableSize, gameType: gameType),
+    );
   }
 
   Future<void> endSession() async {

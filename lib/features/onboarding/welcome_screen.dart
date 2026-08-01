@@ -64,26 +64,30 @@ class WelcomeScreen extends StatelessWidget {
               const _Step(
                 number: '1',
                 title: 'SET THE TABLE UP ONCE',
-                body: 'Table size, and where on the cloth you break from. Drag '
+                body:
+                    'Table size, and where on the cloth you break from. Drag '
                     'the ball to your spot — the reading depends on it.',
               ),
               const _Step(
                 number: '2',
                 title: 'PUT THE PHONE ON THE RAIL',
-                body: 'We show you exactly where. It listens for the tip '
+                body:
+                    'We show you exactly where. It listens for the tip '
                     'hitting the cue ball, then the cue ball hitting the rack.',
               ),
               const _Step(
                 number: '3',
                 title: 'BREAK',
-                body: 'The gap between those two sounds, over the distance you '
+                body:
+                    'The gap between those two sounds, over the distance you '
                     'set, is your speed.',
                 last: true,
               ),
               const SizedBox(height: 16),
               const NoteCard(
                 title: 'ABOUT THE MICROPHONE',
-                body: 'BreakLab needs the mic to hear the break, and asks for '
+                body:
+                    'BreakLab needs the mic to hear the break, and asks for '
                     'it the first time you tap BREAK. Recordings stay on this '
                     'phone, are never uploaded, and there is no account to '
                     'sign into.',

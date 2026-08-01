@@ -42,10 +42,10 @@ class StubbedEngine implements BreakLabEngine {
 
   @override
   EngineResult detect(EngineInput input) => EngineResult(
-        engineVersion: version,
-        grade: AccuracyGrade.unreliable,
-        detectedPairValid: false,
-      );
+    engineVersion: version,
+    grade: AccuracyGrade.unreliable,
+    detectedPairValid: false,
+  );
 }
 
 void main() {
@@ -103,8 +103,10 @@ void main() {
     late BreakLabDatabase db;
 
     setUp(() async {
-      db = await BreakLabDatabase.open(inMemoryDatabasePath,
-          factory: databaseFactoryFfi);
+      db = await BreakLabDatabase.open(
+        inMemoryDatabasePath,
+        factory: databaseFactoryFfi,
+      );
     });
     tearDown(() => db.close());
 
@@ -113,22 +115,22 @@ void main() {
       required double y,
       double? mph,
       BreakOutcome? outcome,
-    }) =>
-        db.insertBreak(BreakResult(
-          sessionId: sessionId,
-          recordedAt: DateTime(2026, 7, 30, 20),
-          tableSize: TableSize.sevenFoot,
-          travelDistanceInches: 36.75,
-          preset: SensitivityPreset.normal,
-          engineVersion: '0.1.0',
-          grade:
-              mph == null ? AccuracyGrade.unreliable : AccuracyGrade.excellent,
-          detectedPairValid: mph != null,
-          position: BreakPosition(x: 0.25, y: y),
-          gapMs: mph == null ? null : 500,
-          speedMph: mph,
-          outcome: outcome,
-        ));
+    }) => db.insertBreak(
+      BreakResult(
+        sessionId: sessionId,
+        recordedAt: DateTime(2026, 7, 30, 20),
+        tableSize: TableSize.sevenFoot,
+        travelDistanceInches: 36.75,
+        preset: SensitivityPreset.normal,
+        engineVersion: '0.1.0',
+        grade: mph == null ? AccuracyGrade.unreliable : AccuracyGrade.excellent,
+        detectedPairValid: mph != null,
+        position: BreakPosition(x: 0.25, y: y),
+        gapMs: mph == null ? null : 500,
+        speedMph: mph,
+        outcome: outcome,
+      ),
+    );
 
     test('always returns all three zones, even with no breaks', () async {
       final zones = await db.zoneStats();
@@ -139,9 +141,12 @@ void main() {
     });
 
     test('groups breaks by where they were taken from', () async {
-      final s = await db.insertSession(Session(
+      final s = await db.insertSession(
+        Session(
           startedAt: DateTime(2026, 7, 30, 19),
-          tableSize: TableSize.sevenFoot));
+          tableSize: TableSize.sevenFoot,
+        ),
+      );
 
       await add(s.id!, y: 0.1, mph: 19.0);
       await add(s.id!, y: 0.2, mph: 20.0);
@@ -160,43 +165,54 @@ void main() {
     test('a break with no recorded position belongs to no zone', () async {
       // Guessing centre would put invented data on a map that promises not to
       // guess.
-      final s = await db.insertSession(Session(
+      final s = await db.insertSession(
+        Session(
           startedAt: DateTime(2026, 7, 30, 19),
-          tableSize: TableSize.sevenFoot));
+          tableSize: TableSize.sevenFoot,
+        ),
+      );
 
-      await db.insertBreak(BreakResult(
-        sessionId: s.id!,
-        recordedAt: DateTime(2026, 7, 30, 20),
-        tableSize: TableSize.sevenFoot,
-        travelDistanceInches: 36.75,
-        preset: SensitivityPreset.normal,
-        engineVersion: '0.1.0',
-        grade: AccuracyGrade.excellent,
-        detectedPairValid: true,
-        gapMs: 500,
-        speedMph: 21.0,
-      ));
+      await db.insertBreak(
+        BreakResult(
+          sessionId: s.id!,
+          recordedAt: DateTime(2026, 7, 30, 20),
+          tableSize: TableSize.sevenFoot,
+          travelDistanceInches: 36.75,
+          preset: SensitivityPreset.normal,
+          engineVersion: '0.1.0',
+          grade: AccuracyGrade.excellent,
+          detectedPairValid: true,
+          gapMs: 500,
+          speedMph: 21.0,
+        ),
+      );
 
       final zones = await db.zoneStats();
       expect(zones.fold<int>(0, (n, z) => n + z.breakCount), 0);
     });
 
-    test('unreadable breaks count as attempts but not toward the rating',
-        () async {
-      final s = await db.insertSession(Session(
-          startedAt: DateTime(2026, 7, 30, 19),
-          tableSize: TableSize.sevenFoot));
+    test(
+      'unreadable breaks count as attempts but not toward the rating',
+      () async {
+        final s = await db.insertSession(
+          Session(
+            startedAt: DateTime(2026, 7, 30, 19),
+            tableSize: TableSize.sevenFoot,
+          ),
+        );
 
-      await add(s.id!, y: 0.5, mph: 20.0);
-      await add(s.id!, y: 0.5); // no speed
-      await add(s.id!, y: 0.5); // no speed
+        await add(s.id!, y: 0.5, mph: 20.0);
+        await add(s.id!, y: 0.5); // no speed
+        await add(s.id!, y: 0.5); // no speed
 
-      final centre =
-          (await db.zoneStats()).firstWhere((z) => z.zone == BreakZone.center);
-      expect(centre.breakCount, 3);
-      expect(centre.reliableCount, 1);
-      expect(centre.isRated, isFalse);
-    });
+        final centre = (await db.zoneStats()).firstWhere(
+          (z) => z.zone == BreakZone.center,
+        );
+        expect(centre.breakCount, 3);
+        expect(centre.reliableCount, 1);
+        expect(centre.isRated, isFalse);
+      },
+    );
   });
 
   group('break map screen', () {
@@ -205,8 +221,10 @@ void main() {
     late MeasureController controller;
 
     setUp(() async {
-      db = await BreakLabDatabase.open(inMemoryDatabasePath,
-          factory: databaseFactoryFfi);
+      db = await BreakLabDatabase.open(
+        inMemoryDatabasePath,
+        factory: databaseFactoryFfi,
+      );
       tempDir = await Directory.systemTemp.createTemp('breaklab_map');
       controller = MeasureController(
         db: db,
@@ -226,31 +244,32 @@ void main() {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(tester.view.reset);
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: BreakMapScreen(controller: controller),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: BreakMapScreen(controller: controller),
+        ),
+      );
       await tester.pump();
     }
 
-    testWidgets('says it cannot draw a map before it has the breaks',
-        (tester) async {
+    testWidgets('says it cannot draw a map before it has the breaks', (
+      tester,
+    ) async {
       await pump(tester);
 
       expect(find.text('BREAK MAP'), findsOneWidget);
       expect(find.byType(HeatTable), findsOneWidget);
-      expect(
-        find.text('NOT ENOUGH BREAKS TO DRAW A MAP'),
-        findsOneWidget,
-      );
+      expect(find.text('NOT ENOUGH BREAKS TO DRAW A MAP'), findsOneWidget);
       expect(find.textContaining('does not guess'), findsOneWidget);
       // Every zone reports how far off it is rather than showing nothing.
       expect(find.textContaining('0 of 5 breaks'), findsNWidgets(3));
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('the legend carries the recalibrated bands, fastest first',
-        (tester) async {
+    testWidgets('the legend carries the recalibrated bands, fastest first', (
+      tester,
+    ) async {
       await pump(tester);
 
       expect(find.text('HARD'), findsOneWidget);
@@ -263,8 +282,9 @@ void main() {
       expect(find.textContaining('ELITE'), findsNothing);
     });
 
-    testWidgets('a rated zone shows its speed, score and count',
-        (tester) async {
+    testWidgets('a rated zone shows its speed, score and count', (
+      tester,
+    ) async {
       const outcome = BreakOutcome(
         ballsMade: 1,
         scratched: false,
@@ -276,24 +296,29 @@ void main() {
       // completes — and because the clock never advances, the test framework's
       // own timeout cannot fire either. It hangs silently rather than failing.
       await tester.runAsync(() async {
-        final s = await db.insertSession(Session(
+        final s = await db.insertSession(
+          Session(
             startedAt: DateTime(2026, 7, 30, 19),
-            tableSize: TableSize.sevenFoot));
-        for (var i = 0; i < 5; i++) {
-          await db.insertBreak(BreakResult(
-            sessionId: s.id!,
-            recordedAt: DateTime(2026, 7, 30, 20),
             tableSize: TableSize.sevenFoot,
-            travelDistanceInches: 36.75,
-            preset: SensitivityPreset.normal,
-            engineVersion: '0.1.0',
-            grade: AccuracyGrade.excellent,
-            detectedPairValid: true,
-            position: const BreakPosition(x: 0.25, y: 0.5),
-            gapMs: 500,
-            speedMph: 21.0,
-            outcome: outcome,
-          ));
+          ),
+        );
+        for (var i = 0; i < 5; i++) {
+          await db.insertBreak(
+            BreakResult(
+              sessionId: s.id!,
+              recordedAt: DateTime(2026, 7, 30, 20),
+              tableSize: TableSize.sevenFoot,
+              travelDistanceInches: 36.75,
+              preset: SensitivityPreset.normal,
+              engineVersion: '0.1.0',
+              grade: AccuracyGrade.excellent,
+              detectedPairValid: true,
+              position: const BreakPosition(x: 0.25, y: 0.5),
+              gapMs: 500,
+              speedMph: 21.0,
+              outcome: outcome,
+            ),
+          );
         }
         await controller.refreshStats();
       });
@@ -314,33 +339,41 @@ void main() {
       tester.view.devicePixelRatio = 3.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: BreakMapScreen(
-          controller: controller,
-          onBreak: () async => breaks++,
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: BreakMapScreen(
+            controller: controller,
+            onBreak: () async => breaks++,
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
-      await tester.scrollUntilVisible(find.text('BREAK'), 150,
-          scrollable: find.byType(Scrollable).first);
+      await tester.scrollUntilVisible(
+        find.text('BREAK'),
+        150,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('BREAK'));
       await tester.pump();
 
       expect(breaks, 1);
     });
 
-    testWidgets('lays out on a short phone without overflowing',
-        (tester) async {
+    testWidgets('lays out on a short phone without overflowing', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1080, 1600);
       tester.view.devicePixelRatio = 3.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaterialApp(
-        theme: breakLabTheme(),
-        home: BreakMapScreen(controller: controller),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: breakLabTheme(),
+          home: BreakMapScreen(controller: controller),
+        ),
+      );
       await tester.pump();
 
       expect(tester.takeException(), isNull);

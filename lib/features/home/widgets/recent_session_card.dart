@@ -70,12 +70,7 @@ class RecentSessionCard extends StatelessWidget {
                 ),
               )
             else
-              _Filled(
-                table: table,
-                position: position,
-                stats: s,
-                date: date,
-              ),
+              _Filled(table: table, position: position, stats: s, date: date),
           ],
         ),
       ),
@@ -105,12 +100,7 @@ class _Filled extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MiniTable(
-          table: table,
-          position: position,
-          width: 56,
-          railWidth: 2.5,
-        ),
+        MiniTable(table: table, position: position, width: 56, railWidth: 2.5),
         const SizedBox(width: 13),
         Expanded(
           child: Column(
@@ -140,8 +130,11 @@ class _Filled extends StatelessWidget {
                       color: BreakLabColors.inkSoft,
                     ),
                   ),
-                  const Icon(Icons.chevron_right,
-                      size: 16, color: BreakLabColors.inkFaint),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 16,
+                    color: BreakLabColors.inkFaint,
+                  ),
                 ],
               ),
               const SizedBox(height: 12),

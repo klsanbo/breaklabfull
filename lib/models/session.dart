@@ -34,40 +34,39 @@ class Session {
     DateTime? endedAt,
     GameType? gameType,
     String? notes,
-  }) =>
-      Session(
-        id: id ?? this.id,
-        startedAt: startedAt,
-        endedAt: endedAt ?? this.endedAt,
-        tableSize: tableSize,
-        gameType: gameType ?? this.gameType,
-        notes: notes ?? this.notes,
-        schemaVersion: schemaVersion,
-      );
+  }) => Session(
+    id: id ?? this.id,
+    startedAt: startedAt,
+    endedAt: endedAt ?? this.endedAt,
+    tableSize: tableSize,
+    gameType: gameType ?? this.gameType,
+    notes: notes ?? this.notes,
+    schemaVersion: schemaVersion,
+  );
 
   Map<String, Object?> toDbMap() => {
-        if (id != null) 'id': id,
-        'started_at': startedAt.toIso8601String(),
-        'ended_at': endedAt?.toIso8601String(),
-        'table_size': tableSize.id,
-        'game_type': gameType.label,
-        'notes': notes,
-        'schema_version': schemaVersion,
-      };
+    if (id != null) 'id': id,
+    'started_at': startedAt.toIso8601String(),
+    'ended_at': endedAt?.toIso8601String(),
+    'table_size': tableSize.id,
+    'game_type': gameType.label,
+    'notes': notes,
+    'schema_version': schemaVersion,
+  };
 
   factory Session.fromDbMap(Map<String, Object?> map) => Session(
-        id: map['id'] as int?,
-        startedAt: DateTime.parse(map['started_at'] as String),
-        endedAt: map['ended_at'] == null
-            ? null
-            : DateTime.parse(map['ended_at'] as String),
-        tableSize: TableSize.fromId(map['table_size'] as String),
-        gameType: map['game_type'] == null
-            ? GameType.eightBall
-            : GameType.fromLabel(map['game_type'] as String),
-        notes: map['notes'] as String? ?? '',
-        schemaVersion: map['schema_version'] as int? ?? 1,
-      );
+    id: map['id'] as int?,
+    startedAt: DateTime.parse(map['started_at'] as String),
+    endedAt: map['ended_at'] == null
+        ? null
+        : DateTime.parse(map['ended_at'] as String),
+    tableSize: TableSize.fromId(map['table_size'] as String),
+    gameType: map['game_type'] == null
+        ? GameType.eightBall
+        : GameType.fromLabel(map['game_type'] as String),
+    notes: map['notes'] as String? ?? '',
+    schemaVersion: map['schema_version'] as int? ?? 1,
+  );
 }
 
 /// Aggregate numbers for a session, computed from its stored breaks —

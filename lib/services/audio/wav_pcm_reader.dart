@@ -16,7 +16,7 @@ class PcmAudio {
 /// Verbatim decode logic from the BreakLab Tester's reader.
 class WavPcmReader {
   const WavPcmReader({WavInspector inspector = const WavInspector()})
-      : _inspector = inspector;
+    : _inspector = inspector;
 
   final WavInspector _inspector;
 

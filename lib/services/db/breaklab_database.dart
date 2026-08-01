@@ -79,12 +79,16 @@ class BreakLabDatabase {
       )
     ''');
     await db.execute('CREATE INDEX idx_breaks_session ON breaks(session_id)');
-    await db
-        .execute('CREATE INDEX idx_breaks_recorded_at ON breaks(recorded_at)');
+    await db.execute(
+      'CREATE INDEX idx_breaks_recorded_at ON breaks(recorded_at)',
+    );
   }
 
   static Future<void> _onUpgrade(
-      Database db, int oldVersion, int newVersion) async {
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
     if (oldVersion < 2) {
       // v1 rows keep NULL position and NULL outcome — honest, because those
       // breaks predate both features. They score speed-only forever.
@@ -133,8 +137,11 @@ class BreakLabDatabase {
   }
 
   Future<List<Session>> sessions({int? limit}) async {
-    final rows =
-        await _db.query('sessions', orderBy: 'started_at DESC', limit: limit);
+    final rows = await _db.query(
+      'sessions',
+      orderBy: 'started_at DESC',
+      limit: limit,
+    );
     return rows.map(Session.fromDbMap).toList();
   }
 
@@ -166,8 +173,9 @@ class BreakLabDatabase {
       averageMph: mean(reliable.map((b) => b.speedMph!)),
       averageBreakScore: mean(scores.map((s) => s.toDouble())),
       scratches: scored.where((b) => b.outcome!.scratched).length,
-      averageBallsMade:
-          mean(scored.map((b) => b.outcome!.ballsMade.toDouble())),
+      averageBallsMade: mean(
+        scored.map((b) => b.outcome!.ballsMade.toDouble()),
+      ),
     );
   }
 
@@ -207,8 +215,10 @@ class BreakLabDatabase {
     return rows.map(BreakResult.fromDbMap).toList();
   }
 
-  Future<List<BreakResult>> allBreaks(
-      {int? limit, AccuracyGrade? gradeAtLeast}) async {
+  Future<List<BreakResult>> allBreaks({
+    int? limit,
+    AccuracyGrade? gradeAtLeast,
+  }) async {
     final rows = await _db.query(
       'breaks',
       orderBy: 'recorded_at DESC',
@@ -216,16 +226,18 @@ class BreakLabDatabase {
     );
     var results = rows.map(BreakResult.fromDbMap);
     if (gradeAtLeast != null) {
-      results = results
-          .where((b) => b.grade.index <= gradeAtLeast.index && b.hasSpeed);
+      results = results.where(
+        (b) => b.grade.index <= gradeAtLeast.index && b.hasSpeed,
+      );
     }
     return results.toList();
   }
 
   /// The last [BreakLabScore.sessionWindow] sessions' breaks, newest first —
   /// the input the BreakLab Score is computed from.
-  Future<List<List<BreakResult>>> recentSessionBreaks(
-      {int limit = BreakLabScore.sessionWindow}) async {
+  Future<List<List<BreakResult>>> recentSessionBreaks({
+    int limit = BreakLabScore.sessionWindow,
+  }) async {
     final recent = await sessions(limit: limit);
     final out = <List<BreakResult>>[];
     for (final s in recent) {
@@ -279,8 +291,8 @@ class BreakLabDatabase {
             bestMph: readable.isEmpty
                 ? null
                 : readable
-                    .map((b) => b.speedMph!)
-                    .reduce((a, b) => a > b ? a : b),
+                      .map((b) => b.speedMph!)
+                      .reduce((a, b) => a > b ? a : b),
             averageMph: mean(readable.map((b) => b.speedMph!)),
             averageBreakScore: mean(scores),
           );
@@ -341,10 +353,12 @@ class BreakLabDatabase {
     }
 
     return PersonalRecords(
-      fastestBreak:
-          fastest.isEmpty ? null : BreakResult.fromDbMap(fastest.first),
-      bestSessionId:
-          bestSession.isEmpty ? null : bestSession.first['session_id'] as int,
+      fastestBreak: fastest.isEmpty
+          ? null
+          : BreakResult.fromDbMap(fastest.first),
+      bestSessionId: bestSession.isEmpty
+          ? null
+          : bestSession.first['session_id'] as int,
       bestSessionAverageMph: bestSession.isEmpty
           ? null
           : (bestSession.first['avg_mph'] as num).toDouble(),

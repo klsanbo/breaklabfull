@@ -27,8 +27,10 @@ enum CueBallAfter {
   final String label;
   final int points;
 
-  static CueBallAfter fromLabel(String label) => CueBallAfter.values
-      .firstWhere((c) => c.label == label, orElse: () => CueBallAfter.drifted);
+  static CueBallAfter fromLabel(String label) => CueBallAfter.values.firstWhere(
+    (c) => c.label == label,
+    orElse: () => CueBallAfter.drifted,
+  );
 }
 
 enum GameType {
@@ -39,8 +41,10 @@ enum GameType {
   const GameType(this.label);
   final String label;
 
-  static GameType fromLabel(String label) => GameType.values
-      .firstWhere((g) => g.label == label, orElse: () => GameType.eightBall);
+  static GameType fromLabel(String label) => GameType.values.firstWhere(
+    (g) => g.label == label,
+    orElse: () => GameType.eightBall,
+  );
 }
 
 class BreakOutcome {
