@@ -25,9 +25,19 @@ import 'widgets/stat_strip.dart';
 /// rather than on a separate screen, and everything below is what the breaks
 /// added up to.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.controller});
+  const HomeScreen({
+    super.key,
+    required this.controller,
+    this.openSetupOnStart = false,
+  });
 
   final MeasureController controller;
+
+  /// Straight into setup on arrival. True exactly once, coming off the
+  /// welcome flow — the last thing that screen promises is that they set the
+  /// table up, so landing on home and making them find the strip would be a
+  /// small broken promise on the first screen they ever see.
+  final bool openSetupOnStart;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -44,7 +54,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     c.addListener(_onChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) => c.refreshStats());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await c.refreshStats();
+      if (widget.openSetupOnStart && mounted) {
+        await _editSetup();
+      }
+    });
   }
 
   @override
